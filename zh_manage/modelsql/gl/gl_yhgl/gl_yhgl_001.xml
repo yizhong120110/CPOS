@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--获取部门列表-->
+    <sql sqlid="data_bm_rs" desc="获取部门列表数据">
+        select  id , bmmc as text, fjdid
+        from gl_bmdy
+        where scbz='0'
+        order by bmmc
+    </sql>
+
+    <!--获取登录行员所在部门-->
+     <sql sqlid="get_bmid_rs" desc="获取部门列表数据">
+        select  id , bmmc as text, fjdid
+        from gl_bmdy
+        where scbz='0'
+         and id = (
+         select bmid from gl_yhbmpz where yhid = %(yhid)s
+         )
+        order by bmmc
+    </sql>
+
+    <!--获取部门下的用户：获取-->
+    <sql sqlid="get_bmyh_rs" desc="获取部门下的用户">
+        select
+            b.id, b.xm
+        from gl_hydy b
+        where
+            b.id in (
+                select  a.yhid
+                from gl_yhbmpz a
+                where ${paras._or('bmid',paras.ids)}
+            )
+        and b.scbz='0'
+    </sql>
+
+    <!--  查询用户的详细信息  -->
+    <sql sqlid = 'data_rs' desc = "用户列表：获取详细信息">
+        select id, dlzh, xm , mm, xbbm ,xb, sj, csrq,scbz, dzyx, ssbm, bmid , dlcs,zhdlsj,bz, dh, js from(
+            select a.id, a.hydm as dlzh, a.xm as xm , a.mm, a.xb  as xbbm ,d.mc as xb, a.sj, a.csrq,
+                    a.scbz, a.dzyx, c.bmmc as ssbm, c.id as bmid , a.dlcs,a.zhdlsj,a.sm as bz, a.dh, rownum rn,
+		            (select listagg( bb.jsmc, ',' ) within group ( order by id ) as name
+		              from gl_yhjspz aa, gl_jsdy bb
+		              left join (select bm,mc from gl_bmwh where lx = '10023') dd on bb.jsfl = dd.bm
+		              where
+		              aa.jsid = bb.ID
+		              and aa.zt = '1'
+		              and bb.scbz = '0'
+		              and aa.yhid = a.id
+		            ) as js
+            from gl_hydy  a
+            left join gl_yhbmpz b on a.id = b.yhid
+            left join gl_bmdy c on b.bmid = c.id
+            left join (select bm,mc from gl_bmwh where lx = '10026') d on a.xb = d.bm
+            where a.scbz='0'
+            and a.id in (
+                select  g.yhid
+                from gl_yhbmpz g
+                where ${paras._or('bmid',paras.ids)}
+            )
+            %if paras.dlzh:
+                and a.hydm = %(dlzh)s
+            %endif
+            %if paras.xm :
+                and a.xm like '%'||%(xm)s||'%'
+            %endif
+            %if paras.sj:
+                and a.sj = %(sj)s
+            %endif
+            %if paras.bm != '-1' and paras.bm:
+                <!--and c.id = %(bm)s-->
+                and (${paras._or('c.id',paras.bmids)})
+            %endif
+            %if paras.xb and paras.xb != '-1':
+                and a.xb = %(xb)s
+            %endif
+            order by a.hydm, a.xm
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    
+    <!--  查询用户的详细信息  -->
+    <sql sqlid = 'data_rs_count' desc = "用户列表：获取详细信息总条数">
+        select count(1) as count
+        from gl_hydy  a
+        left join gl_yhbmpz b on a.id = b.yhid
+        left join gl_bmdy c on b.bmid = c.id
+        left join (select bm,mc from gl_bmwh where lx = '10026') d on a.xb = d.bm
+        where a.scbz='0'
+        and a.id in (
+            select  g.yhid
+            from gl_yhbmpz g
+            where ${paras._or('bmid',paras.ids)}
+        )
+        %if paras.dlzh:
+            and a.hydm = %(dlzh)s
+        %endif
+        %if paras.xm :
+            and a.xm like '%'||%(xm)s||'%'
+        %endif
+        %if paras.sj:
+            and a.sj = %(sj)s
+        %endif
+        %if paras.bm != '-1' and paras.bm:
+            <!--and c.id = %(bm)s-->
+            and (${paras._or('c.id',paras.bmids)})
+        %endif
+        %if paras.xb and paras.xb != '-1':
+            and a.xb = %(xb)s
+        %endif
+    </sql>
+
+    <!--获取用户角色信息sql-->
+    <sql sqlid="data_jsxx_rs" desc="获取用户角色信息">
+        select
+            b.jsdm, b.jsmc , b.ID, b.jsfl ,d.mc as jsflmc, b.jsms
+        from gl_yhjspz a, gl_jsdy b
+        left join (select bm,mc from gl_bmwh where lx = '10023') d on b.jsfl = d.bm
+        where
+            a.jsid = b.ID
+            and a.zt = '1'
+            and b.scbz = '0'
+            and a.yhid = %(yhid)s
+        order by b.jsdm
+    </sql>
+
+    <!--获取用户权限信息sql-->
+    <sql sqlid="data_qxxx_rs" desc="获取用户权限信息">
+        select b.cdmc as qxmc, b.ID, b.lx as qxfl, d.mc as qxflmc, b.bz as qxms
+        from gl_yhqxpz a, gl_cddy b
+        left join (select bm,mc from gl_bmwh where lx = '10025') d on b.lx = d.bm
+        where a.qxid = b.id
+            and a.zt= '1'
+            and b.scbz= '0'
+            and a.yhid  = %(yhid)s
+        order by b.cdmc
+    </sql>
+
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_rs" desc="获取菜单列表-">
+        select a.id , a.cdmc as text, a.lx, d.mc as qxflmc, a.fjdid,  a.bz as qxms , a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh d on d.lx='10025' and d.bm = a.lx
+        where  scbz='0'
+        order by  pxh
+    </sql>
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_lst" desc="获取菜单列表包含父节点-">
+        select a.id , a.cdmc as text, a.lx, d.mc as qxflmc, a.fjdid,  a.bz as qxms , a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh d on d.lx='10025' and d.bm = a.lx
+        where  scbz='0'
+        and (${paras._or('a.id',paras.ids)})
+        order by  pxh
+    </sql>
+
+    <!--获取用户菜单权限信息sql-->
+    <sql sqlid="data_qx_rs" desc="获取用户菜单权限信息">
+        select b.cdmc as text, b.id, b.fjdid, b.lx as qxfl, d.mc as qxflmc, b.bz as qxms
+        from gl_yhqxpz a, gl_cddy b
+        left join (select bm,mc from gl_bmwh where lx = '10025') d on b.lx = d.bm
+        where a.qxid = b.id
+            and a.zt= '1'
+            and b.scbz= '0'
+            and a.yhid  = %(yhid)s
+        order by b.cdmc
+    </sql>
+
+    <!--获取用户权限信息包含按钮权限和菜单权限-->
+    <sql sqlid="get_yhqx_all" desc="获取用户拥有的所有权限">
+        select qxid ,jsid from gl_yhqxpz where yhid=%(yhid)s
+
+    </sql>
+
+
+
+    <!--新增：判断登录账号是否重复-->
+    <sql sqlid="check_zlzh" desc="校验登录账号是否重复">
+        select  a.id
+        from gl_hydy  a
+        where a.hydm=%(dlzh)s
+        and a.scbz='0'
+    </sql>
+    
+    <!--  增加信息时 用户信息表插入数据-->
+    <sql sqlid="insert_yhxx" desc="新增用户数据的插入">
+        insert into gl_hydy (id, hydm, xm, mm, xb, zt, sj, csrq, dh, dzyx, sm,  czr, czsj, scbz)
+        values(%(id)s, %(dlzh)s, %(xm)s, %(mm)s,%(xb)s, '1', %(sj)s, %(csrq)s, %(dh)s, %(dzyx)s, %(bz)s, %(czr)s, %(czsj)s, %(sfsc)s)
+    </sql>
+
+    <!--  增加或编辑信息时 用户部门配置表数据插入-->
+    <sql sqlid="insert_yhbmpz" desc="新增或编辑时用户部门配置数据的插入">
+        insert into gl_yhbmpz (bmid, yhid,  zt, czr, czsj )
+        values(%(bmid)s, %(yhid)s,  %(zt)s,  %(czr)s, %(czsj)s)
+    </sql>
+
+    <!--获取用户信息-->
+    <sql sqlid="get_yhxx_edit" desc="获取用户信息">
+        select a.id, a.hydm as dlzh, a.xm as xm , a.mm, a.xb  as xbbm ,d.mc as xb, a.sj, a.csrq,
+                a.scbz, a.dzyx, c.bmmc as ssbm, c.id as bmid , a.dlcs,a.zhdlsj,a.sm as bz, a.dh
+        from gl_hydy  a
+        left join gl_yhbmpz b on a.id = b.yhid
+        left join gl_bmdy c on b.bmid = c.id
+        left join (select bm,mc from gl_bmwh where lx = '10026') d on a.xb = d.bm
+        where a.scbz='0'
+        and a.id = %(id)s
+
+    </sql>
+
+    <!--编辑用户信息sql-->
+    <sql sqlid="update_yhxx" desc="编辑用户信息更新sql">
+       update gl_hydy
+       set  xm = %(mc)s,
+            xb = %(xb)s,sj = %(sj)s,csrq = %(csrq)s,
+            dh = %(dh)s,dzyx= %(dzyx)s,
+            sm = %(sm)s, czr= %(czr)s,czsj = %(czsj)s
+       where id = %(id)s
+    </sql>
+
+    <!--编辑用户信息时,判断用户部门配置信息是否存在，存在则进行更新操作，不存在则进行插入操作-->
+    <sql sqlid="check_yhbmpz" desc="校验用户部门配置信息是否存在">
+        select bmid from gl_yhbmpz where yhid = %(yhid)s
+    </sql>
+    <!--编辑用户信息：删除用户部门配置-->
+    <sql sqlid="delete_yhbmpz_bj" desc="编辑用户信息时删除用户部门信息">
+
+        delete from gl_yhbmpz where yhid = %(yhid)s
+    </sql>
+    <!--编辑用户部门配置信息sql-->
+    <sql sqlid="update_yhbmpz" desc="编辑用户部门配置信息更新sql">
+       update gl_yhbmpz
+       set bmid = %(bmid)s , czr= %(czr)s,czsj = %(czsj)s
+       where yhid = %(yhid)s
+    </sql>
+
+    <!--获取用户名称-->
+    <sql sqlid="get_yhmc" desc="获取用户名称">
+        SELECT xm as mc
+        FROM gl_hydy
+        WHERE id=%(id)s
+    </sql>
+    <!--密码重置-->
+    <sql sqlid="update_yhxxMm" desc="重置用户密码为123456">
+        update gl_hydy
+        set mm = %(mm)s,
+            czr = %(czr)s,
+            czsj = %(czsj)s
+        where  id = %(id)s
+    </sql>
+
+    <!--获取角色信息-->
+    <sql sqlid="get_jsxxlst" desc="获取角色信息列表">
+        select a.jsdm, a.jsmc, a.id, a.jsfl, d.mc as jsflmc, a.jsms
+        from gl_jsdy a
+        left join (select bm,mc from gl_bmwh where lx = '10023') d on a.jsfl = d.bm
+        where a.scbz ='0'
+        order by a.jsdm
+    </sql>
+
+    <!--获取用户已有角色-->
+    <sql sqlid="get_exitJs" desc="获取用户已有角色">
+        select jsid
+        from gl_yhjspz
+        where yhid = %(yhid)s
+        and zt='1'
+    </sql>
+
+    <!--获取用户角色对应的权限-->
+    <sql sqlid="get_jsQx" desc="获取用户角色对应的权限数据">
+        select qxid,jsid from gl_jsqxpz
+        where ${paras._or('jsid',paras.ids)}
+    </sql>
+
+    <!--新增用户角色配置-->
+    <sql sqlid="add_yhjs" desc="新增用户角色">
+         Insert into gl_yhjspz (jsid, yhid,  zt, czr, czsj)
+         Values(%(jsid)s, %(yhid)s,  '1', %(czr)s, %(czsj)s)
+    </sql>
+
+     <!--新增用户权限配置-->
+    <sql sqlid="add_yhqx" desc="新增用户权限">
+         insert into gl_yhqxpz (yhid, qxid, jsid,  zt, czr, czsj)
+         values(%(yhid)s, %(qxid)s, %(jsid)s,  '1', %(czr)s, %(czsj)s)
+    </sql>
+
+    <!-- 批量 删除用户权限配置-->
+    <sql sqlid="delete_qxpz" desc="删除用户权限配置">
+        delete from gl_yhqxpz where yhid=%(yhid)s
+        and (${paras._or('qxid',paras.qx_delLst)})
+        and  (${paras._or('jsid',paras.jsids)})
+    </sql>
+
+    <!-- 批量 删除用户角色配置数据-->
+    <sql sqlid="delete_jspz" desc="删除用户角色配置">
+        delete from gl_yhjspz where yhid=%(yhid)s and (${paras._or('jsid',paras.jsid_deLst)})
+    </sql>
+
+    <!-- 查询信息，方便登记操作日志-->
+    <sql sqlid="select_yh_rz" desc="获取用户信息">
+        select xm as mc, id, hydm as dlzh, mm from gl_hydy
+        where ${paras._or('id',paras.ids)}
+    </sql>
+    
+    <!-- 批量 删除用户权限配置-->
+    <sql sqlid="delete_yhqxpz" desc="删除用户权限配置">
+        delete from gl_yhqxpz where ${paras._or('yhid',paras.ids)}
+    </sql>
+
+    <!-- 批量 删除用户角色配置数据-->
+    <sql sqlid="delete_yhjspz" desc="删除用户角色配置">
+        delete from gl_yhjspz where ${paras._or('yhid',paras.ids)}
+    </sql>
+
+    <!-- 批量 删除用户部门配置数据-->
+    <sql sqlid="delete_yhbmpz" desc="删除用户部门配置">
+        delete from gl_yhbmpz where ${paras._or('yhid',paras.ids)}
+    </sql>
+
+    <!-- 批量删除用户信息-->
+    <sql sqlid="delete_pl" desc="批量删除">
+        update gl_hydy set
+            scbz='1',
+            czr= %(czr)s,czsj = %(czsj)s
+        where ${paras._or('id',paras.ids)}
+    </sql>
+
+    <!--根据部门id获取部门编码-->
+    <sql sqlid="get_jgbm" desc="根据部门id获取部门编码">
+        select bm as jgbm from gl_bmdy where id = %(bmid)s and scbz = '0'
+    </sql>
+
+    <!--获取登录行员所在部门的长编码-->
+    <sql sqlid="get_cbm" desc="获取登录行员所在部门的长编码">
+        select cbm from gl_bmdy where bm = %(jgbm)s and scbz = '0'
+    </sql>
+    <!--获取登录行员所在部门及子部门的部门信息-->
+    <sql sqlid="get_bmxx" desc="获取部门和子部门信息">
+        select id,bm,bmmc from gl_bmdy where cbm like concat(%(cbm)s,'%') and scbz = '0'
+    </sql>
+</sqllist>

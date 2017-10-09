@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--监控配置列表总数据
+        监控配置列表包含采集配置和分析配置
+        关联采集信息及分析配置信息
+        排除任务类型为交易的
+        可根据规则类别、配置名称、分析规则或指标、状态进行查询-->
+    <sql sqlid = 'data_count' desc = "数据表信息查看：获取监控配置列表数量">
+        select count(0) as count
+        from(
+            select a.ID as jhrwid, a.rwlx as gzlb, a.zdfqpz,a.sfkbf,a.zt,a.ip, d.mc as rwzxzj, c.ID as fxpzid, 
+                    nvl(b.cjpzmc, c.fxpzmc)as pzmc, 
+                    nvl(b.zbmc, c.fxgzmc)as fxgzzb
+            from gl_jhrwb a
+            left join (
+                select c.ID, a.mc as cjpzmc, b.zbmc
+                from gl_cjpzb a, gl_jkzb b, gl_dxcjpz c
+                where a.zbid = b.ID and c.sscjpzid = a.id ) b on a.ssid = b.ID
+            left join (
+                select a.ID, a.mc as fxpzmc, b.zwmc as fxgzmc
+                from gl_jkfxpz a, gl_hsxxb b
+                where a.gzid = b.ID ) c on a.ssid = c.ID
+            left join gl_zjxx d on a.IP = d.IP
+            left join gl_bmwh e on a.rwlx = e.bm and e.lx = '10002'
+            left join gl_bmwh f on a.zt = f.bm and f.lx = '10001'
+            left join gl_bmwh g on a.sfkbf = g.bm and g.lx = '10007'
+            where a.rwlx != 'jy'
+            %if paras.gzlb:
+                and a.rwlx = %(gzlb)s
+            %endif
+            %if paras.pzmc:
+                and ( b.cjpzmc like '%'|| %(pzmc)s ||'%' or c.fxpzmc like '%'|| %(pzmc)s ||'%' )
+            %endif
+            %if paras.fxgzzb:
+                and (b.zbmc like '%'|| %(fxgzzb)s ||'%' or c.fxgzmc like '%'|| %(fxgzzb)s ||'%' ) 
+            %endif
+            %if paras.zt:
+                and a.zt = %(zt)s
+            %endif
+            order by pzmc
+        )
+    </sql>
+    <!--监控配置列表信息:
+        监控配置列表包含采集配置和分析配置
+        查询计划任务表，排除任务类型为交易的
+        关联采集配置表、监控配置表查询采集配置信息
+        关联监控分析配置表、函数信息表查询分析配置信息
+        查询编码维护表对规则类别、是否可并发、状态进行中文转意
+        查询信息：规则类别、配置名称、分析规则或指标、任务执行主机、
+                 crontab配置、是否可并发、状态、响应动作查看
+        可根据规则类别、配置名称、分析规则或指标、状态进行查询
+        可分页-->
+    <sql sqlid = 'data_rs' desc = "监控配置列表查看：获取监控配置列表信息">
+        select jhrwid, gzlb, pzmc, fxgzzb, rwzxzj, zdfqpz, sfkbf, zt, fxpzid, ip
+        from(
+            select jhrwid, gzlb, pzmc, fxgzzb, rwzxzj, zdfqpz, sfkbf, zt, fxpzid, ip, rownum rn
+            from(
+                select a.ID as jhrwid, e.mc as gzlb, a.zdfqpz,g.mc as sfkbf,f.mc as zt,a.ip, d.mc as rwzxzj, c.ID as fxpzid, 
+                        nvl(b.cjpzmc, c.fxpzmc)as pzmc, 
+                        nvl(b.zbmc, c.fxgzmc)as fxgzzb
+                from gl_jhrwb a
+                left join (
+                    select c.ID, a.mc as cjpzmc, b.zbmc
+                    from gl_cjpzb a, gl_jkzb b, gl_dxcjpz c
+                    where a.zbid = b.ID and c.sscjpzid = a.id ) b on a.ssid = b.ID
+                left join (
+                    select a.ID, a.mc as fxpzmc, b.zwmc as fxgzmc
+                    from gl_jkfxpz a, gl_hsxxb b
+                    where a.gzid = b.ID ) c on a.ssid = c.ID
+                left join gl_zjxx d on a.IP = d.IP
+                left join gl_bmwh e on a.rwlx = e.bm and e.lx = '10002'
+                left join gl_bmwh f on a.zt = f.bm and f.lx = '10001'
+                left join gl_bmwh g on a.sfkbf = g.bm and g.lx = '10007'
+                where a.rwlx != 'jy'
+                %if paras.gzlb:
+                    and a.rwlx = %(gzlb)s
+                %endif
+                %if paras.pzmc:
+                    and ( b.cjpzmc like '%'|| %(pzmc)s ||'%' or c.fxpzmc like '%'|| %(pzmc)s ||'%' )
+                %endif
+                %if paras.fxgzzb:
+                    and (b.zbmc like '%'|| %(fxgzzb)s ||'%' or c.fxgzmc like '%'|| %(fxgzzb)s ||'%' ) 
+                %endif
+                %if paras.zt:
+                    and a.zt = %(zt)s
+                %endif
+                order by pzmc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--响应动作列表信息:
+        根据所属监控分析ID查询响应动作配置表、函数信息表、动作执行主机表、主机信息表
+        查询信息：响应动作函数名称、中文名称、动作执行主机、
+                 分析结果触发、发起方式、动作计划执行时间
+        查询总条数-->
+    <sql sqlid = 'data_xydzlb_count' desc = "响应动作列表查看：获取响应动作列表数量">
+        select count(0) as count
+        from gl_xydzpz a, gl_hsxxb b, gl_dzzxzj d, gl_zjxx e 
+        where a.dzid = b.id
+        and a.id = d.ssid
+        and d.zjip = e.ip
+        and a.ssjkfxid = %(pzid)s
+    </sql>
+    <!--响应动作列表信息:
+        根据所属监控分析ID查询响应动作配置表、函数信息表、动作执行主机表、主机信息表
+        查询编码维护表对发起方式进行中文转意
+        查询信息：响应动作函数名称、中文名称、动作执行主机、
+                分析结果触发、发起方式、动作计划执行时间
+        不进行分页-->
+    <sql sqlid = 'data_xydzlb_rs' desc = "响应动作列表查看：获取响应动作列表">
+        select b.hsmc, b.zwmc, a.fxjgcf, c.mc as fqfs, a.jhsj, d.zjip, e.mc as zjmc
+        from gl_xydzpz a left join gl_bmwh c on a.fqfs = c.bm and c.lx = '10004'
+        , gl_hsxxb b, gl_dzzxzj d, gl_zjxx e 
+        where a.dzid = b.id
+        and a.id = d.ssid
+        and d.zjip = e.ip
+        and a.ssjkfxid = %(pzid)s
+        order by b.hsmc
+    </sql>
+</sqllist>

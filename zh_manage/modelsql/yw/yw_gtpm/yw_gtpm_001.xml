@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    
+    <!--  查询自动发起配置参数的详细信息 所属业务下拉列表信息  -->
+    <sql sqlid = 'data_ywmc_rs' desc = "下拉列表：所属业务查询">
+        select id,ywmc,ywbm,ywmc||'('||ywbm||')' ids
+        from gl_ywdy
+        %if paras.ssywid:
+            where ${paras._or('id',paras.ssywid)}
+        %endif
+        order by ywmc,ywbm
+    </sql>
+    
+    <!--  查询自动发起配置参数的详细信息 参数代码下拉列表信息  -->
+    <sql sqlid = 'data_csdm_rs' desc = "下拉列表：参数代码查询">
+        select bm, bm bmmc
+        from gl_bmwh 
+        where lx = '10015' 
+        order by bm
+    </sql>
+    
+    <!--  查询自动发起配置参数存在的个数  -->
+    <sql sqlid = 'data_count' desc = "参数列表：查询总条数">
+        select count(1) as count from gl_yzjycspz a 
+        left join gl_hydy c on a.czr = c.hydm
+        left join (select bm,mc from gl_bmwh where lx = '10014') d on a.kgl = d.bm ,gl_ywdy b 
+        where a.ssywid = b.id
+        %if paras.csdm:
+            and a.csdm = %(csdm)s
+        %endif
+        %if paras.ywid:
+            and a.ssywid = %(ywid)s
+        %endif
+    </sql>
+    
+    <!--  查询自动发起配置参数的详细信息  -->
+    <sql sqlid = 'data_rs' desc = "参数列表：获取详细信息">
+        select id,ywmc,csdm,kgl,csz,csz2,csms,czr,czsj from( 
+            select id,ywmc,csdm,kgl,csz,csz2,csms,czr,czsj,rownum rn from ( 
+                select a.id,b.ywmc,a.csdm,d.mc as kgl,a.csz,a.csz2,a.csms, c.xm as czr,a.czsj 
+                from gl_yzjycspz a 
+                left join gl_hydy c on a.czr = c.hydm
+                left join (select bm,mc from gl_bmwh where lx = '10014') d on a.kgl = d.bm,gl_ywdy b 
+                where a.ssywid = b.id 
+                %if paras.ywid:
+                    and a.ssywid = %(ywid)s
+                %endif 
+                %if paras.csdm:
+                    and a.csdm = %(csdm)s
+                %endif
+                order by b.ywmc,a.csdm
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    
+    <!-- 编辑窗口信息显示 -->
+    <sql sqlid="update_search" desc="编辑页面信息显示">
+        select id,ssywid,csdm,kgl,csz,csz2,csms from gl_yzjycspz
+        %if paras.csid:
+            where id = %(csid)s
+        %endif
+    </sql>
+    
+    
+    <!--  增加信息时 点击保存按钮 执行的数据校验  -->
+    <sql sqlid="check_yzjycspz" desc="校验新增业务是否存在">
+        select count(1) as count from gl_yzjycspz
+        where 1=1
+        %if paras.csdm:
+            and csdm = %(csdm)s
+        %endif
+        %if paras.ssywid:
+            and ssywid = %(ssywid)s
+        %endif
+    </sql>
+    
+    <!--  增加信息时 点击保存按钮 执行的数据插入  -->
+    <sql sqlid="insert_ywjycspz" desc="新增业务的数据的插入">
+        insert into gl_yzjycspz(id, ssywid, csdm, kgl, csz, csz2, csms, czr, czsj) 
+        values(%(id)s, %(ssywid)s, %(csdm)s, %(kgl)s, %(csz)s, %(csz2)s, %(csms)s, %(czr)s, %(czsj)s)
+    </sql>
+    
+    <!--  编辑信息时 执行的数据查询  -->
+    <sql sqlid="update_select" desc="操作日志查询数据">
+        select id, ssywid, csdm, kgl, csz, csz2, csms from gl_yzjycspz 
+        where id = %(csid)s
+    </sql>
+    
+    <!--  编辑信息时 执行的数据查询  -->
+    <sql sqlid="update_select_ssyw" desc="操作日志查询数据">
+        select id, ywmc, ywbm from gl_ywdy where id = %(ssywid)s
+    </sql>
+    
+    <!--  编辑信息时 执行的数据查询  -->
+    <sql sqlid="update_select_kgl" desc="操作日志查询数据">
+        select bm, mc from gl_bmwh where lx = '10014' and bm = %(kgl)s
+    </sql>
+    
+    <!--  编辑信息时 点击保存按钮 执行的数据修改  -->
+    <sql sqlid="update_ywjycspz" desc="业务数据的修改">
+        update gl_yzjycspz set csms = %(csms)s, kgl = %(kgl)s, csz = %(csz)s, csz2 = %(csz2)s, czr = %(czr)s, czsj = %(czsj)s
+        where id = %(csid)s
+    </sql>
+    
+    <!-- 单个 删除信息验证  -->
+    <sql sqlid="delete_dg_yz" desc="删除信息验证">
+        select distinct(b.ywbm), b.ywmc from gl_yzjypz a, gl_ywdy b
+        where a.ssywid = b.id 
+        and a.ssywid in ( select ssywid from gl_yzjycspz where id = %(csid)s )
+    </sql>
+    
+    <!-- 单个 查询参数的信息，方便登记操作日志  -->
+    <sql sqlid="delete_dg_rz" desc="获取业务名称">
+        select b.ywmc,a.csdm,b.ywbm from gl_yzjycspz a ,gl_ywdy b
+        where a.ssywid = b.id
+        and a.id = %(csid)s
+    </sql>
+    
+    <!-- 单个删除  -->
+    <sql sqlid="delete_dg" desc="单个删除">
+        delete from gl_yzjycspz where id = %(csid)s
+    </sql>
+    
+    <!-- 批量 删除信息验证  -->
+    <sql sqlid="select_check_yw" desc="删除信息验证">
+        select distinct(b.ywbm), b.ywmc from gl_yzjypz a, gl_ywdy b
+        where a.ssywid = b.id 
+        and a.ssywid in ( select ssywid from gl_yzjycspz where ${paras._or('id',paras.csid)} )
+    </sql>
+
+    <!-- 批量 删除信息验证  -->
+    <sql sqlid="select_ssywid" desc="删除信息验证">
+        select ssywid,csdm
+        from gl_yzjycspz
+        %if paras.id:
+            where ${paras._or('id',paras.id)}
+        %endif
+    </sql>
+    
+    <!-- 批量 查询参数的信息，方便登记操作日志  -->
+    <sql sqlid="select_rz" desc="获取业务名称">
+        select b.ywmc,a.csdm,b.ywbm from gl_yzjycspz a ,gl_ywdy b
+        where a.ssywid = b.id
+        and (${paras._or('a.id',paras.csid)})
+    </sql>
+    
+    <!-- 批量删除  -->
+    <sql sqlid="delete_pl" desc="批量删除">
+        delete from gl_yzjycspz where ${paras._or('id',paras.csid)}
+    </sql>
+    
+    <!--查询文件处理登记表中的数据，限制条件为：当前要删除信息的所属业务ID和参数代码-状态：66、77、88-->
+    <sql sqlid = 'select_wjcldjb' desc = "查询文件处理登记表中的数据，限制条件为：当前要删除信息的所属业务ID和参数代码-状态：66、77、88">
+        select count(1) as count from jy_wjcldjb where ssywid = %(ssywid)s and (${paras._or('zt',paras.zt)})
+    </sql>
+
+    <!--查询文件处理登记表中的数据，限制条件为：当前要删除信息的所属业务ID和参数代码-状态：12-->
+    <sql sqlid = 'select_wjcldjb_ssywid' desc = "查询文件处理登记表中的数据，限制条件为：当前要删除信息的所属业务ID和参数代码-状态：12">
+        select distinct ssywid from jy_wjcldjb where zt = %(zt)s and (${paras._or('ssywid',paras.ssywid)})
+    </sql>
+
+</sqllist>

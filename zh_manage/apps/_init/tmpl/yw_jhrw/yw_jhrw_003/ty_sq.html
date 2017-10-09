@@ -1,0 +1,76 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 
+    通用授权页面
+-->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>通用授权</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/src/jquery.form.js" charset="utf-8"></script>
+    <!-- 公共页面使用的js函数 -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <!-- 通用授权js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jhrw/yw_jhrw_003/sq_check.js"></script>
+    <script>
+        var hyxx_lst = ${ hyxx_lst };
+    </script>
+    
+</head>
+<body>
+    <div id = "sqwin">
+        <form id = 'sqForm' method="post">
+        <table id = "dgSq" style="font-size:14px;width:100%" cellspacing="5px">
+            <input type="hidden" id="hidurl" value="${url}"/>
+            <input type="hidden" id="hidDgid" value="${dgid}"/>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:70px;">
+                    授权人：
+                </td>
+                <td style="text-align:left;">
+                    <input class="easyui-combobox" id = 'selFhr'
+                            name="fhr" style="width:200px;"
+                            data-options="
+                                    editable: false
+                            ">
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;">
+                    密码：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input type="password" id="txtFhrmm" name="fhrmm"  class="easyui-textbox" style="width:200px;"/>
+                    <span class="colorRed">*</span>
+                    <br>
+                    <span id="error_msg" class="colorRed"></span>
+                </td>
+            </tr>
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:5px 0;">
+            <button id="lbtnCheckSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                提交
+            </button>
+            <button id="lbtnCheckCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">
+                取消
+            </button>
+        </div>
+        </form>
+    </div>
+</body>
+</html>
+

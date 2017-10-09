@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- mapper.xml是固定文件名，用于说明sql和model的映射关系 -->
+<mapperlist>
+    <mapper modelsid="init" resource="/initdemo/login.xml"/>
+    <!--业务管理-->
+    <mapper modelsid="kf_ywgl_001" resource="/kf/kf_ywgl/kf_ywgl_001.xml"/>
+    <!--业务基本信息-->
+    <mapper modelsid="kf_ywgl_002" resource="/kf/kf_ywgl/kf_ywgl_002.xml"/>
+    <!--交易详情-基本信息-->
+    <mapper modelsid="kf_ywgl_003" resource="/kf/kf_ywgl/kf_ywgl_003.xml"/>
+    <!--交易详情-流程查看-->
+    <mapper modelsid="kf_ywgl_004" resource="/kf/kf_ywgl/kf_ywgl_004.xml"/>
+    <!--交易详情-流程编辑-->
+    <mapper modelsid="kf_ywgl_005" resource="/kf/kf_ywgl/kf_ywgl_005.xml"/>
+    <!--子流程列表-->
+    <mapper modelsid="kf_ywgl_007" resource="/kf/kf_ywgl/kf_ywgl_007.xml"/>
+    <!--子流程-基本信息-->
+    <mapper modelsid="kf_ywgl_008" resource="/kf/kf_ywgl/kf_ywgl_008.xml"/>
+    <!--子流程-测试案例定义表信息-->
+    <mapper modelsid="kf_ywgl_009" resource="/kf/kf_ywgl/kf_ywgl_009.xml"/>
+    <!--文档清单-->
+    <mapper modelsid="kf_ywgl_010" resource="/kf/kf_ywgl/kf_ywgl_010.xml"/>
+    <!--数据库模型管理-->
+    <mapper modelsid="kf_ywgl_011" resource="/kf/kf_ywgl/kf_ywgl_011.xml"/>
+    <!--数据表信息查看-->
+    <mapper modelsid="kf_ywgl_012" resource="/kf/kf_ywgl/kf_ywgl_012.xml"/>
+    <!--自动化测试-->
+    <mapper modelsid="kf_ywgl_013" resource="/kf/kf_ywgl/kf_ywgl_013.xml"/>
+    <!--自动化测试案例列表-->
+    <mapper modelsid="kf_ywgl_014" resource="/kf/kf_ywgl/kf_ywgl_014.xml"/>
+    <!--自动化测试日志查看-->
+    <mapper modelsid="kf_ywgl_015" resource="/kf/kf_ywgl/kf_ywgl_015.xml"/>
+    <!--公共函数-->
+    <mapper modelsid="kf_ywgl_017" resource="/kf/kf_ywgl/kf_ywgl_017.xml"/>
+    <!--打印配置-->
+    <mapper modelsid="kf_ywgl_018" resource="/kf/kf_ywgl/kf_ywgl_018.xml"/>
+    <!--导入-->
+    <mapper modelsid="kf_ywgl_019" resource="/kf/kf_ywgl/kf_ywgl_019.xml"/>
+    <!--导出-->
+    <mapper modelsid="kf_ywgl_021" resource="/kf/kf_ywgl/kf_ywgl_021.xml"/>
+    <!--导出历史-->
+    <mapper modelsid="kf_ywgl_022" resource="/kf/kf_ywgl/kf_ywgl_022.xml"/>
+    <!--版本信息查看-->
+    <mapper modelsid="kf_ywgl_023" resource="/kf/kf_ywgl/kf_ywgl_023.xml"/>
+    <!--交易列表-->
+    <mapper modelsid="kf_ywgl_024" resource="/kf/kf_ywgl/kf_ywgl_024.xml"/>
+    <!--通讯管理-->
+    <mapper modelsid="kf_txgl_001" resource="/kf/kf_txgl/kf_txgl_001.xml"/>
+    <!--通讯日志查看-->
+    <mapper modelsid="yw_txrzck_001" resource="/yw/yw_txrzck/yw_txrzck_001.xml"/>
+    <!--节点管理-->
+    <mapper modelsid="kf_jdgl_001" resource="/kf/kf_jdgl/kf_jdgl_001.xml"/>
+    <!--公共SQL-->
+    <mapper modelsid="common" resource="/kf/common/common.xml"/>
+    <!--参数管理_业务参数管理-->
+    <mapper modelsid="yw_csgl_002" resource="/yw/yw_csgl/yw_csgl_002.xml"/>
+    <!--参数管理_交易参数管理-->
+    <mapper modelsid="yw_csgl_003" resource="/yw/yw_csgl/yw_csgl_003.xml"/>
+    <!--数据表信息查看_业务信息展示-->
+    <mapper modelsid="yw_dsiv_001" resource="/yw/yw_dsiv/yw_dsiv_001.xml"/>
+    <!--监控管理，监控类别sql-->
+    <mapper modelsid="yw_jkgl_001" resource="/yw/yw_jkgl/yw_jkgl_001.xml"/>
+    <!--监控管理，监控对象sql-->
+    <mapper modelsid="yw_jkgl_002" resource="/yw/yw_jkgl/yw_jkgl_002.xml"/>
+    <!--分析规则管理sql-->
+    <mapper modelsid="yw_jkgl_003" resource="/yw/yw_jkgl/yw_jkgl_003.xml"/>
+    <!--相应动作管理sql-->
+    <mapper modelsid="yw_jkgl_004" resource="/yw/yw_jkgl/yw_jkgl_004.xml"/>
+    <!--数据采集配置管理-->
+    <mapper modelsid="yw_jkgl_005" resource="/yw/yw_jkgl/yw_jkgl_005.xml"/>
+    <!--监控配置-->
+    <mapper modelsid="yw_jkgl_006" resource="/yw/yw_jkgl/yw_jkgl_006.xml"/>
+    <mapper modelsid="yw_jkgl_006_test" resource="/yw/yw_jkgl/yw_jkgl_006_test.xml"/>
+    <!--计划任务管理，自动发起交易列表-->
+    <mapper modelsid="yw_jhrw_001" resource="/yw/yw_jhrw/yw_jhrw_001.xml"/>
+    <!--计划任务管理，监控配置列表-->
+    <mapper modelsid="yw_jhrw_002" resource="/yw/yw_jhrw/yw_jhrw_002.xml"/>
+    <!--计划任务管理，监控配置列表-->
+    <mapper modelsid="yw_jhrw_003" resource="/yw/yw_jhrw/yw_jhrw_003.xml"/>
+    <!--交易监控-->
+    <mapper modelsid="yw_jyjk_001" resource="/yw/yw_jyjk/yw_jyjk_001.xml"/>
+    <!--日常巡检-->
+    <mapper modelsid="yw_rcxj_001" resource="/yw/yw_rcxj/yw_rcxj_001.xml"/>
+    <!--行员日常运维流水-->
+    <mapper modelsid="yw_hycz_001" resource="/yw/yw_hycz/yw_hycz_001.xml"/>
+    <!--阈值校验业务配置-->
+    <mapper modelsid="yw_gtpm_002" resource="/yw/yw_gtpm/yw_gtpm_002.xml"/>
+    <!--阈值校验流-->
+    <mapper modelsid="yw_gtpm_003" resource="/yw/yw_gtpm/yw_gtpm_003.xml"/>
+    <!--阈值校验流gtpm001-->
+    <mapper modelsid="yw_gtpm_001" resource="/yw/yw_gtpm/yw_gtpm_001.xml"/>
+    <!--角色管理jsgl001-->
+    <mapper modelsid="gl_jsgl_001" resource="/gl/gl_jsgl/gl_jsgl_001.xml"/>
+    <!--大屏监控主页面-->
+    <mapper modelsid="yw_sscf_001" resource="/yw/yw_sscf/yw_sscf_001.xml"/>
+    <mapper modelsid="yw_sscf_001_test" resource="/yw/yw_sscf/yw_sscf_001_test.xml"/>
+    <!--主机详细信息监控-->
+    <mapper modelsid="yw_sscf_002" resource="/yw/yw_sscf/yw_sscf_002.xml"/>
+    <!--用户管理yhgl001-->
+    <mapper modelsid="gl_yhgl_001" resource="/gl/gl_yhgl/gl_yhgl_001.xml"/>
+    <!--部门管理yhgl001-->
+    <mapper modelsid="gl_bmgl_001" resource="/gl/gl_bmgl/gl_bmgl_001.xml"/>
+    <!--菜单管理cdgl001-->
+    <mapper modelsid="gl_cdgl_001" resource="/gl/gl_cdgl/gl_cdgl_001.xml"/>
+    <!--用户权限yhqx001-->
+    <mapper modelsid="gl_yhqx_001" resource="/gl/gl_yhqx/gl_yhqx_001.xml"/>
+    <!--角色权限jsqx001-->
+    <mapper modelsid="gl_jsqx_001" resource="/gl/gl_jsqx/gl_jsqx_001.xml"/>
+    <!--密码管理-->
+    <mapper modelsid="gl_mmgl_001" resource="gl/gl_mmgl/gl_mmgl_001.xml"/>
+    <!--知识库主页-->
+    <mapper modelsid="yw_kbmn_001" resource="yw/yw_kbmn/yw_kbmn_001.xml"/>
+    <!--找找看-->
+    <mapper modelsid="yw_kbmn_002" resource="yw/yw_kbmn/yw_kbmn_002.xml"/>
+    
+    <!--维护系统导入-->
+    <mapper modelsid="yw_pzsj_001" resource="yw/yw_pzsj/yw_pzsj_001.xml"/>
+    <!--维护系统导出-->
+    <mapper modelsid="yw_pzsj_002" resource="yw/yw_pzsj/yw_pzsj_002.xml"/>
+
+    <!--按钮权限sql:common_anqx-->
+    <mapper modelsid="common_anqx" resource="/gl/common_anqx/common_anqx.xml"/>
+    
+    <!--冲正监控-->
+    <mapper modelsid="yw_jyczjk_001" resource="/yw/yw_jyczjk/yw_jyczjk_001.xml"/>
+    <!--业务升级-->
+    <mapper modelsid="yw_ywsj_001" resource="/yw/yw_ywsj/yw_ywsj_001.xml"/>
+
+</mapperlist>

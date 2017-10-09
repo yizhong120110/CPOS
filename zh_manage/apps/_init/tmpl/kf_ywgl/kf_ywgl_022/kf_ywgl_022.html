@@ -1,0 +1,121 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>导入历史</title>
+    
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_022/kf_ywgl_022.js"></script>
+    
+</head>
+<body>
+    <input type="hidden" id="nrlx" value="${nrlx}" />
+    <input type="hidden" id="ss_idlb" value="${ss_idlb}" />
+    <!-- 导入历史展现页面的div -->
+    <div class="easyui-layout" data-options="fit:true, border:false">
+        <!-- 导入历史列表展示的div -->
+        <div data-options="region:'center',border:false" id = 'divDgDrls'>
+            <table id="dgDrls"></table>
+        </div>
+    </div>
+    <!-- 增加导入历史的弹出框 -->
+    <div id="divDrlsWindow" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+        <form  id = 'updForm' method="post">
+        <table id = "tabEdit" style="font-size:14px;width:100%" cellspacing="5px">
+            <input type = 'hidden' id = 'hidDrlsid' name = 'drlsid' value = "">
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:120px;">
+                    导入描述：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input type="text" name="czms" id="txtCzms" class="easyui-textbox" style="width:250px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;">
+                    备注：
+                </td>
+                <td style="text-align:left;">
+                    <input type="text" name="bz" id="txtBz" class="easyui-textbox" data-options="multiline:true" style="width:250px;height:59px"/>
+                </td>
+            </tr>
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnDrlsSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                保存
+            </button>
+            <button id="lbtnDrlsCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">
+                取消
+            </button>
+        </div>
+        </form>
+        
+    </div>
+    
+    <!-- 回退导入历史的弹出框 -->
+    <div id="divHtDrlsWindow" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+        <form id = 'htForm' method="post">
+        <table id = "tabHt" style="font-size:14px;width:100%" cellspacing="5px">
+            <input type = 'hidden' id = 'hidHtDrlsid' name = 'drlsid' value = "">
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:125px;">
+                    回退描述：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input type="text" name="htms" id="txtHtms" class="easyui-textbox" style="width:250px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;">
+                    备注：
+                </td>
+                <td style="text-align:left;">
+                    <input type="text" name="bz" id="txtHtBz" class="easyui-textbox" data-options="multiline:true" style="width:250px;height:59px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;">
+                    复核人：
+                </td>
+                <td style="text-align:left;">
+                    <input id="selFhr" name="fhr" class="easyui-combobox" style="width:250px">
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;">
+                    复核人密码：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input type="password" id="txtFhrmm" name="fhrmm"  class="easyui-textbox" style="width:250px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnHtDrlsSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                确认
+            </button>
+            <button id="lbtnHtDrlsCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">
+                取消
+            </button>
+        </div>
+        </form>
+    </div>
+</body>
+</html>
+

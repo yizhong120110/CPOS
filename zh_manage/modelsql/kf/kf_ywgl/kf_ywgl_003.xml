@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_jydy" desc="查询交易基本信息">
+        select id, jym, jymc, jyms, zt, timeout, zdfqpz
+        from gl_jydy
+        where id = %(jyid)s
+    </sql>
+    <sql sqlid="check_jym" desc="校验交易码是否存在">
+        select 1 from gl_jydy 
+        where jym = %(jym)s
+            and id != %(id)s
+    </sql>
+    <sql sqlid="select_jbxx" desc="查询修改前的信息">
+        select jymc,jym,zt,timeout,zdfqpz,zdfqpzsm,jyms from gl_jydy 
+        where id = %(id)s
+    </sql>
+    <sql sqlid="update_jydy" desc="更新交易基本信息">
+        update gl_jydy set jym = %(jym)s, jymc = %(jymc)s, jyms = %(jyms)s, zt = %(zt)s, timeout = %(timeout)s, zdfqpz = %(zdfqpz)s, zdfqpzsm = %(zdfqpzsm)s, czsj = %(czsj)s, czr = %(czr)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_jhrwb" desc="查询计划任务ID">
+        select id
+        from gl_jhrwb
+        where ssid = %(id)s
+    </sql>
+    <sql sqlid="del_drzxjhb" desc="删除当日执行任务中未执行的该交易对应的流水">
+        delete from gl_drzxjhb
+        where ssid = %(id)s  -- 计划任务表ID
+            and rq = %(rq_8)s
+            and jhfqsj > %(sj_6)s
+            and zt = '0'  -- 未发起
+    </sql>
+</sqllist>

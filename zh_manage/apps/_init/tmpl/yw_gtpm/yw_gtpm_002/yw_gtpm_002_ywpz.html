@@ -1,0 +1,185 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 计划任务管理：主页面 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>阈值校验_参数配置</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 阈值校验业务配置css	 -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <!-- 阈值校验业务配置调用js	 -->
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/python/python.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_gtpm/yw_gtpm_002/yw_gtpm_002_ywpz.js"></script>
+    <style type="text/css">
+        .CodeMirror {
+            font-family: monospace;
+            height: 150px;
+            width: 443px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dgYwGtpm002Add">
+    <form id="forXinxi" method="post" >
+        <div class="esayui-panel" style="margin-top:20px">
+            <!--原信息列表-->
+            <input type="hidden" id="yxxlb" name="yxxlb"/>
+            <!--修改系统参数时，将编辑参数id赋值到此元素中-->
+            <input type="hidden" id="hidCsid" name="csid" value="${ id }"/>        
+            <table style="font-size:14px;" align="center" cellspacing="10px">
+                <tr>
+                    <td style="text-align:right">业务名称：</td>
+                    <td>
+                         <input id="combAddSsyw" name="ssywbm" class="easyui-combobox"  style="width:200px;height:27px"
+                            data-options="
+                                data: ${ ssyw_lst },
+                                editable: false,
+                                valueField:'value',
+                                textField:'text'
+                            ">
+                    </td>
+                    <td><span class="colorRed">*</span></td>
+                    <td style="text-align:right">文件类型：</td>
+                    <td>
+                        <input class="easyui-textbox" type="text" id="txtGtpmWjlx" name="wjlx" style="width:200px;height:27px" />
+                    </td>
+                    <td><span class="colorRed">*</span></td>
+                </tr>
+            </table>
+        </div>
+        <div data-options="region:'center',border:false">
+            <div id="tabsAddEdit" class="easyui-tabs" data-options="fit:true" style="height:300px;">
+                <div title="扣款明细<span class='colorRed'>*</span>">
+                    <table style="font-size:14px;" align="center" cellspacing="10px">
+                        <tr>
+                            <td style="text-align:right">获取扣款明细金额SQL：（请编写获取业务批扣明细表中扣款金额的sql，查询字段包含明细id，明细金额，用于单笔最大金额）</td>
+                            <td>
+                                <input type="text" id="txtHqkkmxjesql" name="hqkkmxjesql" class="easyui-textbox" data-options="multiline:true,width:470,height:100" />
+                            </td>
+                            <td><span class="colorRed">*</span></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right">扣款明细数据查询SQL：（用于阈值校验流水展示，包含：需要提供的信息由id|业务流水号|文件名称|业务类型|三方账号|扣款金额|客户名称|状态，查询条件：文件id）</td>
+                            <td>
+                                <input type="text" id="txtKkmxsjcxsql" name="kkmxsjcxsql" class="easyui-textbox" data-options="multiline:true,width:470,height:100">
+                            </td>
+                            <td><span class="colorRed">*</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div title="扩展模块">
+                    <table style="font-size:14px;" align="center" cellspacing="10px">
+                        <tr>
+                            <td style="text-align:right">扩展校验方式：</td>
+                            <td>
+                                <input id="combKzjyfs" name="kzjyfs" class="easyui-combobox"  style="width:200px;height:27px"
+                                    data-options="
+                                        data: ${ kzjyfs_lst },
+                                        editable: false,
+                                        valueField:'value',
+                                        textField:'text'
+                                    ">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right">
+                                <div id="kzjyfs_label" style="width:150px;">
+                                扩展效验<span class="sql">SQL</span><span class="mk">模块代码</span>：（用于其它的校验执行<span class="sql">SQL</span><span class="mk">模块代码</span>，该模块在导入批扣模块之前执行）
+                                </div>
+                            </td>
+                            <td style="width:470px;height:100px">
+                                <div id="kzjyfs-sql-area">
+                                    <input type="text" id="txtKzjysql" name="txtKzjysql" class="easyui-textbox" data-options="multiline:true,width:'470px',height:'150px'">
+                                </div>
+                                <div id="kzjyfs-code-area">
+                                    <input type="hidden" id="hidKzjy" value=""/>
+                                    <textarea style="overflow:scrolling;width: 470px;height: 100px;" id="txtKzjyfsmkdm" name="txtKzjyfsmkdm" class="easyui-codemirror"></textarea>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div title="流水导入<span class='colorRed'>*</span>">
+                    <table style="font-size:14px;" align="center" cellspacing="10px">
+                        <tr>
+                            <td style="text-align:right">流水导入方式：</td>
+                            <td>
+                                <input id="combLsdrfs" name="lsdrfs" class="easyui-combobox"  style="width:200px;height:27px"
+                                    data-options="
+                                        data: ${ kzjyfs_lst },
+                                        editable: false,
+                                        valueField:'value',
+                                        textField:'text'
+                                    ">
+                            </td>
+                            <td><span class="colorRed">*</span></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><div id="lsdrfs_label">
+                                流水导入<span class="sql2">SQL</span><span class="mk2">模块代码</span>：（配置从业务明细表中导入到GTP_ls表中的<span class="sql2">sql</span><span class="mk2">代码</span>信息）
+                            </div></td>
+                            <td width="470px">
+                                <div id="lsdrfs-sql-area">
+                                    <input type="text" id="txtLsdrfssql" name="txtLsdrfssql" class="easyui-textbox" data-options="multiline:true,width:470,height:100">
+                                </div>
+                                <div id="lsdrfs-code-area">
+                                    <textarea style="overflow:scrolling;width: 470px;height: 100px;" id="txtLsdrmkdm" name="txtLsdrmkdm" class="easyui-codemirror"></textarea>
+                                </div>
+                            </td>
+                            <td><span class="colorRed">*</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div title="异常更新<span class='colorRed'>*</span>">
+                    <table style="font-size:14px;" align="center" cellspacing="10px">
+                        <tr>
+                            <td style="text-align:right">异常全部撤销SQL：</td>
+                            <td>
+                                <input type="text" id="txtYcqbcxsql" name="ycqbcxsql" class="easyui-textbox" data-options="multiline:true,width:400,height:52">
+                            </td>
+                            <td><span class="colorRed">*</span></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right">异常单笔状态更新SQL：</td>
+                            <td>
+                                <input type="text" id="txtYcdbztgxsql" name="ycdbztgxsql" class="easyui-textbox" data-options="multiline:true,width:400,height:52">
+                            </td>
+                            <td><span class="colorRed">*</span></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right">异常全部通过SQL：</td>
+                            <td>
+                                <input type="text" id="txtYcqbtgsql" name="ycqbtgsql" class="easyui-textbox" data-options="multiline:true,width:400,height:52">
+                            </td>
+                            <td><span class="colorRed">*</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;margin-bottom: 10px;">
+            <button id="ywGtpmYwpzSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+            <button id="ywGtpmYwpzCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+        </div>
+    </form>
+    </div>
+
+</body>
+</html>

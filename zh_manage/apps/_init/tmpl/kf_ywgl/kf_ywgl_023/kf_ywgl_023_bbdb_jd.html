@@ -1,0 +1,142 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>节点对比</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <link type="text/css" rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/mergely.css"/>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/mergely.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/python/python.js"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_023/kf_ywgl_023_bbdb_jd.js"></script>
+</head>
+<body class="easyui-layout">
+<textarea style="display:none" id='bbh1'>${bbh1}</textarea>
+<textarea style="display:none" id='bbh2'>${bbh2}</textarea>
+<textarea style="display:none" id='bbh1_data'>${bbh1_data}</textarea>
+<textarea style="display:none" id='bbh2_data'>${bbh2_data}</textarea>
+<textarea style="display:none" id='jdlx'>${jdlx}</textarea>
+
+<div data-options="region:'north'" style="height:59px;border:0;">
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west'" style="width:50%;border-bottom: 0">
+
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'north'" style="height:30px;border:0;">
+                    <div id="isbd" style="font-size: 16px; font-weight:bold; text-align:center; margin-top: 6px;">
+                        版本号${bbh1['bbh']}
+                    </div>
+                </div>
+                <div data-options="region:'center'" style="text-align:center;padding-left:2%;border:0;height:30px;">
+                    <div id="tab_left" class="easyui-tabs" data-options="border:false">
+                        <div title="版本内容"></div>
+                        <div title="版本信息"></div>
+                        <div title="输入要素"></div>
+                        <div title="输出要素"></div>
+                        <div title="返回值"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div data-options="region:'center'"></div>
+        <div data-options="region:'east'" style="width:50%;border-bottom: 0">
+
+            <div class="easyui-layout" data-options="fit:true" style="border:0;">
+                <div data-options="region:'north'" style="height:30px;border:0;">
+                    <div  style="font-size: 16px; font-weight:bold; text-align:center; margin-top: 6px;">
+                        版本号${bbh2['bbh']}
+                    </div>
+                </div>
+                <div data-options="region:'center'" style="text-align:center;padding-left:2%;border:0;">
+                    <div id="tab_right" class="easyui-tabs" data-options="border:false">
+                        <div title="版本内容"></div>
+                        <div title="版本信息"></div>
+                        <div title="输入要素"></div>
+                        <div title="输出要素"></div>
+                        <div title="返回值"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div data-options="region:'center'" style="border:0;">
+
+    <!--版本内容对比-->
+    <div id="bbnr_db"></div>
+
+    <!--版本信息对比-->
+    <div id="bbxx_db" class="easyui-layout" data-options="fit:true" style="border:0;">
+        <div data-options="region:'west'" style="width:50%;border-bottom: 0">
+            <table id="bbxx_left" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+        <div data-options="region:'center'" style="width:50%;border-bottom: 0">
+            <table id="bbxx_right" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+    </div>
+
+    <!--输入要素对比-->
+    <div id="srys_db" class="easyui-layout" data-options="fit:true" style="border:0;">
+        <div data-options="region:'west'" style="width:50%;border-bottom: 0">
+            <table id="srys_left" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+        <div data-options="region:'center'" style="width:50%;border-bottom: 0">
+            <table id="srys_right" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+    </div>
+
+    <!--输出要素对比-->
+    <div id="scys_db" class="easyui-layout" data-options="fit:true" style="border:0;">
+        <div data-options="region:'west'" style="width:50%;border-bottom: 0">
+            <table id="scys_left" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+        <div data-options="region:'center'" style="width:50%;border-bottom: 0">
+            <table id="scys_right" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+    </div>
+
+    <!--返回值对比-->
+    <div id="fhz_db" class="easyui-layout" data-options="fit:true" style="border:0;">
+        <div data-options="region:'west'" style="width:50%;border-bottom: 0">
+            <table id="fhz_left" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+        <div data-options="region:'center'" style="width:50%;border-bottom: 0">
+            <table id="fhz_right" class="easyui-datagrid" data-options="fit:true, fitColumns:true">
+
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+
+
+</html>

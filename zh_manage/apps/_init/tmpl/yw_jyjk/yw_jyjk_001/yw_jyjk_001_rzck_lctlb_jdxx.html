@@ -1,0 +1,44 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>交易日志-流程图列表</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 日志列表js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jyjk/yw_jyjk_001/yw_jyjk_001_rzck_lctlb_jdxx.js"></script>
+</head>
+<body>
+    <textarea style="display:none" id='hidSrys'>${srys_lst}</textarea>
+    <textarea style="display:none" id='hidScys'>${scys_lst}</textarea>
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <div id="lb_busnessTab" class="easyui-tabs"  data-options="fit: true, border: true, tabPosition: 'top'">
+            <div title="输入要素">
+                <table id="dgSrys"></table>
+            </div>
+            <div title="输出要素">
+                <table id="dgScys"></table>
+            </div>
+            <div title="日志">
+                <div id="divJdRz">
+                    <pre id = 'preJdRz' style='margin:3px'>
+${ rznr }
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

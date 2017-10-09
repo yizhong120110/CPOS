@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_kcxx" desc="查询库存信息">
+        select box1, box2, box3, box4_1, box4_2, box5
+        from tcr_zdjk
+        where terminal_id = %(tcrid)s
+    </sql>
+</sqllist>

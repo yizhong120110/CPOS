@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+
+    <!--获取菜单对应的按钮权限-->
+    <sql sqlid="get_anqx" desc="获取菜单按钮权限">
+        select gndm , gnmc as text
+        from gl_gndy
+        where id in (
+            select qxid from gl_yhqxpz
+            where qxid in (
+                select id from gl_gndy
+                    where  sscdid in (
+                        select id from gl_cddy
+                        where cddm=%(cddm)s
+                    )
+            )
+        and yhid= %(yhid)s
+        )
+    </sql>
+
+</sqllist>

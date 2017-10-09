@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_sjkmx_count" desc="获取数据库模型总记录">
+        select count(1) as count from
+         gl_sjkmxdy 
+         where ssyw_id = %(ywid)s
+         %if paras.seaMc:
+            and sjbmc like '%'||%(seaMc)s||'%'
+        %endif
+        %if paras.seaMs:
+            and sjbmcms like '%'||%(seaMs)s||'%'
+        %endif
+    </sql>
+    <sql sqlid="get_sjkmxxx" desc="获取数据库模型信息">
+            select id,sjbmc,sjbmcms,czr,czsj,nvl(b.bbh,0 ) as bbh,decode(a.wym,b.wym,'1','0') as bbsftj --0:否 1:是
+            from 
+            (
+                select id,sjbmc,sjbmcms,czr,czsj,wym
+                from (
+                        select id,sjbmc,sjbmcms,czr,czsj,wym,rownum rn
+                        from (
+                            select a.id,a.sjbmc,a.sjbmcms,b.xm as czr,a.czsj,wym         
+                            from gl_sjkmxdy a,gl_hydy b
+                            where a.ssyw_id = %(ywid)s
+                            and a.czr = b.hydm
+                            and b.scbz='0'
+                            %if paras.seaMc:
+            			and a.sjbmc like '%'||%(seaMc)s||'%'
+        			  %endif
+        			  %if paras.seaMs:
+            			and a.sjbmcms like '%'||%(seaMs)s||'%'
+        			  %endif
+                            order by sjbmc
+                          )
+                    )  where rn >= %(rn_start)s and %(rn_end)s >= rn 
+            ) a left join
+            (
+                select a.ssid,a.bbh,b.wym
+                from (
+                  select ssid,max(bbh) as bbh
+                  from gl_bbkz
+                  where lx = 'sjk'
+                  group by ssid
+                ) a,gl_bbkz b
+                where a.bbh = b.bbh
+                and a.ssid = b.ssid
+             ) b
+            on a.id = b.ssid
+            order by a.sjbmc           
+    </sql>
+    <sql sqlid="del_sjkmxdy" desc="删除数据库模型定义">
+        delete from gl_sjkmxdy where ${paras._or('id',paras.drop_table)}
+    </sql>
+    <sql sqlid="del_sjkzdb_by_tabid" desc="根据数据表ID删除数据库字段表">
+        delete from gl_sjkzdb where ${paras._or('sjb_id',paras.drop_table)}
+    </sql>
+    <sql sqlid="del_sjksy_by_tabid" desc="根据数据表ID删除数据库索引表">
+        delete from gl_sjksy where ${paras._or('sssjb_id',paras.drop_table)}
+    </sql>
+    <sql sqlid="del_sjkys_by_tabid" desc="根据数据表ID删除数据库约束表">
+        delete from gl_sjkys where ${paras._or('sssjb_id',paras.drop_table)}
+    </sql>
+    <sql sqlid="del_sjkzdb_by_id" desc="删除数据库字段表">
+        delete from gl_sjkzdb where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid="del_sjksy_by_id" desc="删除数据库索引表">
+        delete from gl_sjksy where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid="del_sjkys_by_id" desc="删除数据库约束表">
+        delete from gl_sjkys where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid="insert_sjkzdb" desc="新增数据表字段">
+        insert into gl_sjkzdb( id,sjb_id,zdmc,zdms,zdlx,zdcd,xscd,sfkk,iskey,mrz)
+        values( %(id)s,%(sjb_id)s,%(zdmc)s,%(zdms)s,%(zdlx)s,%(zdcd)s,%(xscd)s,%(sfkk)s,%(iskey)s,%(mrz)s )
+    </sql>
+    <sql sqlid="insert_sjksy" desc="新增数据表索引">
+        insert into gl_sjksy( id,sssjb_id,symc,syzd,sylx,sfwysy )
+        values( %(id)s,%(sssjb_id)s,%(symc)s,%(syzd)s,%(sylx)s,%(sfwysy)s )
+    </sql>
+    <sql sqlid="insert_sjkys" desc="新增数据表约束">
+        insert into gl_sjkys( id,sssjb_id,ysmc,yszd )
+        values( %(id)s,%(sssjb_id)s,%(ysmc)s,%(yszd)s )
+    </sql>
+    <sql sqlid="update_sjbms" desc="更新数据表名称描述">
+        update gl_sjkmxdy set sjbmcms = %(sjbmcms)s where id = %(id)s    
+    </sql>
+    <sql sqlid="update_sjbzdxx" desc="更新数据表字段信息">
+        update gl_sjkzdb set ${paras._set( paras.zdxx_lst)} where id = %(id)s
+    </sql>
+    <sql sqlid="update_sjbsyxx" desc="更新数据表索引信息">
+        update gl_sjksy set ${paras._set( paras.syxx_lst)} where id = %(id)s
+    </sql>
+    <sql sqlid="update_sjbysxx" desc="更新数据表约束信息">
+        update gl_sjkys set yszd = %(yszd)s where id = %(id)s
+    </sql>
+    <sql sqlid="get_tbcs" desc="获取同步次数">
+        select nvl( max(tbcs),0 ) as tbcs
+        from gl_sjktblsb
+        where ssywid = %(ywid)s
+    </sql>
+    <sql sqlid="insert_sjktblsb" desc="新增数据库同步流水">
+        insert into gl_sjktblsb( id,sjbid,sjbmc,tblx,tbr,tbrq,tbsj,tbcs,ssywid )
+        values( %(id)s,%(sjbid)s,%(sjbmc)s,%(tblx)s,%(tbr)s,%(tbrq)s,%(tbsj)s,%(tbcs)s,%(ssywid)s )
+    </sql>
+    <sql sqlid="insert_sjktbxxb" desc="新增数据库同步信息">
+        insert into gl_sjktbxxb( id,tblx,tbnrlx,tbnrmc,tbnrsx,tbqsxz,tbhsxz,sstblsid )
+        values( %(id)s,%(tblx)s,%(tbnrlx)s,%(tbnrmc)s,%(tbnrsx)s,%(tbqsxz)s,%(tbhsxz)s,%(sstblsid)s )
+    </sql>
+    <sql sqlid="check_sjbmc_by_sjkmx" desc="校验数据表名称是否已存在">
+        select count(1)  as count from gl_sjkmxdy where sjbmc = %(sjbmc)s
+    </sql>
+    <sql sqlid="check_sjbmc_by_oracle" desc="校验数据表名称是否已存在">
+        select count(1) as count from user_tables where table_name = %(sjbmc)s
+    </sql>
+    <sql sqlid="get_sjbtbls_count" desc="获取同步流水条数">
+        select count(1) as count from gl_sjktblsb 
+        where ssywid = %(ywid)s
+        %if paras.ksrq and paras.jsrq:
+            and tbrq >= %(ksrq)s and %(jsrq)s >= tbrq 
+        %else:
+            and tbcs = ( select max(tbcs) from gl_sjktblsb where ssywid = %(ywid)s )
+        %endif
+    </sql>
+    <sql sqlid="get_sjbtbls" desc="获取同步流水信息">
+        select id,sjbid,sjbmc,tblx,tbr,tbrq,tbsj 
+        from (
+            select id,sjbid,sjbmc,tblx,tbr,tbrq,tbsj,rownum rn
+            from (
+                select a.id,a.sjbid,a.sjbmc,a.tblx,case when b.xm is null then a.tbr else b.xm end as tbr,a.tbrq,a.tbsj
+                from gl_sjktblsb a left join gl_hydy b on  a.tbr = b.hydm
+                where  a.ssywid = %(ywid)s
+                %if paras.ksrq and paras.jsrq:
+                    and a.tbrq >= %(ksrq)s and %(jsrq)s >= a.tbrq 
+                %else:
+                    and a.tbcs = ( select max(tbcs) from gl_sjktblsb where ssywid = %(ywid)s )
+                %endif
+                order by a.tbcs desc,a.tbrq desc,a.tbsj desc
+            )
+        )
+        where rn >=%(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid="get_sjbmcms_by_tb" desc="查询数据表数据表名称描述同步信息">
+        select tbqsxz as tbqsjbmcms,tbhsxz as tbhsjbmcms
+        from gl_sjktbxxb
+        where tbnrlx = '4' -- 数据表
+        and sstblsid = %(tblsid)s
+    </sql>
+    <sql sqlid="get_sjbmcms" desc="从数据库模型定义表获取数据表名称描述">
+        select sjbmcms
+        from gl_sjkmxdy
+        where id = %(sjbid)s
+    </sql>
+    <sql sqlid="get_sjbtbxx" desc="获取数据表同步信息">
+        select tblx,tbnrmc,tbnrsx,tbqsxz,tbhsxz
+        from gl_sjktbxxb
+        where tbnrlx = %(tbnrlx)s
+        and sstblsid = %(tblsid)s
+    </sql>
+    <sql sqlid="get_zdgl" desc="获取字段管理数据">
+        select  a.id,a.zdmc,a.zdms,a.zdlx,a.zdcd,a.xscd,a.sfkk,a.iskey,a.mrz
+        from gl_sjkzdb a,gl_sjkmxdy b,user_col_comments c,user_tab_columns d
+        where a.sjb_id = b.id
+        and b.id = %(sjbid)s
+        and b.sjbmc = c.table_name
+        and c.table_name = d.table_name
+        and c.column_name = d.column_name
+        and d.column_name = a.zdmc
+        order by d.column_id
+    </sql>
+    <sql sqlid="get_sygl" desc="获取索引管理数据">
+        select id,symc,syzd,sylx,sfwysy
+        from gl_sjksy
+        where sssjb_id = %(sjbid)s
+        order by symc
+    </sql>
+    <sql sqlid="get_ysgl" desc="获取约束管理数据">
+        select id,ysmc,yszd
+        from gl_sjkys
+        where sssjb_id = %(sjbid)s
+        order by ysmc
+    </sql>
+    <sql sqlid="get_zdxx" desc="获取字段信息">
+        select zdmc,zdms,zdlx,zdcd,xscd,sfkk,iskey,mrz
+        from gl_sjkzdb 
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_select_zd" desc="获取字段名称下拉框数据">
+        select  a.zdmc as zdmc
+        from gl_sjkzdb a,gl_sjkmxdy b,user_col_comments c,user_tab_columns d
+        where a.sjb_id = b.id
+        and b.id = %(sjbid)s
+        and b.sjbmc = c.table_name
+        and c.table_name = d.table_name
+        and c.column_name = d.column_name
+        and d.column_name = a.zdmc
+        order by d.column_id
+    </sql>
+    <sql sqlid="insert_sjkmxdy" desc="新增数据库模型">
+        insert into gl_sjkmxdy( id,sjbmc,sjbmcms,ssyw_id,czr,czsj)
+        values( %(id)s,%(sjbmc)s,%(sjbmcms)s,%(ssyw_id)s,%(czr)s,%(czsj)s)
+    </sql>
+    <sql sqlid="get_oracle_sy" desc="通过oracle系统表获取索引信息">
+        select a.index_name as symc，a.column_name as syzd，b.index_type as sylx，b.uniqueness as sfwysy
+        from user_ind_columns a,user_indexes b
+        where a.index_name = b.index_name
+        and a.table_name = %(sjbmc)s
+        %if paras.symc:
+            and a.index_name = %(symc)s
+        %endif
+        order by a.table_name,a.index_name,a.column_position
+    </sql>
+    <sql sqlid="check_table_create" desc="校验数据表是否已创建">
+        select count(1) as count from user_tables where table_name = %(sjbmc)s
+    </sql>
+    <sql sqlid="check_zdmc" desc="校验字段名称是否存在">
+        select count(1) as count from gl_sjkzdb where zdmc = %(zdmc)s and sjb_id = %(sjbid)s
+    </sql>
+    <sql sqlid="get_zjxx" desc="获取数据表的主键信息">
+        select a.constraint_name as zjmc,b.column_name as zjzd
+        from user_constraints a,user_cons_columns b
+        where a.constraint_name = b.constraint_name 
+        and a.constraint_type='P'
+        and a.table_name= %(sjbmc)s
+        order by a.table_name,a.constraint_name,b.position
+    </sql>
+    <sql sqlid="upd_syxx" desc="更新索引信息，根据数据表ID及索引名称">
+        update gl_sjksy set syzd = %(syzd)s where sssjb_id = %(sjbid)s and symc = %(symc)s
+    </sql>
+    <sql sqlid="upd_sjkmx" desc="更新数据库模型信息">
+        update gl_sjkmxdy set czr = %(czr)s,czsj = %(czsj)s where id = %(id)s
+    </sql>
+    <sql sqlid="check_null_data" desc="检查某字段中的数据有没有空数据">
+        select count(1) as count from ${paras._tb(paras.tname_lst)} where ${paras._tb(paras.zdmc_lst)} = '' or ${paras._tb(paras.zdmc_lst)} is null
+    </sql>
+    <sql sqlid="get_zjzd_count" desc="获取主键字段的数量">
+        select count(1) as count from gl_sjkzdb where sjb_id = %(sjbid)s and zdmc != %(zdmc)s and iskey = '1'
+    </sql>
+    <sql sqlid="get_zjzd_order" desc="获取主键字段的顺序">
+        select a.column_name as zdmc
+        from user_col_comments a,user_tab_columns b
+        where a.table_name = b.table_name
+        and a.column_name = b.column_name
+        and a.table_name = %(sjbmc)s
+        and ( ${paras._or('a.column_name',paras.zjzd)} )
+        order by b.column_id
+    </sql>
+    <sql sqlid="select_zdxx" desc="查询字段信息">
+        select zdmc,zdms,zdlx,zdcd,xscd,sfkk,iskey,mrz from gl_sjkzdb
+        where id = %(id)s
+    </sql>
+    <sql sqlid="update_zdxx" desc="更新字段信息">
+        update gl_sjkzdb set zdms = %(zdms)s,zdlx = %(zdlx)s,zdcd = %(zdcd)s,xscd = %(xscd)s,sfkk = %(sfkk)s,iskey = %(iskey)s,mrz = %(mrz)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="check_symc" desc="校验索引名称是否存在">
+        select count(1)  as count from gl_sjksy where symc = %(symc)s
+    </sql>
+    <sql sqlid="check_syzd" desc="校验索引字段是否存在">
+        select count(1)  as count from gl_sjksy where syzd = %(syzd)s and sssjb_id = %(sjbid)s
+    </sql>
+    <sql sqlid="get_syxx" desc="获取索引信息">
+        select symc,syzd,sylx,sfwysy from gl_sjksy where id = %(id)s
+    </sql>
+    <sql sqlid="check_yszd" desc="校验约束字段是否存在">
+        select count(1) as count  from gl_sjkys where sssjb_id = %(sjbid)s and yszd = %(yszd)s
+    </sql>
+    <sql sqlid="check_ysmc" desc="校验约束名称是否存在">
+        select count(1)  as count from gl_sjkys where ysmc = %(ysmc)s
+    </sql>
+    <sql sqlid="get_ysxx" desc="获取约束信息">
+        select ysmc,yszd from gl_sjkys where id = %(id)s
+    </sql>
+    <sql sqlid="get_symc" desc="获取索引名称">
+        select a.index_name as symc
+        from user_ind_columns a,user_indexes b
+        where a.index_name = b.index_name
+        and a.table_name = %(sjbmc)s
+        group by a.index_name
+    </sql>
+    <sql sqlid="del_sjksy_by_symc" desc="删除数据库索引表">
+        delete from gl_sjksy where sssjb_id = %(sjbid)s and ( ${paras._and_n( paras.symc_lst )} )
+    </sql>
+</sqllist>

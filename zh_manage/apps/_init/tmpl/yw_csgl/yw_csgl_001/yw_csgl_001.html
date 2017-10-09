@@ -1,0 +1,55 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>参数管理</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 参数管理调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_csgl/yw_csgl_001/yw_csgl_001.js"></script>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'center',border:false">
+        <!-- 
+            参数管理TAB:
+            通过tab选项切换来维护不同类型的参数
+            （1）：系统参数管理，直接调用开发系统的参数管理
+            （2）：业务参数管理，主页面自创建，业务详情页面自创建，js调用开发系统的业务基本信息管理js
+            （1）：交易参数管理，主页面自创建，业务详情页面自创建，js调用开发系统的交易基本信息管理js+自创建js
+        -->
+        <div id="tbsCsgl" class="easyui-tabs"
+            data-options="fit:true,border:false,showOption:true,enableNewTabMenu:true,tabPosition:'left',headerWidth:110">
+            <!-- 系统参数管理：维护系统级参数，同开发系统的“系统参数管理” -->
+            <div title="系统参数管理" style="overflow:hidden">
+                <!-- 框架加载信息有js定义 -->
+                <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                        src="##"></iframe>
+            </div>
+            <!-- 业务参数：维护业务级参数，同开发系统的“业务基本信息” -->
+            <div title="业务参数管理" style="overflow:hidden">
+                <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                        src="##"></iframe>
+            </div>
+            <!-- 交易参数：维护业务级参数，同开发系统的“交易基本信息” -->
+            <div title="交易参数管理" style="overflow:hidden">
+                <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                        src="##"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

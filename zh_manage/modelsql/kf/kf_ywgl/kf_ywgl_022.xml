@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid = 'data_count' desc = "导入历史信息获取：count">
+        select count(0) as count
+        from gl_drls 
+        where czlx=%(czlx)s
+        and nrlx=%(nrlx)s
+        and zt='1'
+        %if paras.ss_idlb:
+        and ss_idlb = %(ss_idlb)s
+        %endif
+        %if paras.ssywid:
+        and ssywid = %(ssywid)s
+        %endif
+    </sql>
+    <sql sqlid = 'data_rs' desc = "导入历史信息获取：rs">
+        select id, ss_idlb, czr, czr_mc, czsj, czms, bz, wjm, bfwjm, nrlx, 'FALSE' as sfht from (
+            select id, ss_idlb, czr, czr_mc, czsj, czms, bz, wjm, bfwjm, nrlx, rownum rn
+            from (
+                select a.id, a.ss_idlb, a.czr,
+                case when b.xm is not null then b.xm
+                else a.czr end as czr_mc,
+                a.czsj, a.czms, a.bz, a.wjm, a.bfwjm, a.nrlx
+                from gl_drls a left join gl_hydy b on a.czr = b.hydm
+                where a.czlx=%(czlx)s
+                and a.nrlx=%(nrlx)s
+                and a.zt='1'
+                %if paras.ss_idlb:
+                and a.ss_idlb = %(ss_idlb)s
+                %endif
+                %if paras.ssywid:
+                and a.ssywid = %(ssywid)s
+                %endif
+                order by a.czsj desc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid = 'get_dr_maxid' desc = "导入历史：获取最先导入信息id">
+        select id from (
+            select id
+            from gl_drls
+            where czlx='dr' and nrlx in ('yw','jy','tx')
+            and zt = '1'
+            order by czsj desc
+        )
+        where rownum=1
+    </sql>
+    <sql sqlid = 'get_drxx' desc = "导入历史：编辑：获取页面初始化数据">
+        select id, czms, bz, bfwjm, ss_idlb, czlx, nrlx, wjm
+        from gl_drls
+        where id = %(drlsid)s
+    </sql>
+    <sql sqlid = 'upd_drxx' desc = "导入历史：编辑：编辑信息">
+        update gl_drls set czms = %(czms)s,
+        bz = %(bz)s
+        where id = %(drlsid)s
+    </sql>
+    <sql sqlid = 'upd_drxx_zt' desc = "导入历史：回退：状态">
+        update gl_drls set zt = %(zt)s
+        where id = %(drlsid)s
+    </sql>
+    <sql sqlid = 'ht_sjkmx_id' desc = "导入历史：回退：获取临时数据库模型表中的id">
+        select id from gl_sjkmxdy_ls
+    </sql>
+    <sql sqlid = 'get_wym' desc = "导入历史：回退：获取唯一码">
+        select wym, sjbmc, sjbmcms from ${paras._tb(paras.tname_lst)} 
+        where id = %(id)s
+    </sql>
+    <sql sqlid = 'get_all_jy' desc = "获取系统中所有的交易">
+        select id, ssywid, jym, jymc, jyms, timeout, zt, zdfqpz, dbjdid, jbjdid, zdfqpzsm
+        from gl_jydy
+    </sql>
+    <sql sqlid = 'get_jhrw_id' desc = "获取计划任务id">
+        select id from gl_jhrwb where ssid = %(jyid)s
+    </sql>
+    <sql sqlid = 'del_all_jhrw' desc = "删除所有的计划任务">
+        delete from gl_jhrwb where rwlx = 'jy' and ssid = %(jyid)s
+    </sql>
+    <sql sqlid = 'del_all_drjhrw' desc = "删除所有的当日计划任务">
+        delete from gl_drzxjhb where rwlx = 'jy' and zt = '0'
+    </sql>
+    <sql sqlid = 'get_drls_lx' desc = "获取导入流水的类型">
+        select nrlx from gl_drls where id = %(id)s
+    </sql>
+
+</sqllist>

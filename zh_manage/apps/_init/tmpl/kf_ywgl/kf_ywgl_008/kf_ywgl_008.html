@@ -1,0 +1,59 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>子流程详情查看_基本信息查看</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_008/kf_ywgl_008.js"></script>
+</head>
+<body>
+
+<div class="easyui-panel" id="zlcxx" style="width:100%;" data-options="fit:true, border:true">
+    <form method="post">
+        <table style="width:1100px;margin-top: 10px;" align="center" cellspacing="10px">
+            <tr></tr>
+            <tr>
+                <td>
+                    <input type='hidden' id='txtId' name="id" value="${zlc['id']}">
+                    子流程编码：&nbsp;<input id='txtBm' name="bm" class="easyui-textbox" style="width:300px;;height:27px"
+                                       value="${zlc['bm']}" data-options="disabled:true">
+                </td>
+                <td nowrap="nowrap" style="text-align:right;">子流程描述：</td>
+                <td rowspan="2" style="text-align:left;">
+                    <input id='txtMs' name="ms" class="easyui-textbox" data-options="multiline:true,width:300,height:68"
+                           value="${zlc['ms'] or ''}">
+                </td>
+            </tr>
+
+            <tr>
+                <td nowrap="nowrap" >
+                    子流程名称：&nbsp;<input id='txtMc' name="mc" class="easyui-textbox" value="${zlc['mc'] or ''}"
+                                       style="width:300px;height:27px">
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+            <tr>
+            <tr>
+                <td style="text-align:center;" colspan='4' bgcolor='#EEEEEE'>
+                    <button href="#" id='lbtn_savelbt' class="easyui-linkbutton" iconCls="icon-save"
+                            style="width:150px;height:32px">保存
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+
+</div>
+</body>
+</html>

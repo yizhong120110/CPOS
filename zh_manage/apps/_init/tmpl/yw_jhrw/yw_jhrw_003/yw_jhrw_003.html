@@ -1,0 +1,142 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 
+    当日执行计划：查看监控配置信息
+    可查看手工执行记录及触发的响应动作
+-->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>当日执行计划</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <!-- 公共页面使用的js函数 -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <!-- 当日执行计划信息展示调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jhrw/yw_jhrw_003/yw_jhrw_003.js"></script>
+    
+</head>
+<body>
+    <!-- 当日执行计划信息展示页面的div -->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <!-- 当日执行计划信息展示页面查询的div -->
+        <div data-options="region:'north',border:true" style="padding-top:1px;height:44px;">
+            <form id="fmSearch">
+                <!-- 查询条件：
+                可根据发起日期（必填）、任务类型、状态、流水号进行查询
+                 -->
+                <table id="datagrid_search" style="width:100%;margin:5px 0;" border="0" align="center">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right">
+                            发起日期：
+                        </td>
+                        <td style="text-align:left">
+                            <input id="dateSearchRq" style="width:140px;" name="searchRq" class="easyui-datebox" value = "${rq}" type="text" >
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            名称：
+                        </td>
+                        <td style="text-align:left">
+                            <input class="easyui-textbox" id="txtSearchMc" name="searchMc" style="width:140px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            任务类型：
+                        </td>
+                        <!-- 任务类型有：采集、分析、交易 -->
+                        <td style="text-align:left;">
+                            <input class="easyui-combobox" id = 'combSearchRwlx' style="width:140px;" 
+                            name="searchRwlx"
+                            data-options="
+                                    data: ${ rwlx_lst },
+                                    editable: false,
+                                    valueField:'value',
+                                    textField:'text'
+                            ">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            状态：
+                        </td>
+                        <!-- 状态有：未发起、发起失败、发起成功、手工发起、不支持并发、未发起、已加入任务队列-->
+                        <td style="text-align:left;">
+                            <input class="easyui-combobox" id = 'selSearchZt'
+                            name="searchZt" style="width:140px;" 
+                            data-options="
+                                    data: ${ zt_lst },
+                                    editable: false,
+                                    valueField:'value',
+                                    textField:'text'
+                            ">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            流水号：
+                        </td>
+                        <td style="text-align:left">
+                            <input class="easyui-textbox" id="txtSearchLsh" name="searchLsh" style="width:140px;">
+                        </td>
+                        <td style="text-align:center" rowspan="2">
+                            <button id="lbtnSearch" class="easyui-linkbutton" style="width:100px;"onclick="javascript:doSearch(event)">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 当日执行计划列表-->
+        <div data-options="region:'center',border:false">
+            <table id="dgDrzxjh"></table>
+        </div>
+    </div>
+     <!-- 授权页面 -->
+    <div id="divSqWindow" class="easyui-window"
+    data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <iframe id='sqFrame' name='sqFrame' scrolling="auto"  frameborder="0"  src="##" style="width:90%;height:90%;"></iframe>
+    </div>
+    <!--动作执行计划管理-->
+    <div id="divXydzckWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+        <table align="center" style="width:100%;margin:5px 0;" border="0" align="center">
+            <tr >
+                <td nowrap="nowrap" >名称：<input type="text" id="txtTbpzmc" name="tbpzmc" class="easyui-textbox" disabled=" true"/></td>
+            </tr>
+        </table>
+        <div class="easyui-layout" style="padding-top:10px;min-height:330px">
+            <div data-options="region:'center',border:false" >
+                <table id="dgDzzxjhgl"></table>
+            </div>
+        </div>
+    </div>
+    <!--手工执行计划查看-->
+    <div id="divSgzxckWindow" class="easyui-window"
+         data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+        <table align="center" style="width:100%;margin:5px 0;" border="0" align="center">
+            <tr >
+                <td nowrap="nowrap" >名称：<input type="text" id="txtTbjhmc" name="tbjhmc" class="easyui-textbox" disabled=" true"/></td>
+            </tr>
+        </table>
+        <div class="easyui-layout" style="padding-top:10px;min-height:330px">
+            <div data-options="region:'center',border:false" >
+                <table id="dgSgzxck"></table>
+            </div>
+        </div>
+    </div>
+    <!-- 查看日志 -->
+    <div id="divLog" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div id="divRznr">
+            <pre style='margin:3px' id="preLcrznr">
+            </pre>
+        </div>
+    </div>
+</body>
+</html>
+

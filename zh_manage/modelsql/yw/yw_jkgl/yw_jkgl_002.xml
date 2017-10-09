@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    
+    <!--查询对象类型列表-->
+    <sql sqlid = 'get_jklb' desc = "查询对象类型列表">
+        select lbbm,lbmc from gl_jklb order by lbbm
+    </sql>
+    <!--查询状态类别列表-->
+    <sql sqlid = 'get_ztlb' desc = "查询状态类型列表">
+        select bm,mc from gl_bmwh where lx  = '10001'  --状态字典
+        order by bm
+    </sql>
+    <!--查询监控对象列表-->
+    <sql sqlid = 'get_jkdx' desc = "查询状态类型列表">
+        select id,dxbm ,dxlx,dxmc,dxms,dxzt,czr,czsj,lxbm from (
+            select ID , dxbm ,dxlx,dxmc,dxms,dxzt,czr,czsj,lxbm,rownum rn from (
+                select a.id , a.dxbm , b.lbmc as dxlx,b.lbbm as lxbm,a.dxmc,a.dxms ,a.zt as dxzt,c.xm as czr, a.czsj from gl_dxdy a 
+                    left join gl_jklb b on a.sslbbm = b.lbbm
+                    left join gl_hydy c on a.czr = c.hydm
+                    where 1=1 
+                    %if paras.dxlx:
+                        and a.sslbbm = %(dxlx)s
+                    %endif
+                    %if paras.dxbm:
+                        and a.dxbm like '%'||%(dxbm)s||'%'
+                    %endif
+                    %if paras.dxmc:
+                        and a.dxmc like  '%'||%(dxmc)s||'%'
+                    %endif
+                    %if paras.dxzt:
+                        and a.zt = %(dxzt)s
+                    %endif
+                    order by a.sslbbm,a.dxbm
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--查询监控对象列表条数-->
+    <sql sqlid = 'get_jkdx_count' desc = "查询状态类型列表">
+        select count(1) as count from gl_dxdy a where 1=1
+        %if paras.dxlx:
+            and a.sslbbm = %(dxlx)s
+        %endif
+        %if paras.dxbm:
+            and a.dxbm  like '%'||%(dxbm)s||'%'
+        %endif
+        %if paras.dxmc:
+            and a.dxmc like '%'||%(dxmc)s||'%'
+        %endif
+        %if paras.dxzt:
+            and a.zt = %(dxzt)s
+        %endif
+    </sql>
+    <!--校验对象编码是否存在-->
+    <sql sqlid = 'check_dxbm' desc = "校验对象编码是否存在">
+        select count(1) as count 
+        from gl_dxdy 
+        where sslbbm = %(dxlx)s 
+        and dxbm  like '%'||%(dxbm)s||'%'
+    </sql>
+    <!--校验对象名称是否存在-->
+    <sql sqlid = 'check_dxmc' desc = "校验对象名称是否存在">
+        select count(1) as count 
+        from gl_dxdy 
+        where sslbbm = %(dxlx)s 
+        and dxmc like '%'||%(dxmc)s||'%'
+        %if paras.id:
+            and id != %(id)s
+        %endif
+    </sql>
+    <!--添加监控对象-->
+    <sql sqlid = 'add_jkdx' desc = "添加监控对象">
+        insert into gl_dxdy(id,dxbm,sslbbm,dxmc,dxms,zt,czr,czsj) values (%(id)s,%(dxbm)s,%(dxlx)s,%(dxmc)s,%(dxms)s,%(zt)s,%(czr)s,%(czsj)s)
+    </sql>
+    <!--添加主机信息-->
+    <sql sqlid = 'add_zjxx' desc = "添加主机信息">
+        insert into gl_zjxx(ip,mc,zt,ycsl,yjsl,sxpl,id,zjlx) values (%(dxbm)s,%(dxmc)s,%(zt)s,0,0,60,%(zjid)s,%(zjlx)s)
+    </sql>
+    <!--更新主机信息-->
+    <sql sqlid = 'edit_zjxx' desc = "更新主机信息">
+        update gl_zjxx set mc = %(dxmc)s where ip = %(dxbm)s
+    </sql>
+    <!--更新监控对象信息-->
+    <sql sqlid = 'edit_jkdx' desc = "更新监控对象信息">
+        update gl_dxdy set dxmc = %(dxmc)s,dxms = %(dxms)s,czr = %(czr)s, czsj = %(czsj)s where id = %(id)s
+    </sql>
+    <!--查询对象列表信息-->
+    <sql sqlid = 'get_dxlb' desc = "查询对象列表信息">
+        select a.dxmc as dxmc,a.dxbm,a.dxms 
+        from gl_dxdy a , gl_dxcjpz b 
+        where a.id = b.dxid 
+        and (${paras._or('b.dxid',paras.ids_lst)})
+        and b.scbz != '1'
+    </sql>
+    <!--查询对象列表信息-->
+    <sql sqlid = 'get_olddxlb' desc = "查询对象列表信息">
+        select a.dxmc as dxmc,a.dxbm,a.dxms,a.sslbbm
+        from gl_dxdy a 
+        where (${paras._or('a.id',paras.id)})
+    </sql>
+    <!--查询主机ip-->
+    <sql sqlid = 'get_zjip' desc = "查询主机ip">
+        select dxbm
+        from gl_dxdy
+        where (${paras._or('id',paras.ids_lst)})
+        and sslbbm = 'Computer(zjip,dxcjpzid)'
+    </sql>
+    <!--查询需要删除的信息-->
+    <sql sqlid = 'get_delxx' desc = "查询需要删除的信息">
+        select dxbm,sslbbm,dxmc,dxms 
+        from gl_dxdy
+        where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <!--删除主机信息表数据-->
+    <sql sqlid = 'del_zjxx' desc = "删除主机信息表">
+        delete from gl_zjxx where (${paras._or('ip',paras.dxbm_lst)})
+    </sql>
+    <!--删除对象定义表数据-->
+    <sql sqlid = 'del_dxdy' desc = "删除对象定义表数据">
+        delete from gl_dxdy where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    
+    <!--查询前台传送对象ID列表中的状态-->
+    <sql sqlid = 'get_jydx' desc = "查询前台传送对象ID列表的状态">
+        select id,sslbbm,dxbm from gl_dxdy where (${paras._or('id',paras.ids_lst)})
+        and zt = %(zt)s
+    </sql>
+    <!--更新对象定义表状态-->
+    <sql sqlid = 'edit_jkdx_zt' desc = "更新对象定义表状态">
+        update gl_dxdy set zt = %(zt)s,czr=%(czr)s,czsj=%(czsj)s
+        where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <!--更新主机信息表状态-->
+    <sql sqlid = 'edit_zjxx_zt' desc = "更新主机信息表状态">
+        update gl_zjxx set zt = %(zt)s
+        where (${paras._or('ip',paras.dxbm_lst)})
+    </sql>
+    <!--查询对象采集配置表-->
+    <sql sqlid = 'get_dxcjpz' desc = "查询对象采集配置表">
+        select id, bbh,cjpzzt,dxzt,zdzjzt,lx,zdzjip,sscjpzid,dxid from gl_dxcjpz 
+        where (${paras._or('dxid',paras.ids_lst)})
+    </sql>
+    <!--查询对象采集配置表根据主机的ip-->
+    <sql sqlid = 'get_dxcjpz_from_zdzjip' desc = "查询对象采集配置表根据主机的ip">
+        select id, bbh,cjpzzt,dxzt,zdzjzt,lx,zdzjip,sscjpzid,dxid from gl_dxcjpz 
+        where 1=1 
+        %if paras.zdzjip_lst:
+            and (${paras._or('zdzjip',paras.zdzjip_lst)})
+        %endif
+    </sql>
+    <!--查询对象采集配置对应的对象的所属类别编码-->
+    <sql sqlid = 'get_dxcjpz_sslbbm' desc = "查询对象采集配置对应的对象的所属类别编码">
+        select sslbbm from gl_dxdy where id = %(id)s
+    </sql>
+    <!--更新对象采集配置表中的对象状态-->
+    <sql sqlid = 'edit_dxcjpz_bbh' desc = "更新对象采集配置表中的对象状态">
+        update gl_dxcjpz set bbh = %(bbh)s ,czr = %(czr)s,czsj = %(czsj)s
+        where id = %(dxcjpzid)s
+        %if paras.zt:
+            and cjpzzt = %(zt)s 
+        %endif
+        %if paras.lx:
+            and lx = %(lx)s 
+        %endif
+    </sql>
+    <!--更新对象采集配置表中的版本号-->
+    <sql sqlid = 'edit_dxcjpz_zt' desc = "更新对象采集配置表中的版本号">
+        update gl_dxcjpz set dxzt = %(dxzt)s,czr = %(czr)s,czsj = %(czsj)s
+        where id = %(dxcjpzid)s
+        %if paras.dxid_lst:
+            and (${paras._or('dxid',paras.dxid_lst)})
+        %endif
+        %if paras.zt:
+            and cjpzzt = %(zt)s 
+        %endif
+        %if paras.lx:
+            and lx = %(lx)s 
+        %endif
+    </sql>
+    <!--查询计划任务表id-->
+    <sql sqlid = 'get_jhrwid' desc = "查询计划任务表id">
+        select id from gl_jhrwb 
+        where （ssid = %(sscjpzid)s
+        or ip = %(zdzjip)s）
+        %if paras.zt:
+            and zt = %(zt)s 
+        %endif
+    </sql>
+    <!--获取要修改的对象的属性-->
+    <sql sqlid = 'get_edit_jkdx' desc = "根据id获取监控对象">
+        select a.dxbm,a.sslbbm,b.lbmc,a.dxmc,a.dxms,a.zt,c.zjlx
+        from gl_jklb b, gl_dxdy a 
+        left join gl_zjxx c on a.dxbm = c.ip 
+        where a.sslbbm = b.lbbm 
+        and a.id = %(id)s
+    </sql>
+    <!--更新计划任务表状态-->
+    <sql sqlid = 'edit_jhrwzt' desc = "更新计划任务表">
+        update gl_jhrwb set zt = %(zt)s 
+        where id = %(jhrwid)s
+    </sql>
+    <!--采集配置表新增-->
+    <sql sqlid = 'add_cjpzb' desc = "保存数据采集对象">
+        insert into gl_cjpzb(id,mc,ms,sslbbm,zbid,lx,zdfqpz,zdfqpzsm,sfkbf,czr,czsj,scbz)
+        values(%(id_cjpz)s,%(mc)s,%(ms)s,%(sslbbm)s,%(zbid)s,%(lx)s,%(zdfqpz)s,%(zdfqpzsm)s,%(sfkbf)s,%(czr)s,%(czsj)s,'0')
+    </sql>
+    <!--对象采集配置新增-->
+    <sql sqlid = 'add_dxcjpz' desc = "保存对象采集配置对象">
+        insert into gl_dxcjpz(id,dxid,zdzjip,sscjpzid,pid,zzzxbbh,bbh,cjpzzt,dxzt,czr,czsj,lx,scbz,zdzjzt) 
+        values (%(id_dxcjpz)s,%(id)s,%(zdzjip)s,%(sscjpzid)s,%(pid)s,%(zzzxbbh)s,%(bbh)s,%(cjpzzt)s,%(zt)s,%(czr)s,%(czsj)s,%(lx)s,'0',%(zt)s)
+    </sql>
+    <!--查询对象采集配置表ID-->
+    <sql sqlid = 'select_dxcjpz_id' desc = "查询对象采集配置表ID">
+        select id from gl_dxcjpz 
+        where zdzjip in (
+            select dxbm from gl_dxdy where ${paras._or('id',paras.ids_lst)}
+        )
+    </sql>
+    <!--更新对象采集配置表中的指定状态-->
+    <sql sqlid = 'edit_dxcjpz_zdzjzt' desc = "更新对象采集配置表中的指定状态">
+        update gl_dxcjpz set zdzjzt = %(zt)s
+        where (${paras._or('id',paras.zdzjzt_lst)})
+        and scbz = '0'
+    </sql>
+    <!--根据对象采集配置id查询对象采集配置的对象状态-->
+    <sql sqlid = 'get_dxcjpz_dxzt' desc = "根据对象采集配置id查询对象采集配置的对象状态">
+        select dxzt from gl_dxcjpz where id = %(id)s
+    </sql>
+</sqllist>

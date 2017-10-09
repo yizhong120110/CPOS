@@ -1,0 +1,51 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>单步调试记录</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_005/kf_ywgl_005_dbtsjl.js"></script>
+    <style type="text/css">
+    .tabs-icon {
+        left: initial;
+        right: 10px;
+    }
+    .tabs-with-icon {
+        padding-left: 0;
+    }
+    </style>
+    <script type="text/javascript">
+    // 执行步骤信息
+    var zxbz = ${[{'bzid':k['bzid'] or '', 'demoid':k['demoid'] or '', 'nodeid':k['id'] or '', 'rzlsh':k['rzlsh'] or '', 'lx':k['lx'] or ''} for k in zxbz]};
+    </script>
+</head>
+<body class="easyui-layout">
+    <div id="tbsDbts">
+        %for i, bz in enumerate(zxbz):
+        <div title="${i+1}.${bz['mc']}" ${"data-options=\"iconCls:'icon-skip'\"" if bz['sftg']=='1' else ''} data-bzid="${bz['bzid']}" data-lx="${bz['lx']}">
+            <iframe scrolling="auto" frameborder="0" data-src="/oa/kf_ywgl/kf_ywgl_015/kf_ywgl_015_view/csal_jdxx_jbxx_view?hideQw=1&jdcsalzxbzid=${bz['bzid']}&demoid=${bz['demoid'] or ''}"; style="width:100%;height:100%;display:block"></iframe>
+        </div>
+        %endfor
+        <div title="查看全部日志">
+            <pre id="log_all" style="padding:5px;margin:0"></pre>
+        </div>
+    </div>
+    
+    <div id="tab-tools" style="margin:0 0 8px 10px">
+        <a id="btnSaveJdCsal" href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:false,iconCls:'icon-save'">保存为节点测试案例</a>
+        <!-- 如果不包含开始和结束，则禁用“保存为测试案例”按钮 -->
+        <a id="btnSaveCsal" href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:false,iconCls:'icon-save',disabled:${'false' if save_as_lc else 'true'}">保存为测试案例</a>
+    </div>
+</body>
+</html>

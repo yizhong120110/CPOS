@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+
+    <!-- 获取当前行员的密码 -->
+    <sql sqlid="select_mm" desc="获取当前行员的密码">
+        select mm from gl_hydy where hydm = %(hydm)s
+    </sql>
+
+    <!--修改当前行员的密码-->
+    <sql sqlid="update_mm" desc="修改当前行员的密码">
+        update gl_hydy set mm = %(newpass)s where hydm = %(hydm)s
+    </sql>
+
+
+</sqllist>

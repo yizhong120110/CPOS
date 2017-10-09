@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--  查询菜单分类的信息  -->
+    <sql sqlid = 'data_cdfl_rs' desc = "下拉列表：菜单分类查询">
+        select bm, mc
+        from gl_bmwh
+        where lx = '10025'
+        order by bm
+    </sql>
+
+    <!--  查询操作平台的信息  -->
+    <sql sqlid = 'data_dlxt_rs' desc = "下拉列表：操作平台查询">
+        select bm, mc
+        from gl_bmwh
+        where lx = '10005'
+        order by bm
+    </sql>
+
+    <!--获取菜单对应的按钮权限-->
+    <sql sqlid="get_anqx" desc="获取菜单按钮权限">
+        select gndm , gnmc as text
+        from gl_gndy
+        where id in (
+            select qxid from gl_yhqxpz
+            where qxid in (
+                select id from gl_gndy
+                    where  sscdid in (
+                        select id from gl_cddy
+                        where cddm=%(cddm)s
+                    )
+            )
+        and yhid= %(yhid)s
+        )
+    </sql>
+
+    <!--获取上级菜单信息-->
+    <sql sqlid="data_sjcd_rs" desc="获取上级菜单列表数据">
+        select  id , cdmc
+        from gl_cddy
+        where scbz='0'
+        order by cdmc
+    </sql>
+
+    <!--获取根节点ID-->
+    <sql sqlid="get_gjdid_rs" desc="获取根节点ID">
+        select  a.id , a.cdmc , a.lx, b.mc as lxmc, a.fjdid,  a.bz, a.scbz, a.pxh, a.zt, a.url, a.czr ,
+                a.czsj, a.ly,
+                case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+                else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh b on b.lx='10025' and b.bm = a.lx
+        where scbz='0'
+        order by pxh
+    </sql>
+
+    <!--获取子节点ID-->
+    <sql sqlid="get_zjdid_rs" desc="获取子节点ID">
+        select a.id , a.cdmc as text , a.lx, b.mc as lxmc, a.fjdid, a.ssxt, c.bm as xtmc, a.bz, a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh b on b.lx='10025' and b.bm = a.lx
+        left join gl_bmwh c on b.lx='10005' and c.bm = a.ssxt
+        where fjdid= %(fjdid)s
+        and scbz='0'
+        order by  pxh
+    </sql>
+
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_rs" desc="获取菜单列表">
+        select a.id , a.cdmc as text ,a.cddm, a.lx, b.mc as lxmc, a.fjdid, a.ssxt, c.bm as xtmc, a.bz, a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh b on b.lx='10025' and b.bm = a.lx
+        left join gl_bmwh c on b.lx='10005' and c.bm = a.ssxt
+        where
+            scbz='0'
+        order by  pxh
+    </sql>
+
+    <!--获取菜单对应的功能列表-->
+    <sql sqlid="data_gnlb_rs" desc="获取菜单对应的功能列表">
+        select id,gndm,gnmc,bz,sscdid
+        from gl_gndy
+        where sscdid = %(sscdid)s
+        order by gndm
+    </sql>
+
+    <!--新增或者编辑：校验菜单名称是否重复-->
+    <sql sqlid="check_cdmc" desc="校验菜单名称是否存在">
+        select id from gl_cddy
+        where cdmc=%(cdmc)s
+        %if paras.id:
+            and id != %(id)s
+        %endif
+        and fjdid = %(fjdid)s
+        and scbz='0'
+    </sql>
+    <!--新增：校验菜单代码是否重复-->
+    <sql sqlid="check_cddm" desc="校验菜单代码是否存在">
+        select id from gl_cddy
+        where cddm=%(cddm)s
+        %if paras.id:
+            and id != %(id)s
+        %endif
+        and fjdid = %(fjdid)s
+        and scbz='0'
+    </sql>
+
+    <!--菜单新增-->
+    <sql sqlid="insert_cdxx" desc="插入菜单信息">
+        insert into  gl_cddy (id,cddm, cdmc, lx, fjdid, ssxt,bz , pxh, czr, czsj, scbz, ly, url, zt)
+        values( %(id)s,%(cddm)s, %(cdmc)s, %(cdfl)s, %(sjcd)s,%(ssxt)s, %(bz)s, %(pxh)s, %(czr)s, %(czsj)s, %(scbz)s, %(ly)s ,%(url)s, %(zt)s)
+    </sql>
+
+    <!--获取编辑前菜单信息-->
+    <sql sqlid="get_cdxx_edit" desc="获取编辑前的菜单信息">
+        select
+            id,cddm,cdmc,lx,fjdid,bz,url,pxh,ssxt
+        from gl_cddy
+        where id = %(id)s
+
+    </sql>
+    <!--菜单更新-->
+    <sql sqlid="update_cdxx" desc="更新菜单信息">
+        update gl_cddy
+        set cdmc = %(cdmc)s,
+            url = %(url)s,
+            lx = %(cdfl)s,
+            fjdid = %(sjcd)s ,
+            ssxt = %(ssxt)s,
+            bz = %(bz)s,
+            pxh = %(pxh)s,
+            czr= %(czr)s,
+            czsj = %(czsj)s
+        where
+            id = %(id)s
+    </sql>
+
+    <!--删除：校验菜单下是否存在子菜单-->
+    <sql sqlid="get_zjd" desc="获取孩子菜单">
+        select id
+        from gl_cddy
+        where  fjdid = %(id)s
+        and scbz='0'
+    </sql>
+
+
+    <!-- 获取要删除菜单信息，用于登记日志-->
+    <sql sqlid="get_cdxx" desc="获取要删除菜单的信息">
+        select
+            cdmc,id
+        from gl_cddy
+        where id = %(id)s
+    </sql>
+
+    <!--删除菜单对应的功能-->
+    <sql sqlid="delete_cdgn" desc="删除菜单对应的功能">
+        delete from gl_gndy where sscdid=%(id)s
+    </sql>
+
+    <!--用户权限：删除菜单对应的用户权限-->
+    <sql sqlid="delete_cdyhqx" desc="删除菜单对应的用户权限">
+        delete from gl_yhqxpz  where qxid = %(id)s
+    </sql>
+
+    <!--用户权限：获取菜单对应按钮权限-->
+    <sql sqlid="get_cdAnYhQx" desc="获取菜单对应按钮权限">
+        select a.qxid from gl_yhqxpz a , gl_gndy b, gl_cddy c
+        where c.id = %(id)s
+        and a.qxid  = b.id
+        and c.id = b.sscdid
+    </sql>
+
+    <!--用户权限：删除菜单对应按钮权限-->
+      <sql sqlid="del_cdAnYhQx" desc="获取菜单对应按钮权限">
+        delete from gl_yhqxpz  where  ${paras._or('qxid',paras.ids)}
+    </sql>
+
+    <!--角色权限：删除菜单对应的角色权限-->
+    <sql sqlid="delete_cdjsqx" desc="删除菜单对应的角色权限">
+        delete from gl_jsqxpz  where qxid = %(id)s
+    </sql>
+
+    <!--角色权限：获取菜单对应按钮权限-->
+    <sql sqlid="get_cdAnJsQx" desc="获取菜单对应按钮权限">
+        select a.qxid from gl_jsqxpz a , gl_gndy b, gl_cddy c
+        where c.id = %(id)s
+        and a.qxid  = b.id
+        and c.id = b.sscdid
+    </sql>
+    <!--角色权限：删除菜单对应按钮权限-->
+      <sql sqlid="del_cdAnJsQx" desc="获取菜单对应按钮权限">
+        delete from gl_jsqxpz  where ${paras._or('qxid',paras.ids)}
+    </sql>
+
+    <!-- 删除菜单信息-->
+    <sql sqlid="delete_cd" desc="删除">
+        update gl_cddy set
+            scbz='1',
+            czr= %(czr)s,czsj = %(czsj)s
+        where id = %(id)s
+    </sql>
+
+    <!--功能编辑或者新增窗口：校验同一菜单功能名称是否重复-->
+    <sql sqlid="check_gnmc" desc="校验同一个菜单下功能名称是否重复">
+        select id
+        from gl_gndy
+        where sscdid = %(cdid)s
+        and gnmc = %(gnmc)s
+            %if paras.id:
+                    and id != %(id)s
+            %endif
+    </sql>
+
+    <!--功能新增或编辑窗口：校验功能代码是否重复-->
+    <sql sqlid="check_gndm" desc="校验同一个菜单下功能代码是否重复">
+        select id
+        from gl_gndy
+        where sscdid = %(cdid)s
+        and gndm = %(gndm)s
+    </sql>
+
+    <!--插入功能定义表-->
+    <sql sqlid="insert_gnxx" desc="新增菜单功能">
+        insert into  gl_gndy (id, gndm, gnmc, bz, sscdid, czr, czsj)
+        values( %(id)s, %(gndm)s, %(gnmc)s, %(bz)s, %(sscdid)s, %(czr)s, %(czsj)s)
+    </sql>
+
+    <!--获取变更前功能信息-->
+    <sql sqlid="get_gnxx_edit" desc="获取编辑前的功能信息用于登记日志">
+        select id,gndm,gnmc,sscdid,bz from gl_gndy where id = %(id)s
+    </sql>
+    <!--更新菜单对应的功能-->
+    <sql sqlid="update_gnxx" desc="更新菜单对应的功能">
+        update gl_gndy
+        set gnmc = %(gnmc)s,
+            bz = %(bz)s,
+            czr= %(czr)s,
+            czsj = %(czsj)s
+        where
+            id = %(id)s
+    </sql>
+
+    <!--获取删除数据信息，用于记录日志-->
+    <sql sqlid="select_gn_rz" desc="获取删除功能信息">
+        select gndm, gnmc from gl_gndy
+        where ${paras._or('id',paras.ids)}
+    </sql>
+
+    <!--批量删除菜单对应功能-->
+    <sql sqlid="delete_gn"  desc="批量删除菜单下的功能">
+        delete from gl_gndy where ${paras._or('id',paras.ids)}
+    </sql>
+
+</sqllist>

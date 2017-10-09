@@ -1,0 +1,6 @@
+{
+    "total": 1, "rows":
+    [
+        { "id": "1", "mc": "缴款书预设数据", "sql": "insert into csfs_jksxxb select * from fx_csfs where rq='2014-10-10'", "ms": "往缴款书信息表中插入一条已经成功缴款的缴款书信息", "operation": "" }
+    ]
+}

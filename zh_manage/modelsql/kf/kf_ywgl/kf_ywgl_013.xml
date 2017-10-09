@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid = 'index_zdcs_jy_lst' desc = "获取交易的树形结构信息">
+        select a.id, a.text, a.czsj, NVL(b.alsl,0) alsl, a.ssywid, '交易' lx, 0 dycs, '1' pid
+        from ( select id, jymc text, czsj, ssywid
+            from gl_jydy ) a
+        left join ( select ssid，count(id) as alsl
+            from gl_csaldy
+            where lb = '1'
+                and sslb = '1'
+            group by ssid ) b
+        on a.id = b.ssid
+        where a.ssywid = %(ssywid)s
+        order by a.czsj
+    </sql>
+    <sql sqlid = 'index_zdcs_zlc_lst' desc = "获取子流程的树形结构信息">
+        select a.id, a.text, a.czsj, NVL(b.alsl,0) alsl, a.ssywid, '子流程' lx, NVL(c.dycs,0) dycs, '2' pid
+        from ( select id, mc text, czsj, ssywid
+            from gl_zlcdy ) a
+        left join ( select ssid, count(id) as alsl
+            from gl_csaldy
+            where (lb = '2' or lb = '4') and sslb = '2'
+            group by ssid ) b
+        on a.id = b.ssid
+        left join ( select jddyid，count(id) as dycs
+            from gl_lcbj
+            where jdlx = '2'
+            group by jddyid ) c
+        on a.id = c.jddyid
+        where a.ssywid = %(ssywid)s
+        order by a.czsj
+    </sql>
+    <sql sqlid = 'index_zdcs_jd_jddy_lst_one' desc = "获取结果组织数据结构LST1">
+        select a.jddyid
+        from gl_lcbj a, gl_jydy b
+        where a.ssjyid = b.id
+            and b.ssywid = %(ssywid)s
+            and a.jdlx = '1'
+    </sql>
+    <sql sqlid = 'index_zdcs_jd_jddy_lst_two' desc = "获取结果组织数据结构LST2">
+        select a.jddyid
+        from gl_lcbj a, gl_zlcdy b
+        where a.sszlcid = b.id
+            and b.lb = '2'
+            and b.ssywid = %(ssywid)s
+            and a.jdlx = '1'
+    </sql>
+    <sql sqlid="get_djbjd" desc="查询打解包节点">
+        select id, jym, dbjdid, jbjdid
+        from gl_jydy
+        where ssywid = %(ywid)s
+    </sql>
+    <sql sqlid = 'index_zdcs_jd_lst' desc = "获取节点的树形结构信息">
+        select a.id, a.text, a.czsj, NVL(b.alsl,0) alsl, '节点' lx, NVL(c.dycs,0) dycs, '3' pid
+        from ( select id, jdmc text, czsj
+               from gl_jddy ) a
+        left join ( select ssid, count(id) as alsl
+                from gl_csaldy
+                where lb = '3' and sslb = '3'
+                group by ssid) b
+        on a.id = b.ssid
+        left join ( select jddyid, count(id) as dycs
+                from gl_lcbj
+                where jdlx = '1'
+                group by jddyid ) c
+        on a.id = c.jddyid
+        where ${paras._or('a.id',paras.jddyid)}
+        order by a.czsj
+    </sql>
+    <sql sqlid = 'index_zdcs_zlc_ssjy_lst' desc = "获取补充关联测试用到的所属交易">
+        select a.id, b.ssjyid
+        from gl_zlcdy a, gl_lcbj b
+        where a.id = b.jddyid
+            and b.jdlx = '2'
+            and (b.ssjyid != '' or b.ssjyid is not null)
+            and a.ssywid = %(ssywid)s
+            and a.id = %(id)s
+    </sql>
+    <sql sqlid = 'index_zdcs_zlc_zlc_lst' desc = "获取补充关联测试用到的所属子流程">
+        select a.id, b.sszlcid
+        from gl_zlcdy a, gl_lcbj b
+        where a.id = b.jddyid
+            and b.jdlx = '2'
+            and (b.sszlcid != '' or b.sszlcid is not null)
+            and a.ssywid = %(ssywid)s
+            and a.id = %(id)s
+    </sql>
+    <sql sqlid = 'index_zdcs_jd_ssjy_lst' desc = "获取补充关联测试用到的所属交易">
+        select a.id, b.ssjyid
+        from gl_jddy a, gl_lcbj b
+        where a.id = b.jddyid
+            and b.jdlx = '1'
+            and (b.ssjyid != '' or b.ssjyid is not null)
+            and a.id = %(id)s
+    </sql>
+    <sql sqlid = 'index_zdcs_jd_zlc_lst' desc = "获取补充关联测试用到的所属子流程">
+        select a.id, b.sszlcid
+        from gl_jddy a, gl_lcbj b
+        where a.id = b.jddyid
+            and b.jdlx = '1'
+            and (b.sszlcid != '' or b.sszlcid is not null)
+            and a.id = %(id)s
+    </sql>
+    <sql sqlid = 'index_zdcs_csal_lst' desc = "获取测试案例列表">
+        select id, mc, ms, demoid,lb, rn,ssid from (
+            select id, mc, ms,lb, demoid, rownum as rn,ssid
+            from gl_csaldy
+            where ( ${paras._or('lb', paras.lblst)} )
+                and sslb = %(sslb)s
+                and ssid = %(csaldyssid)s
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+        order by lb,mc
+    </sql>
+    <sql sqlid = 'index_zdcs_csal_lst_count' desc = "获取测试案例列表">
+        select count(1) as count
+        from gl_csaldy
+        where ( ${paras._or('lb', paras.lblst)} )
+            and sslb = %(sslb)s
+            and ssid = %(csaldyssid)s
+    </sql>
+    <sql sqlid = 'index_zdcs_csal_detail' desc = "获取测试案例详细">
+        select b.jymc, a.mc, a.ms
+        from gl_csaldy a
+        left join gl_jydy b on a.ssid = b.id
+        where ( ${paras._or('a.lb', paras.lblst)} )
+            and a.sslb = %(sslb)s
+            and a.id = %(csaldyid)s
+    </sql>
+    <sql sqlid = 'index_zdcs_zlc_csal_detail' desc = "获取子流程测试案例详细">
+        select b.mc as jymc, a.mc, a.ms
+        from gl_csaldy a
+        left join gl_zlcdy b on a.ssid = b.id
+        where ( ${paras._or('a.lb', paras.lblst)} )
+            and a.sslb = %(sslb)s
+            and a.id = %(csaldyid)s
+    </sql>
+    <sql sqlid = 'index_zdcs_jd_csal_detail' desc = "获取节点测试案例详细">
+        select b.jdmc as jymc, a.mc, a.ms
+        from gl_csaldy a
+        left join gl_jddy b on a.ssid = b.id
+        where ( ${paras._or('a.lb', paras.lblst)} )
+            and a.sslb = %(sslb)s
+            and a.id = %(csaldyid)s
+    </sql>
+    <sql sqlid = 'index_zdcs_csal_jy_jdcsalzxbzlb' desc = "获取节点测试案例执行步骤列表">
+        select a.jdcsalzxbzlb
+        from gl_csaldy a
+        where a.id = %(csaldyid)s
+    </sql>
+    <sql sqlid = 'index_zdcs_csal_jy_jdcsalzxbzlb_detail' desc = "获取节点测试案例执行步骤列表详细">
+        select a.id, a.lx, nvl(b.jdmc,'未知节点') jdmc, nvl(c.mc,'未知节点') mc, a.sftg,a.demoid
+        from gl_jdcsalzxbz a
+        left join gl_jddy b on a.ssdyid = b.id
+        left join gl_zlcdy c on a.ssdyid = c.id
+        where ${paras._or('a.id', paras.id)}
+    </sql>
+    <sql sqlid = 'index_zdcs_csal_csalys' desc = "获取节点测试案例要素">
+        select id, lx, ysdm, ysz
+        from gl_jdcsalys
+        where jdcsalzxbz = %(jdcsalzxbzid)s
+    </sql>
+    <sql sqlid="get_csal_demo" desc="自动化测试案例demo信息">
+        select a.id, a.mc, a.sjms from gl_demo_jbxx a
+        where a.id = %(demoid)s
+    </sql>
+    <sql sqlid="get_csal_demojbxx_sjb" desc="自动化测试案例demo数据表信息">
+        select a.id as sjbid, a.sjbjc, nvl(b.sjbmcms, '未知数据表') as sjbmc, b.id as sjkmxdyid
+        from gl_demo_sj a  left join gl_sjkmxdy b on a.sjbjc = b.sjbmc
+        where (demojbxxid = %(demojbxxid)s) and sjjb = '1'
+        order by a.sjbjc
+    </sql>
+    <sql sqlid="get_csal_demojbxx_bzdmc" desc="自动化测试案例demo表字段名称">
+        select zdmc from gl_sjkzdb where sjb_id = %(sjkmxdyid)s order by iskey desc , zdmc
+    </sql>
+    <sql sqlid="get_csal_demojbxx_bzd" desc="自动化测试案例demo表字段值">
+        select sjid, sjbjc, xssx, zdm, to_char(zdz) zdz from gl_demo_sj
+        where sjid = %(sjbid)s and sjjb='2' order by xssx
+    </sql>
+    <sql sqlid = "get_csbz_list" desc="获取节点测试案例执行步骤列表">
+        select jdcsalzxbzlb from gl_csaldy where id = %(id)s
+    </sql>
+    <sql sqlid = "get_csbz" desc="获取节点测试案例定义id">
+        select id,csaldyid,jdcsaldyid from gl_jdcsalzxbz  where id = %(id)s
+    </sql>
+    <sql sqlid = "get_jd_csaldyid" desc="获取节点测试案例定义id">
+        select id, csaldyid from gl_jdcsalzxbz  where id = %(bzid)s
+    </sql>
+    <sql sqlid = "del_csys" desc="删除测试案例要素">
+        delete from gl_jdcsalys where jdcsalzxbz = %(id)s
+    </sql>
+    <sql sqlid = "del_csbz" desc="删除测试案例步骤">
+        delete from gl_jdcsalzxbz where id = %(id)s
+    </sql>
+    <sql sqlid = "get_zxbz_use" desc="查询测试案例执行步骤有没有被引用">
+        select count(1) as count from gl_csaldy where jdcsalzxbzlb like '%'||%(id)s||'%'
+    </sql>
+    <sql sqlid = "update_jdcsalid" desc="清空节点测试案例定义id">
+        update gl_jdcsalzxbz set jdcsaldyid = '' where id = %(id)s and jdcsaldyid = %(csaldyid)s
+    </sql>
+    <sql sqlid = "update_csalid" desc="清空测试案例定义id">
+        update gl_jdcsalzxbz set csaldyid = '' where id = %(id)s
+    </sql>
+    <sql sqlid = 'del_csaldy_by_id' desc = "删除测试案例定义">
+        delete from gl_csaldy where id = %(id)s
+    </sql>
+    <sql sqlid="get_zxjg" desc="获取测试案执行结果">
+        select zxjg,jgsm
+        from gl_zdhcslsb
+        where csal_id=%(id)s
+            and lx='3'
+            and pc=%(pc)s
+    </sql>
+    <sql sqlid="get_csalbz" desc="获取节点测试案例执行步骤列表">
+        select jdcsalzxbzlb
+        from gl_csaldy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_csal_jdxx_yslb" desc="自动化测试案例执行步骤要素列表">
+        select distinct a.id,a.ysdm,a.qwscz,b.sjscz,a.lx from(
+            select id,ysdm,ysz as qwscz,lx
+                from gl_jdcsalys
+                where ${paras._or('jdcsalzxbz', paras.zxbzid)} and lx=%(lx)s --输出要素
+            ) a
+            left join
+            (select ysdm,ysz as sjscz
+                from gl_zdhcslsb
+                where csal_id=%(jdcsalid)s
+                    and pc=%(pc)s
+                    and lx='1' --输出要素
+                    %if paras.jd:
+                        and ${paras._or('jdcsalzxbz', paras.zxbzid)} -- 如果不是节点类型的，就使用节点测试案例执行步骤来查。
+                    %endif
+            )b on a.ysdm=b.ysdm
+            order by a.ysdm
+    </sql>
+    <sql sqlid="get_csal_jdxx_yslb_txlx" desc="自动化测试案例执行步骤要素列表_通讯类型">
+        select distinct a.id,b.ysdm,a.qwscz,b.sjscz,a.lx from(
+            select ysdm,ysz as sjscz
+                from gl_zdhcslsb
+                where csal_id=%(jdcsalid)s
+                    and pc=%(pc)s
+                    and lx='1' --输出要素
+                    %if paras.jd:
+                        and ${paras._or('jdcsalzxbz', paras.zxbzid)} -- 如果不是节点类型的，就使用节点测试案例执行步骤来查。
+                    %endif
+            ) b
+            left join
+            (
+            select id,ysdm,ysz as qwscz,lx
+                from gl_jdcsalys
+                where ${paras._or('jdcsalzxbz', paras.zxbzid)} and lx=%(lx)s --输出要素
+            )a on a.ysdm=b.ysdm
+            order by b.ysdm
+    </sql>
+    <sql sqlid="get_txjd_run" desc="查看通讯节点有没有执行">
+        select count(1) as count
+            from gl_zdhcslsb
+            where csal_id=%(jdcsalid)s
+                and pc=%(pc)s
+                and lx='1' --输出要素
+                %if paras.jd:
+                    and ${paras._or('jdcsalzxbz', paras.zxbzid)} -- 如果不是节点类型的，就使用节点测试案例执行步骤来查。
+                %endif
+    </sql>
+    
+    <sql sqlid="get_jy_zlc" desc="查询此节点的关联交易及子流程">
+        select ssjyid, sszlcid 
+            from gl_lcbj where ${paras._or('jddyid', paras.jddyid)}
+    </sql>
+    <sql sqlid="get_jy_zlc_csal" desc="查询关联交易、子流程及本节点的测试案例">
+    select mc, id, dxmc, ms, demoid,lxdm, ssid,lx from (
+        select mc, id, dxmc, ms, demoid,lb as lxdm, rn,ssid,lx from (
+            select a.mc,a.demoid,a.ssid,a.id,a.ms, a.lb, case when a.lb = '1' then b.jymc when a.lb = '2' or a.lb = '4' then c.mc when a.lb = '3' then d.jdmc end as dxmc, rownum as rn
+            ,case when a.lb = '1' then '交易' when a.lb = '2' or a.lb = '4' then '子流程' when a.lb = '3' then '节点' end as lx
+            from (
+                select id, lb, mc, ms, ssid, demoid from gl_csaldy 
+                where 1=1 and (${paras._or('ssid', paras.ids)})
+                %if paras.csalids:
+                    or (${paras._or('id', paras.csalids)})
+                %endif
+            ) a
+            left join gl_jydy b on b.id = a.ssid 
+            left join gl_zlcdy c on c.id = a.ssid 
+            left join gl_jddy d on d.id = a.ssid 
+        ) 
+    )
+    where rn >= %(rn_start)s and %(rn_end)s >= rn
+    order by lxdm desc,mc
+    </sql>
+    <sql sqlid="get_jy_zlc_csal_count" desc="查询关联交易、子流程及本节点的测试案例">
+        select count(1) as count
+        from (
+            select id, lb, mc, ms, ssid from gl_csaldy 
+            where 1=1 and (${paras._or('ssid', paras.ids)})
+            %if paras.csalids:
+                or (${paras._or('id', paras.csalids)})
+            %endif
+        ) a
+        left join gl_jydy b on b.id = a.ssid 
+        left join gl_zlcdy c on c.id = a.ssid 
+        left join gl_jddy d on d.id = a.ssid 
+    </sql>
+    <sql sqlid="get_csal_lx" desc="获取测试案例的类型">
+        select lb from gl_csaldy where id = %(csalid)s
+    </sql>
+    <sql sqlid="get_csalbz_csaldyid" desc="获取测试案例执行步骤的测试案例定义id">
+        select csaldyid, jdcsaldyid from gl_jdcsalzxbz where id = %(bzid)s
+    </sql>
+    <sql sqlid="clear_bdssid" desc="检索 GL_CDTX的字段 DBSSID，判断是否有值在 1测试案例执行步骤ID中，若有则清空">
+        update gl_cdtx set dbssid = '' where dbssid = %(bzid)s
+    </sql>
+    <sql sqlid="get_csalid_for_dj" desc="查询节点的类型为8,9，也就是8:流程打包节点 9:流程解包节点，对应的测试案例ID和节点测试案例ID">
+        select csaldyid,jdcsaldyid from gl_jdcsalzxbz where ssdyid in(
+            select id from gl_jddy where (${paras._or('id', paras.jddyid)}) and (jdlx = '8' or jdlx = '9')
+        )
+    </sql>
+    <sql sqlid="get_csalssid" desc="若改节点是打解包节点的话就需要单独查询关联的测试案例">
+        select lb,ssid from gl_csaldy where 1=1
+        %if paras.csalid_lst:
+            and (${paras._or('id', paras.csalid_lst)})
+        %endif
+        group by ssid,lb
+    </sql>
+    <sql sqlid="get_csalssid_jdcsalid" desc="获取测试案例id，节点测试案例id">
+        select csaldyid,jdcsaldyid from gl_jdcsalzxbz where ssdyid in(
+            select id from gl_jddy where id = %(id)s and (jdlx = '8' or jdlx = '9')
+        )
+    </sql>
+</sqllist>

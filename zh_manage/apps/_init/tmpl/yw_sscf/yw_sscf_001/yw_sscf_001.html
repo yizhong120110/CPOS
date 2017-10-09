@@ -1,0 +1,317 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 监控配置 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>大屏监控主页</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!--本功能使用css-->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/servers.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 大屏监控调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/locale/easyui-lang-zh_CN.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/echarts-2.1.8/echarts-all.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.sortable.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_sscf/yw_sscf_001/yw_sscf_001.js"></script>
+    <!-- 新增主机页面样式处理 -->
+    <style type="text/css">
+        form {
+            margin: 0 0 30px 0;
+        }
+        .legend {
+            margin: 0 10px 0 5px;
+        }
+        .checklist {
+            width: 595px;
+            height: auto;
+            list-style: none;
+            margin: 0;
+            padding: 9px 0 10px 0;
+            overflow: hidden;
+        }
+        .checklist li {
+            float: left;
+            text-align: center;
+            margin-right: 10px;
+            background: url(/static/${settings._T.APP_NAME}/images/checkboxbg.png) no-repeat 0 0;
+            width: 105px;
+            height: 130px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .checklist li.selected {
+            background-position: -105px 0;
+        }
+        .checklist li.selected .checkbox-select {
+            display: none;
+        }
+        .checkbox-select {
+            display: block;
+            float: left;
+            position: absolute;
+            top: 98px;
+            left: 10px;
+            width: 85px;
+            height: 23px;
+            background: url(/static/${settings._T.APP_NAME}/images/select.png) no-repeat 0 0;
+            font-size: 13px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            line-height: 23px;
+        }
+        .checklist li input {
+            display: none;
+        }
+        a.checkbox-deselect {
+            display: none;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            position: absolute;
+            top: 100px;
+            right: 10px;
+        }
+        .checklist li.selected a.checkbox-deselect {
+            display: block;
+        }
+        .checklist li label {
+            display: block;
+            text-align: center;
+            padding: 8px;
+        }
+        .jk_home {
+            width: 24px;
+            height: 24px;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            cursor: pointer;
+        }
+        .checklist .selected .jk_home_selected,
+        .checklist .selected:hover .jk_home_selected {
+            background: url(/static/${settings._T.APP_NAME}/images/checkboxbg.png) -24px -130px;
+        }
+        .selected:hover .jk_home,
+        .selected .jk_home:hover {
+            background: url(/static/${settings._T.APP_NAME}/images/checkboxbg.png) 0 -130px;
+        }
+        ul {
+            padding: 0;
+            margin: 0 10px;
+        }
+        #xtjkItems li {
+            width:99%;
+            height:270px;
+            margin:5px auto;
+            background:#fff;
+            box-shadow:#ccc 1px 2px 4px 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit:true">
+        <!-- 主机监控部分 -->
+        <div region="west" style="width:66%;padding:10px 0">
+            <div style="width: 100%;height: 20px;overflow: hidden;">
+                <h4 style="margin: 0 0 0 16px;float:left;font-size:14px">主机监控</h4>
+                <ul class="s-sample clearfix" style="float: right;">
+                    <li>
+                        <span style="font-size: 13px;font-weight: bolder;">
+                            <!-- 刷新频率编辑 -->
+                            <a id="sxplpz" href="javascript:void(0);">刷新频率配置</a>
+                            <!-- 原有刷新频率 -->
+                            <input type = 'hidden' id = 'hidSxpl' name = 'sxpl' value = '${sxpl}'>
+                            <!-- 刷新当前页面 -->
+                            <a id="dqymsx" href="javascript:void(0);">刷新</a>
+                        </span>
+                    </li>
+                    <!-- 标识主机状态 -->
+                    <li><span class="c-box btn-success"></span><span class="legend">正常</span></li>
+                    <li><span class="c-box btn-danger"></span><span class="legend">异常</span></li>
+                    <li><span class="c-box btn-warning"></span><span class="legend">预警</span></li>
+                    <li><span class="c-box btn-default"></span><span class="legend">未监控</span></li>
+                </ul>
+            </div>
+            <ul class="sList sortable grid clearfix">
+                <!-- 初始化主机信息 -->
+                %for zjxx_dic in zjxx_lst:
+                <%
+                    # ID
+                    zj_id = zjxx_dic.get('id')
+                    # 主机ip
+                    zj_ip = zjxx_dic.get('ip')
+                    # 主机名称
+                    zj_mc = zjxx_dic.get('mc')
+                    # 主机类型
+                    zj_zjlx = zjxx_dic.get('zjlx')
+                    # 根据主机类型来决定显示主机图片
+                    #1:通讯主机
+                    #2:管理主机
+                    #3:数据库主机
+                    #4:业务主机
+                    zj_building = 'icon-building'
+                    # 通讯主机
+                    if zj_zjlx == '1':
+                        zj_building = 'icon-random'
+                    # 管理主机
+                    elif zj_zjlx == '2':
+                        zj_building = 'icon-group'
+                    # 数据库主机
+                    elif zj_zjlx == '3':
+                        zj_building = 'icon-hdd'
+                %>
+                <li class="sItem">
+                    <!-- 
+                    主机信息：
+                        使用主机名称来区分是哪个主机
+                        点击主机信息可以查看明细
+                        显示主机的：cpu使用率，内存使用率
+                    -->
+                    <a href="javascript:;" onclick="view_server('${zj_mc}','${zj_ip}');return false;">
+                        <h6>${zj_mc}</h6>
+                        <img src="/static/${settings._T.APP_NAME}/images/server3.jpg" class="serverImg">
+                        <div id = 'img_${zj_id}' class="btn s-position btn-default">
+                            <i class="${zj_building}"></i>
+                            <span id = 'yc_${zj_id}' class="span-circle" style="display:none;"></span>
+                        </div>
+                        <div id="cup_${zj_id}" class="servCharBox"></div>
+                        <div id="mem_${zj_id}" class="servCharBox servCharBox2"></div>
+                    </a>
+                </li>
+                %endfor
+                <!-- 
+                    加载完已有主机后，追加新增主机区域
+                -->
+                <li class="sItem addBg">
+                    <a href="javascript:;" onclick="add_server();return false;" class="add-item">
+                        <h5> <i class="icon-plus-sign"></i><br />添<br />加<br />主<br />机</h5>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- 系统监控部分 -->
+        <div region="center">
+            <h4 style="margin: 10px 0 4px 8px;font-size:14px">系统监控</h4>
+            <ul id="xtjkItems" class="sList grid clearfix">
+                <!-- 交易笔数 -->
+                <li>
+                    <div id="divJybs" style="width:100%;height:100%;"></div>
+                </li>
+                <!-- 交易笔数明细 -->
+                <li>
+                    <div id="dgJybsmx" style="width:100%;height:100%;"></div>
+                </li>
+                <!-- 数据库会话数 -->
+                <li>
+                    <div id="session_chart" style="width:100%;height:100%;"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- 新增监控主机 -->
+    <div id="addServerWin" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <!-- FORM 表单使用post提交方式 -->
+        <form id = 'fmZjAdd' method="post">
+        <div class="esayui-panel" >
+            <table align="center" cellspacing="10px" style="border-spacing:10px;border-collapse:initial;">
+                <tr>
+                    <!-- 服务器名称：不可重复 -->
+                    <td nowrap="nowrap" align = 'right'>服务器名称：</td>
+                    <td nowrap="nowrap" align = 'left'>
+                        <input id="txtServermc" name="servermc" class="easyui-textbox" style="width:200px" />
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <!-- 服务器地址：不可重复 -->
+                    <td nowrap="nowrap" align = 'right'>服务器hostname：</td>
+                    <td nowrap="nowrap" align = 'left'>
+                        <input id="txtServerip" name="serverip" class="easyui-textbox" style="width:200px" />
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <!-- 服务器类型：不可为空 -->
+                    <td nowrap="nowrap" align = 'right'>服务器类型：</td>
+                    <td nowrap="nowrap" align = 'left'>
+                        <select id="selZjlx" name="zjlx" class="easyui-combobox" style="width:200px">
+                        </select>
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <!-- 选择监控项：默认都选择，不可取消 -->
+                    <td nowrap="nowrap" align = 'right'>选择监控项：</td>
+                    <td align = 'left'>
+                        <ul class="checklist">
+                            <li>
+                                <input name="hqcpusyqk" value="value1" type="checkbox" id="choice_hqcpusyqk" checked = 'checked'>
+                                <label for="choice_hqcpusyqk">CPU使用率</label>
+                                <img src="/static/${settings._T.APP_NAME}/images/cpu_chart.png" style="width:80%;height:30%;">
+                                <a class="checkbox-select" href="###">选 择</a>
+                            </li>
+                            <li>
+                                <input name="hqncsyqk" value="value2" type="checkbox" id="choice_hqncsyqk" checked = 'checked'>
+                                <label for="choice_hqncsyqk">内存使用率</label>
+                                <img src="/static/${settings._T.APP_NAME}/images/memory_chart.png" style="width:80%;height:30%;">
+                                <a class="checkbox-select" href="###">选 择</a>
+                            </li>
+                            <li>
+                                <input name="hqwjxtsyl" value="value3" type="checkbox" id="choice_hqwjxtsyl" checked = 'checked'>
+                                <label for="choice_hqwjxtsyl">磁盘使用率</label>
+                                <img src="/static/${settings._T.APP_NAME}/images/disk_chart.png" style="width:50%;">
+                                <a class="checkbox-select" href="###">选 择</a>
+                            </li>
+                            <li>
+                                <input name="hqcpiofml" value="value4" type="checkbox" id="choice_hqcpiofml" checked = 'checked'>
+                                <label for="choice_hqcpiofml">磁盘I/O繁忙率</label>
+                                <img src="/static/${settings._T.APP_NAME}/images/cpu_chart.png" style="width:80%;height:30%;">
+                                <a class="checkbox-select" href="###">选 择</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 操作按钮提交：提交新增请求，取消新增请求 -->
+        <div data-options="region:'south',border:false" style="text-align:center;">
+            <a id="lbtnAddSubmit" class="easyui-linkbutton"  style="width:80px">添加</a>
+            <a id="lbtnAddCancel" class="easyui-linkbutton"  style="width:80px">取消</a>
+        </div>
+        </form>
+     </div>
+     <!-- 刷新频率配置-->
+    <div id="sxplpzWin" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div class="esayui-panel" >
+            <table align="center" cellspacing="10px" style="border-spacing:10px;border-collapse:initial;height:90px;width:100%;">
+                <tr>
+                    <td nowrap="nowrap" align="right">页面刷新频率：</td>
+                    <td nowrap="nowrap" >
+                        <input id="nspSxpl" class="easyui-numberspinner" style="width:80px;" data-options="min:1,max:999"> 秒
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 操作按钮提交：提交更新请求，取消更新请求 -->
+        <div data-options="region:'south',border:false" style="text-align:center;">
+            <a id="lbtnsxplpzSubmit" class="easyui-linkbutton"  style="width:80px">确定</a>
+            <a id="lbtnsxplpzCancel" class="easyui-linkbutton"  style="width:80px">取消</a>
+        </div>
+     </div>
+</body>
+</html>

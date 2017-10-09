@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--
+        查询满足条件的冲正流水总条数
+        支持条件查询：
+            交易日期：yyyymmdd
+            原交易流水号
+            冲正流水号
+            冲正流水状态
+            交易名称
+            交易码
+    -->
+    <sql sqlid = 'data_count' desc = "冲正流水列表：查询总条数">
+        select count(0) as count
+        from jy_cz a, jy_ls b, gl_jydy c
+        where a.rq = b.jyrq and a.ylsh = b.lsh
+        and b.jym = c.jym
+        %if paras.jyrq:
+            and a.rq = %(jyrq)s
+        %endif
+        %if paras.ylsh:
+            and a.ylsh = %(ylsh)s
+        %endif
+        %if paras.czlsh:
+            and a.czlsh = %(czlsh)s
+        %endif
+        %if paras.czlshzt:
+            and a.zt = %(czlshzt)s
+        %endif
+        %if paras.jymc:
+            and c.jymc like '%'||%(jymc)s||'%'
+        %endif
+        %if paras.jym:
+            and b.jym like '%'||%(jym)s||'%'
+        %endif
+    </sql>
+    <!--
+        查询满足条件的交易流水详情，本页面的交易流水详情
+        支持条件查询：
+            交易日期：yyyymmdd
+            交易名称
+            交易码
+            流水状态
+        排序：根据交易日期降序，交易时间降序，流水号
+        查询交易对应的交易接口校验流水个数
+    -->
+    <sql sqlid = 'data_rs' desc = "交易流水列表：获取详细信息">
+        select jyrq, jysj, ylsh, czlsh, jymc, jym, cs, czwz, zt, ylszt
+        from(
+            select jyrq, jysj, ylsh, czlsh, jymc, jym, cs, czwz, zt, ylszt, rownum rn
+            from(
+                select b.jyrq, b.jysj, a.ylsh, a.czlsh, c.jymc, c.jym, a.cs, a.czwz, a.zt, b.zt as ylszt
+                from jy_cz a, jy_ls b, gl_jydy c
+                where a.rq = b.jyrq and a.ylsh = b.lsh
+                and b.jym = c.jym
+                %if paras.jyrq:
+                    and a.rq = %(jyrq)s
+                %endif
+                %if paras.ylsh:
+                    and a.ylsh = %(ylsh)s
+                %endif
+                %if paras.czlsh:
+                    and a.czlsh = %(czlsh)s
+                %endif
+                %if paras.czlshzt:
+                    and a.zt = %(czlshzt)s
+                %endif
+                %if paras.jymc:
+                    and c.jymc like '%'||%(jymc)s||'%'
+                %endif
+                %if paras.jym:
+                    and b.jym like '%'||%(jym)s||'%'
+                %endif
+                order by b.jyrq desc, b.lsh desc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+        order by jyrq desc, ylsh desc
+    </sql>
+    <sql sqlid = 'czhtrz_count' desc = '冲正回退日志 count'>
+        select count(1) as count from jy_htrz a, gl_zlcdy b
+        where a.htzlcid = b.id
+        and a.lsh = %(lsh)s
+        and a.jyrq = %(jyrq)s
+    </sql>
+    <sql sqlid = 'czhtrz_rs' desc = '冲正回退日志 信息'>
+        select a.xh, b.mc as htzlcmc, a.htxx from jy_htrz a, gl_zlcdy b
+        where a.htzlcid = b.id
+        and a.lsh = %(lsh)s
+        and a.jyrq = %(jyrq)s
+        order by jyrq, lsh, xh desc
+    </sql>
+    <sql sqlid = 'check_jy' desc = '校验交易状态是否正常'>
+        select count(1) as count from jy_ls
+        where jyrq = %(jyrq)s
+        and lsh = %(ylsh)s 
+        and zt in ( '10', '98', '88' )
+    </sql>
+    <sql sqlid = 'update_jycz' desc = '更新冲正流水表状态'>
+        update jy_cz set zt = '1', updtime = %(updtime)s where rq = %(jyrq)s and ylsh = %(ylsh)s
+    </sql>
+    
+    
+    
+</sqllist>

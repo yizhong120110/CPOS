@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--
+    业务总数据条数查询
+    -->
+    <sql sqlid = 'data_count' desc = "业务参数：获取详细信息">
+    
+        select count(0) as count
+        from (    
+            select ID ,ywmc，wjlx，czr，czsj,rownum rn
+            from (
+                select a.ID, b.ywmc，a.wjlx，c.xm as czr，a.czsj
+                from gl_yzjypz a  
+                left join gl_hydy c on a.czr=c.hydm, gl_ywdy b where a.ssywid = b.ID
+                %if paras.ssyw:
+                     and b.id = %(ssyw)s
+                %endif
+                %if paras.wjlx:
+                     and a.wjlx like '%'|| %(wjlx)s ||'%'
+                %endif
+                order by b.ywmc,a.wjlx
+            )
+        )
+    </sql>
+    
+    <!--
+    所属业务查询sql:
+    -->
+    <sql sqlid = 'data_ssyw' desc = "业务配置：所属业务查询">
+        select id as value,ywmc||'('||ywbm||')' as text,ywbm textt,ywmc
+        from gl_ywdy
+        %if paras.ssyw:
+             where id = %(ssyw)s
+        %endif
+        order by ywmc,ywbm
+    </sql>
+    
+    <!--
+    扩展校验方式查询sql:
+    -->
+    <sql sqlid = 'data_kzjyfs' desc = "业务配置：扩展校验方式查询">
+        select bm as value,mc as text
+        from gl_bmwh
+        where lx = '10016'
+        order by bm
+    </sql>
+
+    <!--
+    初始化页面查询sql:
+    -->
+    <sql sqlid = 'data_htcx' desc = "业务配置：后台查询">
+        select id ,ywmc，wjlx，czr，czsj
+        from (    
+            select ID ,ywmc，wjlx，czr，czsj,rownum rn
+            from (
+                select a.ID, b.ywmc，a.wjlx，c.xm as czr，a.czsj
+                from gl_yzjypz a  
+                left join gl_hydy c on a.czr=c.hydm, gl_ywdy b where a.ssywid = b.ID
+                %if paras.ssyw:
+                     and b.id = %(ssyw)s
+                %endif
+                %if paras.wjlx:
+                     and a.wjlx like '%'|| %(wjlx)s ||'%'
+                %endif
+                order by a.wjlx,b.ywmc
+            )
+        )
+        where rn &gt;= %(rn_start)s
+        and rn &lt;= %(rn_end)s
+    </sql>
+
+    <!--
+    校验是否重复查询sql:
+    -->
+    <sql sqlid = 'data_jysfcf' desc = "业务配置：校验是否重复查询">
+        select count(0) as num
+        from gl_yzjypz
+        where ssywid = %(ssyw)s
+    </sql>
+
+    <!--
+    插入到阈值校验配置表sql:
+    -->
+    <sql sqlid = 'data_yzjypz_insert' desc = "业务配置：插入到阈值校验配置表">
+        insert into gl_yzjypz (id,ssywid,wjlx，kkmxsqlid,lsdrfs,lsdrid,kzjyfs,kzjyid,kkmxcxsqlid,yc_allpass_sqlid,yc_allcancel_sqlid,yc_single_sqlid,czr,czsj)  values(%(yzjypz_id)s,%(ssyw)s,%(wjlx)s,%(kkmxsqlid)s,%(lsdrfs)s,%(lsdrid)s,%(kzjyfs)s,%(kzjyid)s,%(kkmxcxsqlid)s,%(ycqbtgsqlid)s,%(ycqbcxsqlid)s,%(ycdbztgxsqlid)s,%(czr)s,%(czsj)s)
+    </sql>
+
+    <!--插入blob表-->
+    <sql sqlid="blob_insert" desc="插入blob表">
+        insert into gl_blob(id,lx,czr,czsj,nr) values (%(id)s,%(lx)s,%(czr)s,%(czsj)s,%(nr)s)
+    </sql>
+
+    <!--查询blob表-->
+    <sql sqlid="blob_select" desc="查询blob表">
+     select a.nr as nr
+        from gl_blob a ,
+            ( select ${paras._tb(paras.sqlid_name)} as ID
+              from gl_yzjypz
+              where ID = %(ywpz_id)s ) b
+        where a.ID = b.ID
+    </sql>
+
+    <!--查询业务配置基本信息-->
+    <sql sqlid="yzjypz_select" desc="查询阈值校验配置表">
+        select a.ssywid，a.wjlx，a.lsdrfs，a.kzjyfs
+        from gl_yzjypz a
+        where a.ID = %(ywpz_id)s
+    </sql>
+
+    <!--更新阈值校验配置表-->
+    <sql sqlid="yzjypz_update" desc="更新阈值校验配置表">
+        update gl_yzjypz set wjlx = %(wjlx)s,
+            lsdrfs = %(lsdrfs)s, kzjyfs = %(kzjyfs)s,
+            czr = %(czr)s, czsj = %(czsj)s
+            where id = %(ywpz_id)s
+    </sql>
+
+    <!--更新blob表 ywpz_id, nr,czr,czsj,'sqlid_name'-->
+    <sql sqlid="blob_update" desc="更新blob表">
+        update gl_blob set nr = %(nr)s, czr = %(czr)s, czsj = %(czsj)s
+        where id =( select ${paras._tb(paras.sqlid_name)} as id from gl_yzjypz where id=%(ywpz_id)s)
+
+    </sql>
+
+    <!--删除业务配置前查询参数的信息,方便登记操作日志-->
+    <sql sqlid="del_select" desc="删除前查询记录">
+        select b.ywmc,b.ywbm,a.wjlx from gl_yzjypz a ,gl_ywdy b
+        where a.ssywid = b.id
+        and (${paras._or('a.id',paras.ids)})
+    </sql>
+
+    <!--删除阈值校验参数配置表记录-->
+    <sql sqlid="yzjycspz_delete" desc="删除阈值校验参数配置表记录">
+        delete from gl_yzjycspz where ssywid in
+        ( select ssywid from gl_yzjypz
+            where ${paras._or('id',paras.ids)}
+        )
+    </sql>
+
+    <!--删除blob管理表记录-->
+    <sql sqlid="blob_delete" desc="删除blob管理表记录">
+        delete from gl_blob where id in
+            ( select ${paras._tb(paras.sqlid_name)} as id from gl_yzjypz
+            where ${paras._or('id',paras.ids)}
+            )
+    </sql>
+
+    <!--删除阈值校验配置表记录-->
+    <sql sqlid="yzjypz_delete" desc="删除阈值校验配置表记录">
+        delete from gl_yzjypz where ${paras._or('id',paras.ids)}
+    </sql>
+    
+    <!--删除阈值校验配置表记录-->
+    <sql sqlid="select_ywmc" desc="根据阈值校验配置ID来查询当前的业务编码及业务名称">
+        select ywmc from gl_ywdy
+        %if paras.id:
+             where id in (select ssywid from gl_yzjypz where id = %(id)s)
+        %endif
+    </sql>
+
+    <!--查询业务配置基本信息-->
+    <sql sqlid="select_yzjypz_ssywid" desc="查询阈值校验配置表">
+        select distinct ssywid from gl_yzjypz where ${paras._or('id',paras.id)}
+    </sql>
+    
+
+</sqllist>

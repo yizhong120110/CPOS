@@ -1,0 +1,7 @@
+{
+    "total": 2, "rows":
+    [
+        { "ID": "a1", "Code": 1, "Name": "CSFS", "bqcjr":"张森", "cjsj":"2014-10-20 10:11:12", "bqid":"3", "sName": "省非税业务", "num": 2,  "state": "启动" },
+        { "ID": "a2", "Code": 2, "Name": "CSETC", "bqcjr":"张森", "cjsj":"2014-10-12 10:50:00", "bqid":"3", "sName": "ETC业务", "num": 2,  "state": "启动" }
+    ]
+}

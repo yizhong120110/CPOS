@@ -1,0 +1,123 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 计划任务管理：主页面
+     当前页面主要显示数据信息
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>参数配置-阈值校验配置-公共页面</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 计划任务管理调用js -->
+   <script src="/static/${settings._T.APP_NAME}/js/view/yw_gtpm/yw_gtpm_001/yw_gtpm_001_cspz_ggym.js"></script>
+</head>
+<body>
+    <div id="formWindow">
+        <form id="dgSearch" method="post">
+        <!-- 接收后台传回来的参数代码值 -->
+        <input type="hidden" id="hidCsid" name="csid" value="${ csid }" />
+        <!-- 页面中的值 -->
+        <div id="beanWindow" class="esayui-panel" style="margin-top:20px">
+            <table style="font-size:14px;" align="center" cellspacing="10px">
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:110px">所属业务：</td>
+                    <td>
+                        <select type="text" id="selYwmc" name="selYwmc" class="easyui-combobox" style="width:200px;height:27px"
+                        data-options="
+                            editable:false,
+                            data: ${ ssyw_lst },
+                            valueField:'id',
+                            textField:'ids'
+                        " />
+                    </td>
+                    <td nowrap="nowrap" style="width:110px"><span class="colorRed">*</span></td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">参数代码：</td>
+                    <td>
+                        <select type="text" id="selCsdm" name="selCsdm" class="easyui-combobox" style="width:200px;height:27px"
+                        data-options="
+                            editable:false,
+                            data: ${ csdm_lst },
+                            valueField:'bm',
+                            textField:'bmmc'
+                        "/>
+                    </td>
+                    <td nowrap="nowrap" ><span class="colorRed">*</span></td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">开关量：</td>
+                    <td>
+                        <a class="onoffswitch" style="float:left;">
+                            <input type="checkbox" name="nfsKgl" id="nfsKgl" class="onoffswitch-checkbox" checked>
+                            <label class="onoffswitch-label" for="nfsKgl">
+                                <span class="onoffswitch-inner">
+                                    <span class="onoffswitch-active">
+                                            <span class="onoffswitch-switch">开</span>
+                                    </span>
+                                    <span class="onoffswitch-inactive">
+                                        <span class="onoffswitch-switch">关</span>
+                                    </span>
+                                </span>
+                            </label>
+                        </a>
+                    </td>
+                    <td><span class="colorRed">*</span></td>
+                </tr>
+                <tr class="cspz-jksj">
+                    <td nowrap="nowrap" style="text-align:right">监控时间：</td>
+                    <td>
+                        <input type="text" id="txtJksj" name="txtJksj" class="easyui-timespinner" style="width:200px;height:27px" />
+                    </td>
+                    <td nowrap="nowrap" ><span class="colorRed">*</span></td>
+                </tr>
+                <tr class="cspz-dbzdje">
+                    <td nowrap="nowrap" style="text-align:right">单笔最大金额：</td>
+                    <td>
+                        <input type="text" id="txtDbzdje" name="txtDbzdje" class="easyui-numberbox" style="width:200px;height:27px" data-options="precision: 2" />
+                    </td>
+                    <td nowrap="nowrap" ><span class="colorRed">*</span>（单位：元）</td>
+                </tr>
+                <tr class="cspz-xyzq">
+                    <td nowrap="nowrap" style="text-align:right">校验周期：</td>
+                    <td>
+                        <input type="text" id="txtJyzq" name="txtJyzq" class="easyui-numberbox" style="width:200px;height:27px" />
+                    </td>
+                    <td nowrap="nowrap" ><span class="colorRed">*</span>（单位：天）</td>
+                </tr>
+                <tr class="cspz-xyyz">
+                    <td nowrap="nowrap" style="text-align:right">校验阈值：</td>
+                    <td>
+                        <input type="text" id="txtJyyz" name="txtJyyz" class="easyui-numberbox" style="width:200px;height:27px" />
+                    </td>
+                    <td nowrap="nowrap" ><span class="colorRed">*</span>（单位：%）</td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">参数描述：</td>
+                    <td>
+                        <input type="text" id="txtCsms" name="txtCsms" class="easyui-textbox" data-options="multiline:true,width:200,height:52">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="windowOk" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+            <button id="windowCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+        </div>
+        </form>
+    </div>
+</body>
+</html>

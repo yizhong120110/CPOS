@@ -1,0 +1,66 @@
+[{
+    "id":"数据库",
+    "name":"数据库",
+    "size":"575 KB",
+    "date":"2014-10-01 12:30:30",
+    "children":[{
+        "id":"数据库*check_rar.py",
+        "name":"check_rar.py",
+        "size":"142 KB",
+        "date":"2014-10-01 12:30:30",
+        "version":"2",
+        "diff": 0
+    }]
+},{
+    "id":"流程",
+    "name":"流程",
+    "size":"978 KB",
+    "date":"2014-10-01 12:30:30",
+    "children":[{
+        "id":"流程*__init__.py",
+        "name":"__init__.py",
+        "size":"1 KB",
+        "date":"2014-10-01 12:30:30",
+        "version":"2",
+        "diff": 0
+    },{
+        "id":"流程*action_api.py",
+        "name":"action_api.py",
+        "size":"5 KB",
+        "date":"2014-10-01 12:30:30",
+        "version":"2",
+        "diff": 0
+    }]
+},{
+    "id":"节点",
+    "name":"节点",
+    "size":"846 KB",
+    "date":"2014-10-01 12:30:30",
+    "children":[{
+        "id":"节点*day",
+        "name":"day",
+        "size":"5 KB",
+        "date":"2014-10-01 12:30:30",
+        "children":[{
+            "id":"节点*day*card.py",
+            "name":"card.py",
+            "size":"142 KB",
+            "date":"2014-10-01 12:30:30",
+            "version":"2",
+            "diff": 0
+        }]
+    },{
+        "id":"节点*khzctj",
+        "name":"khzctj",
+        "size":"5 KB",
+        "date":"2014-10-01 12:30:30",
+        "children":[{
+            "id":"节点*khzctj*khzcrcl.py",
+            "name":"khzcrcl.py",
+            "size":"142 KB",
+            "date":"2014-10-01 12:30:30",
+            "version":"2",
+            "diff": 0
+        }]
+    }]
+}]

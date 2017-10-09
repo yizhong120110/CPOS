@@ -1,0 +1,192 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>TCR库存监控</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/_init/css/style.css">
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <!-- 公共模块js -->
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.jdirk.min.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/_init/js/fileupload/jquery.fileupload.min.js"></script>
+    <script src="/static/_init/js/lib/jquery.fileDownload.js"></script>
+    <script src="/static/_init/js/lib/common.js" ></script>
+    <script src="/static/_init/js/lib/accounting.min.js"></script>
+
+    <script src="/static/${settings._T.APP_NAME}/js/tcr_0004.js"></script>
+
+    <!--获取后台的初始化对象-->
+    <script>
+        // 终端ID
+        var tcrid = '${tcrid}';
+    </script>
+
+    <style type="text/css">
+        #box-table.hovertable {
+            font-family: verdana,arial,sans-serif;
+            font-size:11px;
+            color:#333333;
+            border-width: 1px;
+            border-color: #999999;
+            border-collapse: collapse;
+        }
+        #box-table.hovertable th {
+            background-color:#c3dde0;
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #a9c6c9;
+            height:25px;
+            width:130px;
+        }
+        #box-table.hovertable tr {
+            background-color:#FAFBFC;;
+        }
+        #box-table.hovertable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #a9c6c9;
+            height:22px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="data" class="esayui-panel" data-options="region:'centor',border:false" style="text-align:center;padding:15px 0 0;vertical-align: middle;">
+        <table id="box-table" class="hovertable"  cellpadding="0" cellspacing="0" border="1px" style="margin-top:40px;margin-right: auto;margin-left:auto;border-bottom:0;border-right:0;border-left:0">
+            <thead>
+            <tr>
+                <th align="center" style="height:22px;width:130px" >钞箱 </th>
+                <th align="center" style="height:22px;width:250px" >容量 </th>
+                <th align="center" style="height:22px;width:130px" >可用容量 </th>
+                <!--
+                <th align="center" style="height:22px;width:130px" >面值 </th>
+                -->
+                <th align="center" style="height:22px;width:130px" >纸张数量 </th>
+                <!--
+                <th align="center" style="height:22px;width:130px" >小计</th>
+                -->
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td align="center"  >一号钞箱</td>
+                <td align="left">
+                    <div id="box1Per"  class="easyui-progressbar" style="width:240px;height:20px"></div>
+                </td>
+                <td align="right" id="box1_able" ></td> 
+                <!--
+                <td align="right" id="box1_value" ></td>
+                -->
+                <td align="right" id="box1" ></td>
+                <!--
+                <td align="right" id="box1_values"></td>
+                -->
+            </tr>
+            <tr>
+                <td align="center" >二号钞箱</td>
+                <td align="left"  >
+                    <div id="box2Per" class="easyui-progressbar" style="width:240px;height:20px"></div>
+                </td>
+                <td align="right" id="box2_able" ></td>
+                <!--
+                <td align="right" id="box2_value" ></td>
+                -->
+                <td align="right" id="box2" ></td>
+                <!--
+                <td align="right" id="box2_values"></td>
+                -->
+            </tr>
+            
+            <tr>
+                <td align="center" >三号钞箱</td>
+                <td align="left"  >
+                    <div id="box3Per" class="easyui-progressbar" style="width:240px;height:20px"></div>
+                </td>
+                <td align="right" id="box3_able" ></td>
+                <!--
+                <td align="right" id="box3_value" ></td>
+                -->
+                <td align="right" id="box3" ></td>
+                <!--
+                <td align="right" id="box3_values"></td>
+                -->
+            </tr>
+            
+            <tr>
+                <td align="center" >四上钞箱</td>
+                <td align="left"  >
+                    <div id="box4_1Per" class="easyui-progressbar" style="width:240px;height:20px"></div>
+                </td>
+                <td align="right" id="box4_1_able" ></td>
+                <!--
+                <td align="right" id="box4_1_value" ></td>
+                -->
+                <td align="right" id="box4_1" ></td>
+                <!--
+                <td align="right" id="box4_1_values"></td>
+                -->
+            </tr>
+
+            <tr>
+                <td align="center" >四下钞箱</td>
+                <td align="left" >
+                    <div id="box4_2Per" class="easyui-progressbar" style="width:240px;height:20px"></div>
+                </td>
+                <td align="right" id="box4_2_able" ></td>
+                <!--
+                <td align="right" id="box4_2_value" ></td>
+                -->
+                <td align="right" id="box4_2" ></td>
+                <!--
+                <td align="right" id="box4_2_values"></td>
+                -->
+            </tr>
+
+            <tr>
+                <td align="center" >回收箱</td>
+                <td align="left" >
+                    <div id="box5Per" class="easyui-progressbar" style="width:240px;height:20px"></div>
+                </td>
+                <td align="right" id="box5_able" ></td>
+                <!--
+                <td></td>
+                -->
+                <td align="right" id="box5" ></td>
+                <!--
+                <td align="right" id="box5_summaryvalue"></td>
+                -->
+            </tr>
+
+            <!--
+            <tr>
+                <td align="center" >合计</td>
+                <td align="right" colspan="5" id="allbox_value" ></td>
+            </tr>
+            <tr style="height:10px" ></tr>
+            -->
+            </tbody>
+        </table>
+        
+    </div>
+    
+    <div class="esayui-panel" data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+        <table cellpadding="5"  style="margin-top:60px;margin-left:300px;">
+            <tr>
+                <td align="left" id="title"></td> 
+            </tr>
+            
+        </table>
+  </div>
+</body>
+</html>
+

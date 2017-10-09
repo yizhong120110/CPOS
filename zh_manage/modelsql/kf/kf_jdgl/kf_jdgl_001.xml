@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_jddy" desc="查询节点信息">
+        select jdid, jdbm, jdmc, bbh, jdlx, yycs, jdwym, bbkzwym
+        from (
+            select jdid, jdbm, jdmc, bbh, jdlx, yycs, jdwym, bbkzwym, rownum rn
+            from (
+                select tab_jd.jdid, tab_jd.jdbm, tab_jd.jdlx, tab_jd.jdmc as jdmc, nvl(tab_jd.bbh,0) as bbh, nvl(tab_yycs.yycs,0) yycs, tab_jd.jdwym, tab_jd.bbkzwym, czsj
+                from (
+                    select a.jdid, a.jdbm, a.jdlx, a.jdmc, b.bbh, a.wym as jdwym, b.wym bbkzwym, a.czsj
+                    from (
+                        select id jdid, bm jdbm, jdlx, jdmc, wym, czsj
+                        from gl_jddy
+                        where (jdlx = '1' or jdlx = '5' or jdlx = '6' or jdlx = '8' or jdlx = '9')  -- 展示的节点类型为：1-交易节点、5-通讯打包节点，6-通讯解包节点，8-流程打包节点，9-流程解包节点
+                    ) a left join (
+                        select ssid, bbh, wym, orderbynum
+                        from (
+                            select ssid, bbh, wym, rank() over(partition by ssid order by bbh desc) orderbynum
+                            from gl_bbkz
+                            where lx = 'jd'
+                        )
+                        where orderbynum = 1
+                    ) b
+                    on a.jdid = b.ssid
+                ) tab_jd left join (
+                    select jddyid, count(jddyid) as yycs
+                    from gl_lcbj
+                    where jdlx = '1' --普通节点
+                    group by jddyid
+                ) tab_yycs
+                on tab_jd.jdid = tab_yycs.jddyid
+                where 1 = 1
+                %if paras.search_name == ['yycs']:
+                    and nvl(tab_yycs.yycs, 0) = %(search_value)s
+                %elif paras.search_name == ['bbh']:
+                    and nvl(tab_jd.bbh, 0) = %(search_value)s
+                %elif paras.search_name and paras.search_value:
+                    and ${paras._tb(paras.search_name)} like '%'||%(search_value)s||'%'
+                %endif
+                order by tab_jd.jdbm
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid="count_jddy" desc="查询节点信息总条数">
+        select count(1) as count
+        from (
+            select a.jdid, a.jdbm, a.jdlx, a.jdmc, b.bbh, a.wym as jdwym, b.wym bbkzwym
+            from (
+                select id jdid, bm jdbm, jdlx, jdmc, wym 
+                from gl_jddy
+                where (jdlx = '1' or jdlx = '5' or jdlx = '6' or jdlx = '8' or jdlx = '9')  -- 展示的节点类型为：1-交易节点、5-通讯打包节点，6-通讯解包节点，8-流程打包节点，9-流程解包节点
+            ) a left join (
+                select ssid, bbh, wym, orderbynum
+                from (
+                    select ssid, bbh, wym, rank() over(partition by ssid order by bbh desc) orderbynum
+                    from gl_bbkz
+                    where lx = 'jd'
+                )
+                where orderbynum = 1
+            ) b
+            on a.jdid = b.ssid
+        ) tab_jd left join (
+            select jddyid, count(jddyid) as yycs
+            from gl_lcbj
+            where jdlx = '1' --普通节点
+            group by jddyid
+        ) tab_yycs
+        on tab_jd.jdid = tab_yycs.jddyid
+        where 1 = 1
+        %if paras.search_name == ['yycs']:
+            and nvl(tab_yycs.yycs, 0) = %(search_value)s
+        %elif paras.search_name == ['bbh']:
+            and nvl(tab_jd.bbh, 0) = %(search_value)s
+        %elif paras.search_name and paras.search_value:
+            and ${paras._tb(paras.search_name)} like '%'||%(search_value)s||'%'
+        %endif
+    </sql>
+    <sql sqlid="get_jdyycs" desc="查询交易引用节点及子流程引用节点信息">
+        select ywmc, ywid, mc, lcid, yycs, jdlx
+        from (
+            select a.ywmc, a.ywid, a.jymc as mc, a.lcid, '交易' as jdlx, count(1) as yycs 
+            from (
+                select a.ywmc, a.id as ywid, b.jymc, b.id as lcid
+                from gl_ywdy a, gl_jydy b, gl_lcbj c
+                where a.id = b.ssywid 
+                    and b.id = c.ssjyid 
+                    and c.jddyid = %(jdid)s
+                union all
+                select a.ywmc, a.id as ywid, b.jymc, b.id as lcid
+                from gl_ywdy a, gl_jydy b
+                where a.id = b.ssywid 
+                    and (
+                        b.dbjdid = %(jdid)s or b.jbjdid = %(jdid)s
+                    )
+            ) a
+            group by a.ywmc, a.ywid, a.jymc, a.lcid
+            union all
+            select b.ywmc, b.ywid, b.mc, b.lcid, '子流程' as jdlx, count(1) as yycs 
+            from (
+                select a.ywmc, a.id as ywid, b.mc, b.id as lcid
+                from gl_ywdy a, gl_zlcdy b, gl_lcbj c
+                where a.id = b.ssywid 
+                    and b.id = c.sszlcid 
+                    and c.jddyid = %(jdid)s
+            ) b
+            group by b.ywmc, b.ywid, b.mc, b.lcid
+        ) 
+        order by ywmc
+    </sql>
+    <sql sqlid="get_djb_yycs" desc="查询打解包节点被引用次数">
+        select jdid, count(1) as yycs
+        from (
+            select dbjdid as jdid
+            from gl_jydy
+            union all
+            select jbjdid as jdid
+            from gl_jydy
+        ) a
+        group by jdid
+    </sql>
+</sqllist>

@@ -1,0 +1,68 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>TCR终端监控</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/_init/css/style.css">
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <!-- 公共模块js -->
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.jdirk.min.js"></script>
+    <script src="/static/_init/js/jeasyui-extensions/jeasyui.extensions.validatebox.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/_init/js/fileupload/jquery.fileupload.min.js"></script>
+    <script src="/static/_init/js/lib/jquery.fileDownload.js"></script>
+    <script src="/static/_init/js/lib/common.js" ></script>
+    <script src="/static/_init/js/lib/accounting.min.js"></script>
+    <!-- 同步密钥js -->
+    <script src="/static/${settings._T.APP_NAME}/js/tcr_0003.js"></script>
+
+    <style type="text/css">
+        .colorGreen {
+            color: green;
+            vertical-align: middle;
+            font-size: 12px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!--查询div-->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <div data-options="region:'north'" style="text-align:right;padding:1px;height:46px;">
+            <!--查询的form-->
+            <form id="dxForm">
+                <table id="datagrid_search" style="width:100%;margin:6px 0;" border="0" align="center">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            终端名称：
+                        </td>
+                        <td style="text-align:left" style="width:200px;">
+                            <!-- 终端名称 -->
+                            <input class="easyui-textbox" id="txtSearch_tcrname" name="search_tcrname" style="width:200px;">
+                        </td>
+                        <td style="text-align:center">
+                            <!--查询按钮-->
+                            <button id="lbtnSearch" class="easyui-linkbutton" style="width:100px;">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 监控对象的div -->
+        <div data-options="region:'center',border:false">
+            <!-- 监控对象的grid -->
+            <table id="dgZdxx" style="width:auto;"></table>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,48 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 
+    参数管理：交易参数管理：
+    管理各个交易对应的参数信息：增、删、改、查
+-->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>参数管理-交易参数</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <!-- 公共页面使用的js函数 -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <!-- 交易参数管理调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_csgl/yw_csgl_003/yw_csgl_003.js"></script>
+    
+</head>
+<body>
+<!--隐藏于放置平台-->
+<input type="hidden" id="hidPt" name="pt" value = "${ pt if pt else 'wh' }"/>
+<!-- 交易参数展示主页面的div -->
+<div class="easyui-layout" data-options="fit:true, border:false">
+    <!-- 交易参数展示的div -->
+    <div data-options="region:'center',border:false">
+        <table id="dgJygl"></table>
+    </div>
+    <!-- 条件查询div -->
+    <div id="tb" style="text-align:right;padding:3px;">
+        <input id="search_box" class="easyui-searchbox" style="width:300px">
+        <!-- 条件查询选项 -->
+        <div id="divSearch"></div>
+    </div>
+</div>
+</body>
+</html>
+

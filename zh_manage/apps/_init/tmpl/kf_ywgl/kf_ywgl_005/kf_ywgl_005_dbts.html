@@ -1,0 +1,106 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>单步调试</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/locale/easyui-lang-zh_CN.js"></script>
+    <!-- 生成UUID -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/uuid.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_005/kf_ywgl_005_dbts.js"></script>
+</head>
+
+<body style="margin:0">
+    <input type="hidden" id="nodeid" value="${nodeid}" />
+    <input type="hidden" id="type" value="${type}" />
+    <input type="hidden" id="ywid" value="${ywid}" />
+    <input type="hidden" id="log_lsh"/>
+    <input type="hidden" id="fhz"/>
+    <div class="esayui-panel" style="text-align:center;margin:10px auto">
+        <table style="width:280px;margin:0 auto;font-size:12px;" cellspacing="0">
+            <tr>
+                <td nowrap="nowrap" style="width:75px">当前节点：</td>
+                <td style="width:181px; text-align:left;">
+                    <input type="text" id="txtDqjd" class="easyui-textbox" data-options="disabled:true" style="width:150px;" />
+                    <label style="vertical-align:bottom;"><input type="checkbox" id="tg" name="tg" style="vertical-align:bottom;">跳过</label>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap">步骤名称：</td>
+                <td style="width:126px;text-align:left;">
+                    <input type="text" id="bzmc" name="bzmc" class="easyui-textbox" style="width:200px;" />
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap">步骤描述：</td>
+                <td style="width:126px;text-align:left;">
+                    <input type="text" id="bzms" name="bzms" class="easyui-textbox" data-options="multiline:true,height: 52,maxLength:1000" style="width:200px;" />
+                </td>
+            </tr>
+        </table>
+        
+        <div id="srscys_tab" class="easyui-tabs" data-options="border:false,tabPosition:'top'" style="width:280px;margin:10px auto 0 auto;">
+            <!-- 输入要素 -->
+            <div title="输入要素">
+                <table style="border-spacing:0">
+                    <tr>
+                        <td>复制其他案例的输入要素：</td>
+                        <td>
+                            <input id="fzqtaldsrys" name="fzqtaldsrys" class="easyui-combobox" style="width:132px;">
+                        </td>
+                    </tr>
+                </table>
+                <table id="datagrid_srys"></table>
+            </div>
+            <!-- 输出要素 -->
+            <div title="输出要素">
+                <table id="fzqtaldscys_table" style="display:none;border-spacing:0">
+                    <tr>
+                        <td>复制其他案例的输出要素：</td>
+                        <td>
+                            <input id="fzqtaldscys" name="fzqtaldscys" class="easyui-combobox" style="width:132px;">
+                        </td>
+                    </tr>
+                </table>
+                <table id="datagrid_scys"></table>
+            </div>
+            <!-- 返回值 -->
+            <div title="返回值">
+                <table id="datagrid_fhz"></table>
+            </div>
+        </div>
+        
+        <table cellspacing="0" style="width:280px;text-align:left;margin:5px auto;font-size:12px;">
+            <tr>
+                <td style="text-align:left;width:100px">DEMO数据录入：</td>
+                <td>
+                    <input type="hidden" id="txtDemojbxxidSelected" name="demojbxxid" />
+                    <input type="text" id="txtDemomcSelected" class="easyui-textbox" data-options="editable:false" style="width:129px;" />
+                    <!--<button id="btnSelectDemo" class="easyui-linkbutton" style="width:42px">选择</button>-->
+                    <!-- 该demo录入可以批量录入demo -->
+                    <button id="btnSelectDemoPL" class="easyui-linkbutton" style="width:42px">选择</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- 提交按钮 -->
+    <div data-options="region:'south',border:false" style="text-align:center;margin:10px auto;">
+        <button id="btnExecute" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:70px;margin: 0 0 8px 0;height:25px;line-heigh: 25px;">执行</button>
+        <button id="btnDbtsjl" class="easyui-linkbutton" data-options="iconCls:'icon-ok',disabled:true" style="width:130px;margin: 0 0 8px 0;height:25px;line-heigh: 25px;">查看单步调试记录</button>
+        <button id="btnViewlog" class="easyui-linkbutton" data-options="iconCls:'icon-ok',disabled:true" style="width:70px;margin: 0 0 8px 0;height:25px;line-heigh: 25px;">日志</button>
+        <button id="btnBack" class="easyui-linkbutton" data-options="iconCls:'icon-back',disabled:true" style="width:70px;margin: 0 0 8px 0;height:25px;line-heigh: 25px;">上一步</button>
+        <button id="btnNext" class="easyui-linkbutton" data-options="iconCls:'icon-forward',disabled:true" style="width:70px;margin: 0 0 8px 0;height:25px;line-heigh: 25px;">下一步</button>
+    </div>
+   
+</body>
+</html>

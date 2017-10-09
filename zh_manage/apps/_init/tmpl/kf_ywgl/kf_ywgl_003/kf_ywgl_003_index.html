@@ -1,0 +1,167 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>交易详情查看-基本信息查看</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_003/kf_ywgl_003.js"></script>
+</head>
+<body>
+<input type="hidden" id="hidJyid" value="${jy_dic['id']}"/>
+<input type="hidden" id="hidJym" value="${jy_dic['jym']}"/>
+
+<div class="easyui-layout" data-options="fit:true, border:false">
+    <div id="divJbxx" class="easyui-layout" style="width:100%;height:100%;">
+        <div data-options="region:'north'" style="height:115px;">
+            <form method="post">
+                <table style="width:100%" cellspacing="5px" border='0'>
+                    <tr>
+                        <td nowrap="nowrap" align = 'right' width = '80px;'>
+                            交易名称：
+                        </td>
+                        <td nowrap="nowrap" style="width:28%" align = 'left'>
+                            <input id='txtJymc' name='jymc' class="easyui-textbox"
+                                                            style="width:190px;height:25px" value="${jy_dic['jymc']}">
+                            <span class="colorRed">*</span>
+                        </td>
+                        <td nowrap="nowrap" align = 'right' width = '80px;'>
+                            交易状态：
+                        </td>
+                        <td nowrap="nowrap" style="width:140px">
+                            <input type="hidden" id="hidYzt" name = 'yzt' value="${jy_dic['zt']}"/>
+                            <a class="onoffswitch" style="float:left">
+                                <input type="checkbox" class="onoffswitch-checkbox" id="nfsJyzt" ${'checked' if jy_dic['zt']=='1' else ''}>
+                                <label class="onoffswitch-label" for="nfsJyzt">
+                                    <span class="onoffswitch-inner">
+                                        <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                        <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                    </span>
+                                </label>
+                            </a>
+                        </td>
+                        <td nowrap="nowrap" align = 'right'>
+                            交易自动发起配置：
+                        </td>
+                        <td nowrap="nowrap" style="width:28%" align = 'left'>
+                            <input type="hidden" id="hidYzdfqpz" name = 'yzdfqpz' value="${jy_dic['zdfqpz'] if jy_dic['zdfqpz'] else ''}"/>
+                            <input id='txtZdfqpz' name='zdfqpz' value="${jy_dic['zdfqpz'] or ''}"
+                                                   class="easyui-textbox" style="width:190px;height:25px">
+                            <button id="lbtnFy" class="easyui-linkbutton">翻译</button>
+                        </td>
+                        <td nowrap="nowrap" align = 'right' width = '80px;'>
+                            交易描述：
+                        </td>
+                        <td nowrap="nowrap" style="width:22%" rowspan='2' valign="top" align = 'left'>
+                            <input id='txtJyms' name='jyms' class="easyui-textbox" value="${jy_dic['jyms'] or ''}"
+                                   data-options="multiline:true" style="width:190px;height:59px"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap"align = 'right'>
+                            交易码：
+                        </td>
+                        <td nowrap="nowrap" style="width:28%" align = 'left'>
+                            <input id='txtJym' name='jym' class="easyui-textbox" style="width:190px;height:25px"
+                                value="${jy_dic['jym']}">
+                            <span class="colorRed">*</span>
+                        </td>
+                        <td nowrap="nowrap" align = 'right'>
+                            交易超时时间：
+                        </td>
+                        <td nowrap="nowrap" style="width:20%" align = 'left'>
+                            <input id='txtTimeout' name='timeout' value="${str(jy_dic['timeout']) or ''}"
+                                                class="easyui-numberbox" style="width:90px;height:25px"/>
+                            <span class="colorRed">*</span>(秒)
+                        </td>
+                        <td nowrap="nowrap" align = 'right'>
+                            自动发起配置说明：
+                        </td>
+                        <td nowrap="nowrap" style="width:28%" align = 'left'>
+                            <input id='txtZdfqpzsm' name='zdfqpzsm' value="${jy_dic['zdfqpzsm'] or ''}"
+                                                   class="easyui-textbox" style="width:190px;height:25px" disabled = "disabled" value = '测试描述'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center" colspan='8' bgcolor='#EEEEEE'>
+                            <button href="#" id='lbtnJbxxSubmit' class="easyui-linkbutton" iconCls="icon-save"
+                               style="width:70px;height:25px">保存</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div data-options="region:'center',split:true">
+            <table id='dgJycs' class="easyui-datagrid" style="width:735px;height:600px"></table>
+        </div>
+    </div>
+</div>
+<!-- 修改交易参数-->
+<div id="divJycsWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <form method="post">
+        <input type="hidden" id="txtCsid" name="csid"/>
+
+        <div class="esayui-panel" style="margin-top:10px">
+            <table style="font-size:14px;" align="center" cellspacing="10px">
+                <tr id='csdm_add'>
+                    <td nowrap="nowrap" style="text-align:right">参数代码：</td>
+                    <td nowrap="nowrap" >
+                        <input type="text" id="txtCsdm" name="csdm" class="easyui-textbox" style="width:200px"/>
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">参数值：</td>
+                    <td nowrap="nowrap" >
+                        <input type="text" id="txtCsz" name="csz" class="easyui-textbox" data-options="required:true,multiline:true"
+                               style="width:200px;height:52px"/>
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">参数描述：</td>
+                    <td>
+                        <input type="text" id="txtCsms" name="csms" class="easyui-textbox" data-options="multiline:true"
+                               style="width:200px;height:52px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">参数状态：</td>
+                    <td>
+                        <a class="onoffswitch" style="float:left">
+                            <input type="checkbox" name="cszt" id="nfsCszt" class="onoffswitch-checkbox" checked>
+                            <label class="onoffswitch-label" for="nfsCszt">
+                                <span class="onoffswitch-inner">
+                                    <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                    <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                </span>
+                            </label>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnJycsSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                保存
+            </button>
+            <button id="lbtnJycsCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    
+    <!--  查询部门分类的信息  -->
+    <sql sqlid = 'data_bmfl_rs' desc = "下拉列表：部门分类查询">
+        select bm, mc
+        from gl_bmwh
+        where lx = '10024'
+        order by bm
+    </sql>
+
+    <!--获取上级部门信息-->
+    <sql sqlid="data_sjbm_rs" desc="获取上级部门列表数据">
+        select  id , bmmc
+        from gl_bmdy
+        where scbz='0'
+        order by bmmc
+    </sql>
+
+    <!--  查询部门的详细信息  -->
+    <sql sqlid = 'data_rs' desc = "部门列表：获取详细信息">
+        select a.id, a.fjdid, a.bm,a.cbm, a.bmmc, a.zfzr, a.dh, a.cz, a.dz, a.bz, a.pxh, a.fl , b.mc as flmc
+        from gl_bmdy a
+        left join gl_bmwh b on b.lx='10024' and b.bm = a.fl
+        where a.id = %(fjdid)s
+        order by a.pxh
+    </sql>
+
+    <!--获取根节点ID-->
+    <sql sqlid="get_gjdid_rs" desc="获取根节点ID">
+        select  a.id, a.fjdid, a.bm, a.cbm, a.bmmc, a.zfzr, a.dh, a.cz, a.dz, a.bz, a.pxh, a.fl , b.mc as flmc
+        from gl_bmdy a
+        left join gl_bmwh b on b.lx='10024' and b.bm = a.fl
+        where fjdid='0'
+        and scbz='0'
+        order by a.pxh
+    </sql>
+
+    <!--获取部门列表-->
+    <sql sqlid="data_bm_rs" desc="获取部门列表数据">
+        select  a.id, a.fjdid, a.bm, a.cbm, a.bmmc as text, a.zfzr, a.dh, a.cz, a.dz, a.bz, a.pxh, a.fl , b.mc as flmc
+        from gl_bmdy a
+        left join gl_bmwh b on b.lx='10024' and b.bm = a.fl
+        where scbz='0'
+        order by a.pxh
+    </sql>
+    <!--获取子节点ID-->
+    <sql sqlid="get_zjdid_rs" desc="获取子节点ID">
+        select a.id, a.fjdid, a.bm, a.cbm, a.bmmc as text, a.zfzr, a.dh, a.cz, a.dz, a.bz, a.pxh, a.fl , b.mc as flmc
+        from gl_bmdy a
+        left join gl_bmwh b on b.lx='10024' and b.bm = a.fl
+        where fjdid= %(fjdid)s
+        and scbz='0'
+        order by a.pxh
+    </sql>
+
+    <!--新增：验证部门代码是否存在-->
+    <sql sqlid="check_bmdm" desc="验证部门代码是否重复">
+        select id from gl_bmdy
+        where bm=%(bmdm)s
+        and scbz='0'
+    </sql>
+
+    <!--新增或编辑：验证部门名称是否存在-->
+    <sql sqlid="check_bmmc" desc="验证部门名称是否重复">
+        select id from gl_bmdy
+        where bmmc=%(bmmc)s
+            %if paras.id:
+                and id != %(id)s
+            %endif
+        and scbz='0'
+    </sql>
+
+    <!--插入部门信息-->
+    <sql sqlid="insert_bmxx" desc="插入部门信息">
+        insert into  gl_bmdy (id, bmmc, bm, cbm, fl, zfzr, dh, dz, cz, fjdid, bz , pxh, czr, czsj,scbz)
+        values( %(id)s, %(bmmc)s, %(bmdm)s, %(cbm)s, %(bmfl)s, %(zfzr)s, %(dh)s, %(dz)s, %(cz)s, %(sjbm)s, %(bz)s, %(pxh)s, %(czr)s,%(czsj)s,%(scbz)s )
+    </sql>
+
+    <!--获取编辑前部门信息-->
+    <sql sqlid="get_bmxx_edit" desc="获取编辑前的部门信息">
+        select id, bmmc ,bm, fl, zfzr, dh, cz, dz, bz, fjdid, pxh, cbm
+        from gl_bmdy
+        where id = %(id)s
+
+    </sql>
+    <!--编辑部门信息-->
+    <sql sqlid="edit_bmxx" desc="编辑部门信息">
+        update gl_bmdy
+        set bmmc = %(bmmc)s,
+            cbm = %(cbm)s,
+            fl = %(bmfl)s,
+            zfzr= %(zfzr)s ,
+            dh= %(dh)s,
+            cz= %(cz)s,
+            dz = %(dz)s,
+            fjdid = %(sjbm)s ,
+            bz = %(bz)s,
+            pxh = %(pxh)s,
+            czr= %(czr)s,
+            czsj = %(czsj)s
+        where
+            id = %(id)s
+    </sql>
+
+    <!--删除：校验部门下是否存在孩子部门-->
+    <sql sqlid="get_zjd" desc="获取孩子部门">
+        select id
+        from gl_bmdy
+        where  fjdid = %(id)s
+        and scbz='0'
+    </sql>
+
+    <!--删除：校验部门下是否存在用户-->
+    <sql sqlid="get_yhbmpz" desc="获取用户部门配置">
+        SELECT xm from gl_hydy WHERE
+        id in (
+            select yhid
+            from gl_yhbmpz
+            where  bmid = %(id)s
+        )
+        and scbz='0'
+    </sql>
+
+    <!-- 获取要删除用户信息-->
+    <sql sqlid="get_bmxx" desc="获取要删除部门的信息">
+        select
+            bmmc,id,bm
+        from gl_bmdy
+        where id = %(id)s
+    </sql>
+    <!-- 删除用户信息-->
+    <sql sqlid="delete_bm" desc="删除">
+        update gl_bmdy set
+            scbz='1',
+            czr= %(czr)s,czsj = %(czsj)s
+        where id = %(id)s
+    </sql>
+
+    <!--获取根节点最大编码-->
+    <sql sqlid="get_bm_gjd" desc="获取根节点最大编码">
+        select max(cbm)+1 as bm  from gl_bmdy
+        where scbz='0'
+        and fjdid='0'
+    </sql>
+
+    <!--获取同级节点下的最大编码-->
+    <sql sqlid="get_maxBm" desc="获取同级别下的最大编码">
+        select max(cbm)  as bm  from gl_bmdy
+        where scbz='0'
+        and fjdid=%(fjdid)s
+    </sql>
+
+    <!--获取父节点对应的编码-->
+    <sql sqlid="get_fjdBm" desc="获取父节点对应的编码">
+        select cbm  as bm  from gl_bmdy
+        where scbz='0'
+        and id=%(fjdid)s
+    </sql>
+
+    <!--获取部门的长编码-->
+    <sql sqlid="get_cbm" desc="获取部门长编码">
+        select cbm
+        from gl_bmdy
+        where   id = %(id)s
+        and scbz='0'
+    </sql>
+
+    <!--更新子部门的长编码-->
+    <sql sqlid="update_zCbm" desc="更新子部门长编码">
+        update gl_bmdy set
+            cbm= %(cbm)s,
+            czr= %(czr)s, czsj = %(czsj)s
+        where id = %(id)s
+    </sql>
+
+    <!--编辑：获取原上级部门id-->
+    <sql sqlid="get_sjbmID" desc="获取原上级部门id">
+        select fjdid from gl_bmdy
+        where id = %(id)s
+    </sql>
+
+</sqllist>

@@ -1,0 +1,9 @@
+
+[{ "id": 1,"text": "开发系统","children": [
+        { "id": 11, "text": "业务管理", "pid": 1,"url" : "KF_YWGL/KF_YWGL_001" },
+        { "id": 12, "text": "通讯管理", "pid": 1,"url" : "html/txgl/txgl.html" },
+        { "id": 13, "text": "节点管理", "pid": 1,"url" : "html/jdgl/jdgl.html" },
+        { "id": 14, "text": "系统参数管理", "pid": 1,"url" : "html/xtcs/xtcsgl.html" }
+    ], "url":"" }
+]
+

@@ -1,0 +1,37 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>联盟核心同步密钥</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/_init/css/style.css">
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <!-- 公共模块js -->
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.jdirk.min.js"></script>
+    <script src="/static/_init/js/jeasyui-extensions/jeasyui.extensions.validatebox.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/_init/js/fileupload/jquery.fileupload.min.js"></script>
+    <script src="/static/_init/js/lib/jquery.fileDownload.js"></script>
+    <script src="/static/_init/js/lib/common.js" ></script>
+    <script src="/static/_init/js/lib/accounting.min.js"></script>
+    <!-- 同步密钥js -->
+    <script src="/static/${settings._T.APP_NAME}/js/tcr_0001.js"></script>
+</head>
+
+<body>
+
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <div data-options="region:'center',border:false" style="padding-top: 150px; padding-left: 400px;">
+            <button href="#" id='lbtnRequest' class="easyui-linkbutton" style="width:120px;height:30px">同步密钥</button>
+        </div>
+    </div>
+</body>
+</html>

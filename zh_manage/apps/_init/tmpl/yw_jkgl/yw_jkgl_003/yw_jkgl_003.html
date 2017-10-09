@@ -1,0 +1,251 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>分析规则管理</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/python/python.js"></script>
+    
+    <!-- 分析规则管理调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jkgl/yw_jkgl_003/yw_jkgl_003.js"></script>
+    <script>
+        // 代码状态
+        var dxzt = ${dxzt};
+        // 对象来源
+        var dxly = ${dxly};
+    </script>
+    <style type="text/css">
+        .CodeMirror {
+            font-family: monospace;
+            height: 160px;
+            width: 100%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!--搜索div-->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <!--搜索布局div-->
+        <div data-options="region:'north'" style="text-align:right;padding:1px;height:44px;">
+            <!--搜索form-->
+            <form id="dxForm">
+                <!--搜索table-->
+                <table id="datagrid_search" style="width:100%;margin:5px 0;" border="0" align="center">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            规则函数名称：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--规则名称-->
+                            <input class="easyui-textbox" id="txtSearch_hsmc" name="search_hsmc" style="width:150px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            中文名称：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--中文名称-->
+                            <input class="easyui-textbox" id="txtSearch_zwmc" name="search_zwmc" style="width:150px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            来源：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--来源-->
+                            <input class="easyui-combobox" name="search_dxly" id="combSearch_dxly" style="width:150px;" data-options="editable:false">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            状态：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--状态-->
+                            <input class="easyui-combobox" name="search_dxzt" id="combSearch_dxzt" style="width:150px;" data-options="editable:false">
+                        </td>
+                        <td style="text-align:center" rowspan="2">
+                            <!--查询按钮-->
+                            <button id="lbtnSearch" class="easyui-linkbutton" style="width:100px;">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!--分析规则div-->
+        <div data-options="region:'center',border:false">
+            <!--分析规则grid-->
+            <table id="dgXydz"></table>
+        </div>
+    </div>
+    <!-- 新增与编辑分析规则 -->
+    <div id="xydz_add2upd_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <!-- 新增与编辑监控form -->
+    <form method="post" id="form_window">
+        <!-- 新增与编辑监控布局div -->
+        <div class="esayui-panel" style="margin-top:20px">
+            <!-- 新增与编辑监控窗口table -->
+            <table style="font-size:12px;width:100%" cellspacing="0px" cellpadding = '5px' border='0'>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        规则函数名称：
+                    </td>
+                    <td nowrap="nowrap" style="text-align:left;width:550px;">
+                        <!-- 规则函数名称 -->
+                        <input class="easyui-textbox" id="txtHsmc" name="hsmc" style="width:550px">
+                        <input id="hidHsmc" name="hidHsmc" type="hidden">
+                        <!--红星标识必填项-->
+                        <span class="colorRed">*</span>
+                        <br>
+                        <span id="warning_hsmc" class="colorRed">当前分析规则已在监控配置中使用，取消监控配置后函数名称才可以编辑</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        中文名称：
+                    </td>
+                    <td nowrap="nowrap" style="text-align:left;width:550px;">
+                        <!-- 中文名称 -->
+                        <input class="easyui-textbox" id="txtZwmc" name="zwmc" style="width:550px">
+                        <!--红星标识必填项-->
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        规则描述：
+                    </td>
+                    <td style="text-align:left" colspan="3">
+                        <!-- 规则描述 -->
+                        <input class="easyui-textbox" id="txtMs" name="ms" data-options="multiline:true,width:550,height:52">
+                        <!-- 隐藏的分析规则的id -->
+                        <input type='hidden' name="hidXydz_id" id="hidXydz_id" value=''>
+                        <!-- 隐藏的内容id -->
+                        <input type='hidden' name="nr_id" id="hidNr_id" value=''>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        状态：
+                    </td>
+                    <td style="text-align:left">
+                        <a class="onoffswitch" style="float:left" >
+                            <!-- 状态选择按钮 -->
+                            <input type="checkbox" name="state" id="state" class="onoffswitch-checkbox" checked>
+                            <label class="onoffswitch-label" for="state" id="state_link">
+                                <span class="onoffswitch-inner">
+                                    <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                </span>
+                            </label>
+                        </a>
+                        <!-- 隐藏的状态按钮 -->
+                        <input type='hidden' name="bjzt" id="hidXydz_zt" value=''>
+                    </td>
+                </tr>
+                <tr>
+                    <!-- 规则代码，传入参数div -->
+                    <td align='center' colspan="3" width="100%">
+                        <!-- 规则代码，传入参数布局div -->
+                        <div id="dzdm_div" class="easyui-tabs" style="width:620px;height:200px;">
+                            <div title="规则代码&nbsp;<span class='colorRed'>*</span>" style="overflow:hidden;">
+                                <!-- 规则代码 -->
+                                <textarea style="display:inline-block;" id="tarNodeBox" name="nodeBox" class="easyui-codemirror">
+                                </textarea>
+                            </div>
+                            <!-- 传入参数div -->
+                            <div title="传入参数">
+                                <div id="cs_div" style="height:100%;">
+                                    <!-- 传入参数 -->
+                                    <table id="dg_crcs" style="display:none;"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮-->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+            <!-- 保存按钮 -->
+            <button id="lbtnXydz_ok_add" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+            <!-- 取消按钮 -->
+            <button id="lbtnXydz_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+        </div>
+        </form>
+    </div>
+    <!-- 参数添加窗口 -->
+    <div id="crcs_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <!-- 参数添加form -->
+    <form method="post" id="crcs_form">
+        <!-- 参数添加布局div -->
+        <div class="esayui-panel" style="margin-top:20px">
+            <!-- 参数添加table -->
+            <table style="font-size:12px;width:100%" cellspacing="0px" cellpadding = '5px' border='0'>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        参数代码：
+                    </td>
+                    <td style="text-align:left;width:200px;">
+                        <!-- 参数代码 -->
+                        <input type="text" class="easyui-textbox" id="txtCsdm" name="csdm" style="width:200px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        是否可空：
+                    </td>
+                    <td style="text-align:left;width:200px;">
+                        <!-- 是否可空 -->
+                        <input type="text" class="easyui-textbox" id="txtSfkk" name="sfkk" style="width:200px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        默认值：
+                    </td>
+                    <td style="text-align:left;width:200px;">
+                        <!-- 默认值 -->
+                        <input type="text" class="easyui-textbox" id="txtMrz" name="mrz" style="width:200px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:100px;">
+                        参数说明：
+                    </td>
+                    <td style="text-align:left;width:200px;">
+                        <!-- 参数说明 -->
+                        <input class="easyui-textbox" id="txtCssm" name="cssm" style="width:200px">
+                        <!-- 隐藏的参数id -->
+                        <input type='hidden' name="crcs_id" id="hidCrcs_id" value=''>
+                        <!-- 隐藏的参数代码 -->
+                        <input type='hidden' name="csdm_d" id="hidCsdm_d" value=''>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮-->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+            <!-- 保存按钮 -->
+            <button id="lbtnCrcs_ok_upd" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+            <!-- 取消按钮 -->
+            <button id="lbtnCrcs_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+        </div>
+    </form>
+    </div>
+
+</body>
+</html>
+

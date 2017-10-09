@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_zlc_count" desc="获取子流程的总条数">
+        select count(1) as count from gl_zlcdy
+        where ssywid = %(ywid)s
+        and lb = '2' --普通子流程
+    </sql>
+    <sql sqlid="get_zlcxx" desc="获取子流程信息">
+        select a.id,a.zlcbm,a.zlcmc,nvl( b.bbh,0 ) as bbh,a.zlcms,nvl( c.yycs,0) as yycs,
+        decode(a.lcwym,b.wym,'1','0') as bbsftj -- lcwym = wym时，为“1”说明版本已提交，否则为“0”，说明版本未提交
+        from (
+            select id, zlcbm,zlcmc,zlcms,lcwym
+            from (
+                select id,bm as zlcbm,mc as zlcmc,ms as zlcms,lcwym,rownum rn
+                from (
+                        select id,bm,mc,ms,wym as lcwym
+                        from gl_zlcdy
+                        where ssywid = %(ywid)s
+                        and lb = '2'
+                        order by bm
+                    )
+                  )   where rn >= %(rn_start)s and %(rn_end)s >= rn 
+               ) a left join 
+                (
+                    select a.ssid,a.bbh,b.wym
+                    from (
+                      select ssid,max(bbh) as bbh
+                      from gl_bbkz
+                      where lx = 'zlc'
+                      group by ssid
+                    ) a,gl_bbkz b
+                    where a.bbh = b.bbh
+                    and a.ssid = b.ssid
+                ) b 
+                on a.id = b.ssid
+                  left join 
+                  (
+                      select jddyid,count(jddyid) as yycs
+                      from gl_lcbj
+                      where jdlx = '2' 
+                      group by jddyid 
+                  ) c on a.id = c.jddyid
+               order by a.zlcbm
+    </sql>
+    <sql sqlid="check_zlcbm" desc="校验子流程编码是否存在">
+        select count(1) as count from gl_zlcdy where bm = %(zlcbm)s
+    </sql>
+    <sql sqlid="insert_zlcdy" desc="新增子流程">
+        insert into gl_zlcdy (id,lb,bm,mc,ms,ssywid,czr,czsj)
+        values( %(id)s, %(lb)s,%(zlcbm)s,%(zlcmc)s,%(zlcms)s,%(ssyw)s,%(czr)s,%(czsj)s )
+    </sql>
+    <sql sqlid="insert_lcbj" desc="向流程布局中登记开始节点及结束节点">
+        insert into gl_lcbj (id, jdlx, x, y, jddyid, sszlcid)
+        select %(id)s, %(jdlx)s, %(x)s, %(y)s, id, %(zlcid)s
+        from gl_jddy 
+        where jdlx = %(jdlx)s 
+    </sql>
+    <sql sqlid="get_bsyzlc" desc="获取被交易引用的子流程编码">
+        select bm
+        from gl_zlcdy
+        where id in (
+            select distinct jddyid
+            from gl_lcbj
+            where ${paras._or('jddyid',paras.zlcids_lst)}
+        )
+    </sql>
+    <sql sqlid="get_zlcbm" desc="获取子流程编码">
+        select bm from gl_zlcdy where ${paras._or('id',paras.zlcids_lst)}
+    </sql>
+    <sql sqlid="get_csalzxbz" desc="获取子流程所有的测试案例执行步骤">
+        select jdcsalzxbzlb from gl_csaldy where sslb = '2' and (${paras._or('ssid',paras.zlcids_lst)})
+    </sql>
+    <sql sqlid="del_zdhcslsb" desc="删除自动化测试临时表">
+        delete from gl_zdhcslsb
+        where csal_id in (
+            select id
+            from gl_csaldy
+            where lb = '2' 
+            and sslb = '2' 
+            and (${paras._or('ssid',paras.zlcids_lst)})
+        )
+    </sql>
+    <sql sqlid="del_jdcsalys" desc="删除节点测试案例要素">
+        delete from gl_jdcsalys where ${paras._or('jdcsalzxbz',paras.jdcsalzxbz_id_lst)}
+    </sql>
+    <sql sqlid="del_jdcsalzxbz" desc="删除节点测试案例执行步骤">
+        delete from gl_jdcsalzxbz where ${paras._or('id',paras.jdcsalzxbz_id_lst)}
+    </sql>
+    <sql sqlid="del_csal" desc="删除测试案例">
+        delete from gl_csaldy
+        where lb = '2'
+        and sslb = '2'
+        and (${paras._or('ssid',paras.zlcids_lst)})
+    </sql>
+    <sql sqlid="del_lcbj" desc="删除流程布局">
+        delete from gl_lcbj where ${paras._or('sszlcid',paras.zlcids_lst)}
+    </sql>
+    <sql sqlid="del_lczx" desc="删除流程走向">
+        delete from gl_lczx where sslb = '2' and (${paras._or('ssid',paras.zlcids_lst)})
+    </sql>
+    <sql sqlid="del_zlcdy" desc="删除子流程定义表">
+        delete from gl_zlcdy where ${paras._or('id',paras.zlcids_lst)}
+    </sql>
+</sqllist>

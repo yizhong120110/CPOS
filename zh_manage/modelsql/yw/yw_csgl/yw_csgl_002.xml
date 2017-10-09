@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--
+    业务总数据:
+    查询系统中的业务信息，不差beaitx业务
+    如果有查询信息存在，则进行限定
+    条件查询为精确查询
+    -->
+    <sql sqlid = 'data_count' desc = "业务参数：获取详细信息">
+        select count(0) as count
+        from gl_ywdy a
+        where a.ywbm != 'BEAITX'
+        %if paras.search_value:
+        and a.${paras._tb(paras.search_name)} like '%'||%(search_value)s||'%'
+        %endif
+    </sql>
+    <!--
+    当页业务详情：
+    交易个数左连接查询，如果存在则为查询结果，无则默认为0
+    查询系统中的业务信息，不差beaitx业务
+    如果有查询信息存在，则进行限定
+    条件查询为精确查询
+    结果根据业务编码进行排序
+    获取业务下交易个数：查询交易表更加所属业务id排序
+    -->
+    <sql sqlid = 'data_rs' desc = "业务参数：获取详细信息">
+        select aa.id, aa.ywbm, aa.ywmc, aa.ywms, nvl( bb.jysl, 0 ) as jysl from (
+            select d.id, d.ywbm, d.ywmc, d.ywms
+            from (
+                select c.id, c.ywbm, c.ywmc, c.ywms, rownum rn from (
+                    select a.id, a.ywbm, a.ywmc, a.ywms
+                    from gl_ywdy a
+                    where a.ywbm != 'BEAITX'
+                    %if paras.search_value:
+                    and a.${paras._tb(paras.search_name)} like '%'||%(search_value)s||'%'
+                    %endif
+                    order by a.ywbm
+                ) c
+            ) d
+            where rn >= %(rn_start)s and %(rn_end)s >= rn
+        ) aa
+        left join
+        (
+            select b.ssywid, count( b.ssywid ) as jysl
+            from gl_jydy b
+            group by b.ssywid
+        ) bb
+        on aa.id = bb.ssywid
+        order by aa.ywbm
+    </sql>
+</sqllist>

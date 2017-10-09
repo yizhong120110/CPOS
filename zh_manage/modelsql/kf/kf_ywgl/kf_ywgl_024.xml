@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_yw" desc="获取业务列表">
+        select ywmc from gl_ywdy where id = %(ywid)s
+    </sql>
+    <sql sqlid="get_jydy_count" desc="查询所有的交易定义数量">
+        select count(1) as count from (
+            select id, ssywid, jym, jymc, jyms, timeout, zt, zdfqpz, bbh, rownum rn
+            from (
+                select a.id, a.ssywid, a.jym, a.jymc, a.jyms, a.timeout, a.zdfqpz, coalesce(b.bbh,0) as bbh, (case a.zt when '1' then '启用' when '0' then '禁用' end) as zt
+                from gl_jydy a left join 
+                    (
+                        select a.id, max(b.bbh) as bbh
+                        from gl_jydy a, gl_bbkz b
+                        where a.id = b.ssid
+                        group by a.id
+                    ) b on a.id = b.id
+                where a.ssywid = %(ywid)s
+                order by czsj desc
+            ) x 
+            %if paras.searchFild_lst:
+                where ${paras._and(paras.searchFild_lst)}
+            %endif
+        ) y 
+    </sql>
+    <sql sqlid="get_jydy" desc="查询所有的交易定义">
+        select id, ssywid, jym, jymc, jyms, timeout, zt, zdfqpz, bbh from (
+            select id, ssywid, jym, jymc, jyms, timeout, zt, zdfqpz, bbh, rownum rn
+            from (
+                select a.id, a.ssywid, a.jym, a.jymc, a.jyms, a.timeout, a.zdfqpz, coalesce(b.bbh,0) as bbh, (case a.zt when '1' then '启用' when '0' then '禁用' end) as zt
+                from gl_jydy a left join 
+                    (
+                        select a.id, max(b.bbh) as bbh
+                        from gl_jydy a, gl_bbkz b
+                        where a.id = b.ssid
+                        group by a.id
+                    ) b on a.id = b.id
+                where a.ssywid = %(ywid)s
+                order by a.jym
+            ) x 
+            %if paras.searchFild_lst:
+                where ${paras._and(paras.searchFild_lst)}
+            %endif
+        ) y 
+        where rn >= %(rn_start)s and %(rn_end)s >= rn 
+    </sql>
+    <sql sqlid="get_wym" desc="查询唯一码，用于判断流程是否有未提交的修改">
+        select a.id as id, a.wym as wym1, b.wym as wym2
+        from gl_jydy a left join 
+        (
+            select c.ssid , d.wym from
+            (
+                select ssid, max(bbh) as bbh
+                from gl_bbkz
+                group by ssid
+            ) c, gl_bbkz d
+            where c.ssid = d.ssid
+                and c.bbh = d.bbh
+        ) b
+        on a.id = b.ssid
+        where a.ssywid = %(ywid)s
+    </sql>
+    <sql sqlid="check_wym" desc="查询数据库中是否有该交易码">
+        select count(1) as count from gl_jydy where jym = %(jym)s
+    </sql>
+    <sql sqlid="add_jd" desc="插入开始/结束节点">
+        insert into gl_lcbj (id, jdlx, x, y, jddyid, ssjyid)
+        select %(lcid)s, %(type_bj)s, %(x)s, %(y)s, id, %(ssjyid)s
+        from gl_jddy 
+        where jdlx = %(type)s
+    </sql>
+    <sql sqlid="add_jydy" desc="插入交易">
+        insert into gl_jydy (id, ssywid, jym, jymc, jyms,timeout, czr, czsj, zt)
+                values (%(id)s, %(ssywid)s, %(jym)s, %(jymc)s, %(jyms)s,%(timeout)s, %(hyobj)s, %(czsj)s, %(jyzt)s)
+    </sql>
+    <sql sqlid="get_jy_name" desc="查询交易名称">
+        select jym, jymc
+        from gl_jydy
+        where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    
+    <sql sqlid="del_jdys" desc="删除节点测试案例要素">
+        delete from gl_jdcsalys where jdcsalzxbz in (
+            select d.ssdyid
+            from gl_jydy a, gl_lcbj b, gl_jddy c, gl_jdcsalzxbz d
+            where (${paras._or('a.id',paras.ids_lst)})
+               and a.id = b.ssjyid
+               and b.jddyid = c.id
+               and c.id in (
+                    select a.id
+                    from gl_jddy a left join gl_lcbj b
+                    on a.id = b.jddyid
+                    group by a.id
+                    having 2 > count(b.id)
+               )
+                 and c.id = d.ssdyid
+        )
+    </sql>
+    <sql sqlid="del_jdysbz" desc="删除节点测试案例执行步骤">
+        delete from gl_jdcsalzxbz
+            where ssdyid in (
+              select c.id
+              from gl_jydy a, gl_lcbj b, gl_jddy c
+              where (${paras._or('a.id',paras.ids_lst)})
+                   and a.id = b.ssjyid
+                   and b.jddyid = c.id
+                   and c.id in (
+                        select a.id
+                        from gl_jddy a left join gl_lcbj b
+                        on a.id = b.jddyid
+                        group by a.id
+                        having 2 > count(b.id)
+                   )
+            )
+    </sql>
+    <sql sqlid="del_jycsaldy" desc="删除交易测试案例定义">
+        delete from gl_csaldy where (${paras._or('ssid',paras.ids_lst)})
+    </sql>
+    <sql sqlid="del_lczx" desc="删除流程走向">
+        delete from gl_lczx where (${paras._or('ssid',paras.ids_lst)})
+    </sql>
+    <sql sqlid="del_lcbj" desc="删除流程布局">
+        delete from gl_lcbj where (${paras._or('ssjyid',paras.ids_lst)})
+    </sql>
+    <sql sqlid="del_drls" desc="删除导入流水">
+        delete from gl_drls where (${paras._or('ss_idlb',paras.ids_lst)})
+    </sql>
+    <sql sqlid="del_csdy" desc="删除参数定义">
+        delete from gl_csdy where (${paras._or('ssid',paras.ids_lst)})
+    </sql>
+    <sql sqlid="del_jydy" desc="删除交易定义">
+        delete from gl_jydy where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <sql sqlid="del_drzxrw" desc="删除业务对应交易当日执行日志">
+        delete from gl_drzxjhb
+        where ssid in (
+            select id from gl_jhrwb
+            where ssid in (
+                select id from gl_jydy
+                where (${paras._or('id',paras.ids_lst)})
+            )
+        )
+        and zt = '0'
+    </sql>
+    <sql sqlid="del_jhrw" desc="删除业务对应交易计划任务表">
+        delete from gl_jhrwb
+        where ssid in (
+            select id from gl_jydy
+            where (${paras._or('id',paras.ids_lst)})
+        )
+    </sql>
+    <sql sqlid="select_byidlst" desc="查询交易信息">
+        select id, jym, jymc, zt, zdfqpz, zdfqpzsm, zt from gl_jydy
+        where (${paras._or('id',paras.ids_lst)})
+        and zt = %(cztype)s
+    </sql>
+    <sql sqlid="update_jyzt" desc="更新交易状态信息">
+        update gl_jydy set zt = %(zt)s, czsj = %(czsj)s, czr = %(czr)s
+        where (${paras._or('id',paras.ids_lst)})
+    </sql>
+</sqllist>

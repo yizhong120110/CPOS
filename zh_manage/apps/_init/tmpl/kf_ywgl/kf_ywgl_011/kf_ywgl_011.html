@@ -1,0 +1,448 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>数据库模型</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/accounting.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_011/kf_ywgl_011.js"></script>
+    <style type="text/css">
+        .clean {
+            background: url('/static/_init/images/clean.png') no-repeat 0 -2px;
+            width: 16px;
+            height: 18px;
+            display: inline-block;
+            padding-left: 14px;
+        }
+
+        .modified {
+            background: url('/static/_init/images/modified.png') no-repeat 0 -2px;
+            width: 16px;
+            height: 18px;
+            display: inline-block;
+            padding-left: 14px;
+        }
+        .td{
+            border:solid #add9c0; 
+            border-width:0px 1px 1px 0px; 
+            padding:10px 0px;
+        }
+        .table{
+            border:solid #add9c0; 
+            border-width:1px 0px 0px 1px;
+        }
+    </style>
+    <script>
+        var SYLX_DIC =
+        ${SYLX_DIC}
+        var ORACLE_KEYWORDS_LST =
+        ${ORACLE_KEYWORDS_LST}
+    </script>
+</head>
+<body>
+<!-- 数据库模型展现页面的div -->
+<div class="easyui-layout" data-options="fit : true,border : false">
+        <!-- 查询区域 -->
+        <div data-options="region:'north',border:true" style="padding-top:5px;height:45px;">
+            <form id = 'fmSearch'>
+                <table id="dgSearch" style="width:auto;" >
+                    <tr>
+                        <!-- 名称：可空，最长输入27个字符 -->
+                        <td nowrap="nowrap" style="text-align:right;width:100px;">
+                           数据表名称：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:150px;">
+                            <input id="txtSeaMc" name="seaMc" class="easyui-textbox" style="width:150px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:120px;">
+                            数据表名称描述：
+                        </td>
+                       <td nowrap="nowrap" style="text-align:left;width:150px;">
+                            <input id="txtSeaMs" name="seaMs" class="easyui-textbox" style="width:150px">
+                        </td>
+				<td nowrap="nowrap" style="text-align:left;width:150px;">
+                            <!-- 查询按钮，发起条件查询请求 -->
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <button id = 'lbtnSearch' class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px;" onclick="javascript:doSearch(event)">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 数据库模型列表展示的div -->
+        <div data-options="region:'center',border:false">
+            <table id="dgSjkmx"></table>
+        </div>
+</div>
+<input type="hidden" id="hidPt" name="pt" value="${pt}"/>
+<input type="hidden" id="hidYwid" name="ywid" value="${ywid}"/>
+<input type="hidden" id="hidSfxytb" name="sfxytb" value="${sfxytb}"/>
+<input type="hidden" id="hidIskey" name="Iskey"/>
+<input type="hidden" id="hidZdlx" name="yzdlx"/>
+<!-- 数据表同步的弹出框 -->
+<div id="divSjktbxxtskWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+    <div data-options="region:'center',border:false" style="padding:5px 0 0;">
+        %if update_table_mc or drop_table_mc:
+            %if update_table_mc:
+                <% update_table_mc_str = ",".join( update_table_mc ) %>
+                <p>本次同步更新数据表：</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;[${update_table_mc_str}]</p>
+            %endif
+            %if drop_table_mc:
+                <% drop_table_mc_str = ",".join( drop_table_mc ) %>
+                <p>本次同步删除数据表：</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;[${drop_table_mc_str}]</p>
+            %endif
+            <p>详细信息可通过同步信息查看功能进行查询</p>
+        %endif
+        %if nonsupport_type:
+            <span>以下字段类型本系统暂不支持,请将这些字段类型修改为系统支持的字段类型或通知管理员增加此字段类型的相关操作:</span>
+            <table cellspacing="0" cellpadding="0" style="width:100%" class="table">
+                <tr>
+                    <td nowrap="nowrap" class="td" align="center">数据表名称</td>
+                    <td nowrap="nowrap" class="td" align="center">字段名称</td>
+                    <td nowrap="nowrap" class="td" align="center">字段类型</td>
+                </tr>
+                %for tname,zdxx in nonsupport_type.items():
+                    %for zd in zdxx:
+                        <tr>
+                            <td class="td" align="center">${tname}</td>
+                            <td class="td" align="center">${zd.split(",")[0]}</td>
+                            <td class="td" align="center">${zd.split(",")[1]}</td>
+                        </tr>
+                    %endfor
+                %endfor
+            </table>
+        %endif
+    </div>
+    <!-- 提交按钮 -->
+    <div data-options="region:'south',border:false" style="text-align:center;padding:55px 0 0;">
+        <a id="lbtnSjktbxxtskSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-ok'"
+           style="width:85px">确定</a>
+    </div>
+</div>
+<input type="hidden" id="hidSjbhandler" name="sjbhandler" value=''/>
+<input type="hidden" id="hidSjbid" name="sjbid" value=''/>
+<!-- 增加数据表的弹出框 -->
+<div id="divSjbAddWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+    <form method="post">
+        <table style="font-size:14px;width:100%">
+            <tr>
+                <td nowrap="nowrap" >
+                    <span>数据表名称：</span><input type="text" id="txtSjbmc" name="sjbmc" class="easyui-textbox" size='28px'/>
+                    <span class="colorRed">*</span>
+                </td>
+                <td nowrap="nowrap" >
+                    <span>数据表名称描述：</span><input type="text" id="txtSjbmcms" name="sjbmcms" class="easyui-textbox" size='28px'/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+        </table>
+        <!-- 字段编辑div -->
+        <div class="easyui-layout" style="padding-top:10px;min-height:270px">
+            <div id="divSjbAddZdWindow" style="width:100%;height:350px">
+                <table id="dgSjbAddZd"></table>
+            </div>
+            <div id="tabSjbXxgl" class="easyui-tabs" style="width:100%;height:380px;">
+                <div id='divSjkzdgl' title="字段管理" style="padding:2px;width:100%;height:380px">
+                    <table id="dgSjkzdgl" style="width: 100%;"></table>
+                </div>
+                <div id='divSjksygl' title="索引管理" style="padding:2px;width:100%;height:380px">
+                    <table id="dgSjksygl" style="width: 100%;"></table>
+                </div>
+                <div id='divSjkysgl' title="约束管理" style="padding:2px;width:100%;height:380px">
+                    <table id="dgSjkysgl" style="width: 100%;"></table>
+                </div>
+            </div>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 0;">
+            <button id="lbtnSjkAddSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:85px">
+                保存
+            </button>
+            <button id="lbtnSjkAddCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:85px">取消
+            </button>
+        </div>
+    </form>
+</div>
+<input type="hidden" id="hidHandler" name="handler" value=''/>
+<input type="hidden" id="hidIndex" name="index" value=''/>
+<input type="hidden" id="hidZdid" name="zdid" value=''/>
+<!-- 新增表或编辑表时字段的新增及编辑 -->
+<div id="divSjbZdWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+    <form method="post">
+        <table style="font-size:14px;margin-top:20px;" align="center">
+            <tr>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    字段名称：
+                </td>
+                <td nowrap="nowrap" style="width: 230px;">
+                    <input type="text" id="txtZdmc" name="zdmc" class="easyui-textbox" style="width: 200px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    字段描述：
+                </td>
+                <td nowrap="nowrap" >
+                    <input type="text" id="txtZdms" name="zdms" class="easyui-textbox" style="width: 200px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    字段类型：
+                </td>
+                <td>
+                    <span>
+                        <select id="selZdlx" name="zdlx" class="easyui-combobox" style="width:200px">
+                            <%
+                            zdlx_lst = [ key for key in ZDLX_DIC.keys()]
+                            zdlx_lst = sorted( zdlx_lst )
+                            %>
+                            %for key in zdlx_lst:
+                            <option value="${key}">${ZDLX_DIC[key]}</option>
+                            %endfor
+                        </select>
+                        <span class="colorRed">*</span>
+                    </span>
+                    <span></span>
+                </td>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    字段长度：
+                </td>
+                <td>
+                    <input type="text" id="txtZdcd" name="zdcd" class="easyui-textbox" style="width: 200px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    小数长度：
+                </td>
+                <td>
+                    <input type="text" id="txtXscd" name="xscd" class="easyui-textbox" style="width: 200px;"/>
+                </td>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    是否可空：
+                </td>
+                <td>
+                    <a class="onoffswitch" style="float:left">
+                        <input type="checkbox" id="nfsSfkk" class="onoffswitch-checkbox" checked>
+                        <label class="onoffswitch-label" for="nfsSfkk">
+                            <span class="onoffswitch-inner">
+                                <span class="onoffswitch-active"><span class="onoffswitch-switch">是</span></span>
+                                <span class="onoffswitch-inactive"><span class="onoffswitch-switch">否</span></span>
+                            </span>
+                        </label>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    是否主键：
+                </td>
+                <td style="width: 200px;">
+                    <a class="onoffswitch" style="float:left">
+                        <input type="checkbox" id="nfsIskey" class="onoffswitch-checkbox" checked>
+                        <label class="onoffswitch-label" for="nfsIskey">
+                            <span class="onoffswitch-inner">
+                                <span class="onoffswitch-active"><span class="onoffswitch-switch">是</span></span>
+                                <span class="onoffswitch-inactive"><span class="onoffswitch-switch">否</span></span>
+                            </span>
+                        </label>
+                    </a>
+                </td>
+                <td nowrap="nowrap" style="width: 85px;text-align:right;">
+                    默认值：
+                </td>
+                <td>
+                    <input type="text" id="txtMrz" name="mrz" class="easyui-textbox" style="width: 200px;"/>
+                </td>
+            </tr>
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnSjkZdSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:85px">
+                保存
+            </button>
+            <button id="lbtnSjkZdCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:85px">取消
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 索引的弹出框 -->
+<div id="divSjbSyWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+    <form id="addSyForm" method="post">
+        <table style="font-size:14px;margin-top:20px;" align="center">
+            <tr>
+                <td nowrap="nowrap" style="width: 100px;text-align:right;">
+                    索引名称：
+                </td>
+                <td nowrap="nowrap" style="width: 210px;">
+                    <input type="text" id="txtSymc" name="symc" class="easyui-textbox" style="width: 200px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="width: 100px;text-align:right;">
+                    索引字段：
+                </td>
+                <td nowrap="nowrap" >
+                    <input type="text" id="txtSyzd" name="syzd" class="easyui-combobox" style="width: 200px;"
+                           data-options="multiple:true,separator:'|'"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="width: 100px;text-align:right;">
+                    索引类型：
+                </td>
+                <td nowrap="nowrap" >
+                    <select id="selSylx" name="sylx" class="easyui-combobox" data-options="editable:false"
+                            style="width:200px">
+                        <%
+                        sylx_lst = SYLX_DIC.keys()
+                        sorted( sylx_lst )
+                        %>
+                        %for key in sylx_lst:
+                        <option value="${key}">${SYLX_DIC[key]}</option>
+                        %endfor
+                    </select>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="width: 100px;text-align:right;">
+                    是否唯一索引：
+                </td>
+                <td>
+                    <a class="onoffswitch" style="float:left">
+                        <input type="checkbox" id="nfsSfwysy" class="onoffswitch-checkbox" checked>
+                        <label class="onoffswitch-label" for="nfsSfwysy" id="state_link">
+                            <span class="onoffswitch-inner">
+                                <span class="onoffswitch-active"><span class="onoffswitch-switch">是</span></span>
+                                <span class="onoffswitch-inactive"><span class="onoffswitch-switch">否</span></span>
+                            </span>
+                        </label>
+                    </a>
+                </td>
+            </tr>
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnSjkSySubmit" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:85px">
+                保存
+            </button>
+            <button id="lbtnSjkSyCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:85px">取消
+            </button>
+        </div>
+    </form>
+</div>
+<!-- 约束的弹出框 -->
+<div id="divSjbYsWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+    <form id="addYsForm" method="post">
+        <table style="font-size:14px;margin-top:20px;" align="center">
+            <tr>
+                <td nowrap="nowrap" style="width: 100px;text-align:right;">
+                    约束名称：
+                </td>
+                <td nowrap="nowrap" style="width: 210px;">
+                    <input type="text" id="txtYsmc" name="ysmc" class="easyui-textbox" style="width: 200px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="width: 100px;text-align:right;">
+                    约束字段：
+                </td>
+                <td nowrap="nowrap" >
+                    <input type="text" id="txtYszd" name="yszd" class="easyui-combobox" style="width: 200px;"
+                           data-options="multiple:true,separator:'|'"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnSjkYsSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:85px">
+                保存
+            </button>
+            <button id="lbtnSjkYsCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:85px">取消
+            </button>
+        </div>
+    </form>
+</div>
+<!-- 同步信息查看的弹出框 -->
+<div id="divSjbtbxxckWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <table id="dgSjktbls"></table>
+</div>
+<div id="dgSjktblsToolbar" style="text-align: right;">
+    开始日期：<input id="txtKsrq" type="text" class="easyui-datebox">
+    结束日期：<input id="txtJsrq" type="text" class="easyui-datebox">
+    <a id="dgSjktblsToolbarSearch" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+</div>
+<input type="hidden" id="hidTblsid" name="tblsid" value=''/>
+<!-- 同步详细信息查看div -->
+<div id="divSjbtbxxxxckWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+    <form>
+        <table align="center" style="font-size:14px;margin-top:3px;margin-left:1px;">
+            <tr alg>
+                <td nowrap="nowrap" >数据表名称：<input type="text" id="txtTbsjbmc" name="tbsjbmc" class="easyui-textbox" disabled=" true"/>
+                </td>
+                <td nowrap="nowrap" style='padding-left:30px;'>同步前数据表名称描述：<input type="text" id="txtTbqsjbmcms" name="tbqsjbmcms"
+                                                                 class="easyui-textbox" disabled=" true"/></td>
+                <td nowrap="nowrap" style='padding-left:30px;'>同步后数据表名称描述：<input type="text" id="txtTbhsjbmcms" name="tbhsjbmcms"
+                                                                 class="easyui-textbox" disabled=" true"/></td>
+            </tr>
+        </table>
+        <div class="easyui-layout" style="padding-top:10px;min-height:370px">
+            <div id="tbsSjbTbxx" class="easyui-tabs" data-options="fit:true" style="width:100%;height:480px;">
+                <div title="同步字段" style="padding:2px;width:100%;height:480px">
+                    <table id="dgTbzd"></table>
+                </div>
+                <div title="同步索引" style="padding:2px;width:100%;height:480px">
+                    <table id="dgTbsy"></table>
+                </div>
+                <div title="同步约束" style="padding:2px;width:100%;height:480px">
+                    <table id="dgTbys"></table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- 版本提交 -->
+<div id="bbtj_window" class="easyui-window" title="版本提交"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="padding:10px;">
+    <iframe scrolling="auto" id="bbtjIfram" name="bbtjIfram" src="" frameborder="0"
+            style="width:100%;height:99%;"></iframe>
+</div>
+<!-- 版本还原 -->
+<div id="bbhy_window" class="easyui-window" title="版本还原"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="padding:10px;">
+    <iframe scrolling="auto" id="bbhyIfram" name="bbhyIfram" src="" frameborder="0"
+            style="width:100%;height:90%;"></iframe>
+</div>
+</body>
+</html>

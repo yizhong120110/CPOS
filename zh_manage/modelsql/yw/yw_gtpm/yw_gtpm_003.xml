@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    
+    <sql sqlid = 'test' desc = "查询所有业务">
+        select nr from gl_blob where id='6372ac027b414c3e85bac7260437ce98'
+    </sql>
+    
+    <!--所属业务查询sql-->
+    <sql sqlid = 'data_ssyw' desc = "查询所有业务">
+        select id, ywmc||'('||ywbm||')' as ywmc, ywmc mc,ywbm from gl_ywdy order by ywmc, ywbm
+    </sql>
+    
+    <!--监控类型查询sql-->
+    <sql sqlid = 'data_jklx' desc = "查询监控类型">
+       select bm, mc  from gl_bmwh where lx = '10019' order by bm
+    </sql>
+    
+    <!--查询文件处理登记表-->
+    <sql sqlid = 'data_wjjl' desc = "查询文件登记记录">
+        select id,ssywid,wjm,djrq,djsj,pch,wjlx,updtime,zt from (
+            select id,ssywid,wjm,djrq,djsj,pch,wjlx,updtime,zt,rownum rn from (
+                select id,ssywid,wjm,djrq,djsj,pch,wjlx,updtime,zt  from jy_wjcldjb a
+                where 1=1 
+                %if paras.ssyw:
+                    and a.ssywid = %(ssyw)s
+                %endif
+                %if paras.startJyrq:
+                    and a.djrq >= %(startJyrq)s
+                %endif
+                %if paras.endJyrq:
+                    and %(endJyrq)s >=a.djrq
+                %endif
+                %if paras.jklx:
+                    and ( ${paras._or('a.zt',paras.jklx)} )
+                %endif
+                order by a.djrq desc,a.djsj desc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    
+    <!--查询文件处理登记表-->
+    <sql sqlid = 'data_count' desc = "查询文件记录总条数">
+        select count(0) as count from jy_wjcldjb a where 1=1 
+        %if paras.ssyw:
+            and a.ssywid = %(ssyw)s
+        %endif
+        %if paras.startJyrq:
+            and a.djrq >= %(startJyrq)s
+        %endif
+        %if paras.endJyrq:
+            and %(endJyrq)s >=a.djrq
+        %endif
+        %if paras.jklx:
+            and ( ${paras._or('a.zt',paras.jklx)} )
+        %endif
+    </sql>
+    
+    <!--查看明细查询流水状态sql-->
+    <sql sqlid = 'data_lszt' desc = "查询流水状态">
+       select bm, mc  from gl_bmwh where lx = '10020'
+    </sql>
+    
+    <!--查询出配置扣款明细数据c查询的sql语句-->
+    <sql sqlid = 'data_mxls_sql' desc = "查询出配置扣款明细数据查询的sql语句">
+        select c.nr as kkmxsjcxsql
+            from jy_wjcldjb a , gl_yzjypz b , gl_blob c
+        where a.id = %(wjid)s
+            and a.ssywid = b.ssywid 
+            and b.kkmxcxsqlid = c.id
+    </sql>
+    
+    <!--查询文件记录总条数-->
+    <sql sqlid = 'data_total_sql' desc = "查询文件记录总条数">
+        select count(0) as count from ( ${paras._tb(paras.cxmx_sql)} )  where 1=1 %(sub_sql)s
+    </sql>
+    
+    <!--查询文件明细流水-->
+    <sql sqlid = 'data_mxls' desc = "查询文件明细流水">
+        select *  from ( select a.* ,rownum rn from (%(mxls_sub_sql)s) a ) where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    
+    <!--查询登记操作日志的信息-->
+    <sql sqlid = 'sel_rzxx' desc = "查询登记操作日志的信息">
+        select a.wjm as wjmc，a.wjlx as wjlx，b.ywmc as ywmc, a.pch as pch from jy_wjcldjb a，gl_ywdy b where %(wjid)s = a.id and a.ssywid = b.id
+    </sql>
+    
+    <!--更新文件登记簿的状态为12（准备批扣）-->
+    <sql sqlid = 'upd_wjdpk' desc = "更新文件登记簿的状态为12（准备批扣）">
+        update jy_wjcldjb set zt=12, updtime=%(updtime)s  where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    
+    <!--获取文件登记簿中对应文件的所属业务ID-->
+    <sql sqlid = 'sel_wjxx' desc = "获取文件登记簿中对应文件的所属业务ID">
+        select id as wjid,ssywid,zt from jy_wjcldjb
+        %if paras.wjid:
+            where id = %(wjid)s
+        %endif
+    </sql>
+    
+    <!--查询阈值校验_参数配置ID-->
+    <sql sqlid = 'sel_csid' desc = "查询阈值校验_参数配置ID">
+        select id from gl_yzjycspz Where ssywid = %(ssywid)s and csdm=%(csdm)s
+    </sql>
+    
+    <!--全部撤销-->
+    <sql sqlid = 'qbcx_sql' desc = "全部撤销">
+        select c.nr as ycqbcxsql from jy_wjcldjb a , gl_yzjypz b , gl_blob c where a.id = %(wjid)s and a.ssywid = b.ssywid and b.yc_allcancel_sqlid = c.id
+    </sql>
+    
+    <!--更新文件处理登记簿状态为16：待反馈三方-->
+    <sql sqlid = 'upd_wjzt_sql' desc = "更新文件处理登记簿状态为16：待反馈三方">
+        update jy_wjcldjb set zt=%(zt)s , updtime=%(updtime)s  where id=%(id)s
+    </sql>
+    
+     <!--全部通过-->
+    <sql sqlid = 'qbtg_sql' desc = "全部通过">
+            select c.nr as ycqbtgsql from jy_wjcldjb a , gl_yzjypz b , gl_blob c where a.id = %(wjid)s and a.ssywid = b.ssywid and b.yc_allpass_sqlid = c.id
+    </sql>
+    
+    <!--异常单笔置为失败-->
+    <sql sqlid = 'zwsb_sql' desc = "异常单笔置为失败">
+        select c.nr as zwsbsql from jy_wjcldjb a , gl_yzjypz b , gl_blob c where a.id = %(wjid)s and a.ssywid = b.ssywid and b.yc_single_sqlid = c.id
+    </sql>
+    
+    <!--查询实际总金额/实际总笔数败-->
+    <sql sqlid = 'cx_sql' desc = "查询实际总金额/实际总笔数败">
+        select sjkkzje,sjkkzbs from jy_wjcldjb where id = %(id)s 
+    </sql>
+    
+    <!--更新文件登记表-->
+    <sql sqlid = 'upd_sql' desc = "更新文件登记表">
+        update jy_wjcldjb set sjkkzbs=%(sjkkzbs)s, sjkkzje=%(sjkkzje)s , updtime=%(updtime)s  where id=%(id)s 
+    </sql>
+    
+    <!--更新文件状态-->
+    <sql sqlid = 'updzt_sql' desc = "更新文件状态">
+        update jy_wjcldjb set zt=%(zt)s where id=%(id)s
+    </sql>
+    
+    <!--异常单笔置为批扣-->
+    <sql sqlid = 'zwpk_sql' desc = "异常单笔置为批扣">
+        select c.nr as zwpksql from jy_wjcldjb a , gl_yzjypz b , gl_blob c where a.id = %(wjid)s and a.ssywid = b.ssywid and b.yc_single_sqlid = c.id
+    </sql>
+
+</sqllist>

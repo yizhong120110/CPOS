@@ -1,0 +1,259 @@
+body {
+    background-color: #ccc;
+}
+#nodeDrag {
+    width: 58px;
+}
+#main {
+    font-size: 80%;
+    width:100%;
+    margin-left:auto;
+    margin-right: auto;
+    /*height:530px;*/
+    height: 100%;
+    text-align: center;
+    position: relative;
+    /*max-width:852px;*/
+}
+#main>h2 {
+    margin-top: 60px;
+}
+.workflow {
+    position: relative;
+    width:100%;
+    background-color:white;
+    /*height:480px;*/
+    height: 100%;
+    overflow:auto;
+    /*margin-top:100px;*/
+    margin-bottom:25px;
+}
+.workflow i.workflow-delete {
+    position: absolute;
+    display: block;
+    height: 16px;
+    width: 16px;
+    /* mod by bianl 2015-04-08 由原来的右上角 改变为左侧压线 */
+    /*top: 0;*/
+    /*right: 0;*/
+    left: -10px;
+    cursor: pointer;
+}
+.workflow i.icon-delete {
+    background: url('../js/jquery-easyui-1.4/themes/icon-standard/16x16/delete.png') no-repeat center center;
+}
+.workflow i.workflow-hidden {
+    display: none;
+}
+.workflow .active {
+    border: 2px solid red;
+    background: rgb(221, 68, 68);
+    color:#fff;
+}
+/* demo elements */
+a, a:visited {
+    text-decoration:none;
+    border-radius:0.2em;
+    -webkit-transition: color 0.15s ease-in;
+    -moz-transition: color 0.15s ease-in;
+    -o-transition: color 0.15s ease-in;
+    transition: color 0.15s ease-in;
+}
+
+a:hover {
+    color:#7AB02C;
+}
+
+a:active {
+    color:#FF2300;
+}
+
+#menu {
+    position: relative;
+}
+.node {
+    padding: 10px ;
+    /*border: 1px solid #C6D8E4;*/
+    border-bottom: 1px solid #C6D8E4;
+    /* box-shadow: 2px 2px 19px #e0e0e0; */
+    -o-box-shadow: 2px 2px 19px #e0e0e0;
+    /* -webkit-box-shadow: 2px 2px 19px #e0e0e0; */
+    -moz-box-shadow: 2px 2px 19px #e0e0e0;
+    cursor: move;
+    background-color:#F3FAFD;
+    font-size: 12px;
+    text-indent:2em;
+    color:rgb(95, 95, 95);
+}
+.node.theme_a {
+    padding:20px 26px;
+    -moz-border-radius:50%;
+    -o-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius:50%;
+}
+.node.theme_b {
+    -moz-border-radius:6px;
+    -o-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius:6px;
+}
+.node.theme_start {
+    /*background-color:#7cfc00;*/
+    background-color: #0C8456!important;
+    background-color: #2DA67D;
+    color: #fff!important;
+    border-radius: 50%;
+    padding:20px 0;
+    text-align: center;
+    min-width: 54px
+}
+.node.theme_end {
+    background-color:#FF1717;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    padding:20px 0;
+    color:#fff;
+    text-align: center;
+    min-width: 54px
+}
+.node:hover {
+    /*background-color: #5c96bc;*/
+    /*width: 0.4em;
+    height: 0.4em;*/
+    background-color: #C7CCD1;
+    cursor: pointer;
+    /*box-shadow: 0px 0px 4px black;*/
+}
+.node1 {
+    padding: 15px 5px;
+    position:absolute!important;
+    z-index:4;
+    min-width: 40px;
+    text-align: center;
+    border:1px solid #2e6f9a;
+    box-shadow: 2px 2px 19px #e0e0e0;
+    -o-box-shadow: 2px 2px 19px #e0e0e0;
+    -webkit-box-shadow: 2px 2px 19px #e0e0e0;
+    -moz-box-shadow: 2px 2px 19px #e0e0e0;
+
+    /*opacity:0.8;
+    filter:alpha(opacity=80);*/
+    cursor:move;
+    background-color:rgb(212, 236, 252);
+    font-size:11px;
+
+    -webkit-transition:background-color 0.25s ease-in;
+    -moz-transition:background-color 0.25s ease-in;
+    transition:background-color 0.25s ease-in;
+
+}
+.node1.theme_a {
+    padding:20px 26px;
+    -moz-border-radius:50%;
+    -o-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius:50%;
+}
+.node1.theme_b {
+    -moz-border-radius:6px;
+    -o-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius:6px;
+}
+.node1.theme_start {
+    /*background-color:#7cfc00;*/
+    background-color: #0C8456!important;
+    background-color: #2DA67D;
+    color: #fff!important;
+    border-radius: 50%;
+    padding:20px 0;
+    text-align: center;
+    min-width: 54px
+}
+.node1.theme_end {
+    background-color:#FF1717;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    padding:20px 0;
+    color:#fff;
+    text-align: center;
+    min-width: 54px
+}
+.node1:hover {
+    /*background-color: #5c96bc;*/
+    /*width: 0.4em;
+    height: 0.4em;*/
+    background-color: orange;
+    cursor: move;
+    box-shadow: 0px 0px 4px black;
+}
+.red {
+    border:1px solid red
+}
+
+.active {
+
+}
+/* endpoint 可拖出conector的source */
+.ep {
+    display: inline-block;
+    vertical-align: middle;
+    width: 0.5em;
+    height: 0.5em;
+    margin-left: 8px;
+    background-color: orange;
+    cursor: pointer;
+    box-shadow: 0px 0px 2px;
+    -webkit-transtion: -webkit-box-shadow 0.25s ease-in;
+    -moz-transtion: -moz-box-shadow 0.25s ease-in;
+    transtion: box-shadow 0.25s ease-in;
+}
+.ep:hover {
+    box-shadow: 0px 0px 6px black;
+}
+.statemachine-demo ._jsPlumb_endpoint {
+    z-index: 3;
+}
+#start { left: 3em; top: 5em; }
+#note1 { left: 17em; top: 5em; width:10em;}
+#note2 { left: 38em; top: 5em; }
+#note3 { left: 60em; top: 5em; }
+#note3 { left: 60em; top: 5em; }
+#end { left: 40em; top: 20em; }
+
+.dragHover { border: 2px solid orange; }
+path { cursor: pointer }
+._jsPlumb_overlay {
+    font-size: 1.2em;
+}
+.aLabel {
+    font-family: arial;
+    font-size: 18px!important;
+}
+
+
+/*20141114暂时修订*/
+.node:hover {
+background-color: #C6DDEC;
+/* background-color: #C7CCD1; */
+cursor: pointer;
+/* box-shadow: 0px 0px 4px black; */
+color: #333;
+font-weight: bold;
+
+}
+.node {
+padding: 5px 10px;
+border-bottom: 1px solid #C6D8E4;
+/* box-shadow: 2px 2px 19px #e0e0e0; */
+-o-box-shadow: 2px 2px 19px #e0e0e0;
+/* -webkit-box-shadow: 2px 2px 19px #e0e0e0; */
+-moz-box-shadow: 2px 2px 19px #e0e0e0;
+cursor: move;
+background-color: #F3FAFD;
+font-size: 12px;
+text-indent: 2em;
+}

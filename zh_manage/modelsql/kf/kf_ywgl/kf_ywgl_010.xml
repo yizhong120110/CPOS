@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid = 'index_wdlb' desc = "index:文档类别列表">
+        select bm as value, mc as text from gl_bmwh where lx = '2' order by bm
+    </sql>
+    <sql sqlid = 'data_count' desc = "文档清单count">
+        select count(1) as count from gl_wdqd where ssywid = %(ywid)s
+    </sql>
+    <sql sqlid = 'data_rs' desc = "文档清单rs">
+        select c.id, c.wdmc, c.wdlb, c.wdlbmc
+        from (
+            select d.*, rownum rn from (
+                select a.id, a.wdmc, a.wdlb, b.mc as wdlbmc
+                from gl_wdqd a left join gl_bmwh b
+                on a.wdlb = b.bm
+                and b.lx = '2'
+                where a.ssywid = %(ywid)s
+                order by a.wdlb, a.wdmc
+            ) d
+        ) c
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+        order by c.rn
+    </sql>
+    <sql sqlid = 'data_add_wdqd' desc = "新增：文档清单">
+        insert into gl_wdqd (id, ssywid, wdlb, wdmc, wdmc_bch)
+        values (%(id)s, %(ssywid)s, %(wdlb)s, %(wdmc)s, %(wdmc_bch)s)
+    </sql>
+    <sql sqlid = 'select_wdqd' desc = "查询文档清单上传前的信息">
+        select id, ssywid, wdlb, wdmc, wdmc_bch from gl_wdqd
+        where id =  %(wdqdid)s
+    </sql>
+    <sql sqlid = 'data_check' desc = "编辑：文档清单check(此文件是否已经存在)">
+        select count(1) as count from gl_wdqd
+        where ssywid = %(ssywid)s
+        and wdmc = %(wdmc)s
+        %if paras.wdqdid:
+        and id != %(wdqdid)s
+        %endif
+    </sql>
+    <sql sqlid = 'data_edit_wdqd' desc = "编辑：文档清单">
+        update gl_wdqd set wdlb = %(wdlb)s
+        %if paras.wdmc:
+        ,wdmc = %(wdmc)s
+        ,wdmc_bch = %(wdmc_bch)s
+        %endif
+        where id = %(wdqdid)s
+    </sql>
+    <sql sqlid="data_del_wdqd" desc="删除：文档清单：wdqd">
+        delete from gl_wdqd where id = %(wdqdid)s
+    </sql>
+    <sql sqlid="data_getwdqd" desc="获取文档清单信息">
+        select a.id, a.ssywid, a.wdlb, a.wdmc, a.wdmc_bch
+        from gl_wdqd a
+        where ( ${paras._or('a.id',paras.wdqdidlst)} )
+    </sql>
+
+</sqllist>

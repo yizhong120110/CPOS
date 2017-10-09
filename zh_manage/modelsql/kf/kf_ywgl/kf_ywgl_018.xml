@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid = 'data_count' desc = "打印配置信息获取count">
+        select count(1) count from gl_dymbdy where ssyw_id = %(ywid)s
+    </sql>
+    <sql sqlid = 'data_rs' desc = "打印配置信息获取rs">
+        select id, mbmc, mbms, mblx,
+        case when czrxm is not null then czrxm else czr end as czr,
+        czsj from
+        (
+            select xx.id, xx.mbmc, xx.mbms, xx.mblx, xx.czr, xx.czsj, rownum rn, zz.xm as czrxm
+            from
+                (select a.id, a.mbmc, a.mbms, b.mc as mblx, a.czr, a.czsj
+                    from  gl_dymbdy a left join gl_bmwh b
+                    on a.mblx = b.bm and b.lx = '3'
+                    where ssyw_id = %(ywid)s
+                    order by mblx asc, mbmc asc
+                ) xx left join gl_hydy zz
+                on xx.czr = zz.hydm
+        ) yy
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid = 'data_add_sel_mblx' desc = "打印配置新增页面参数查询：获取模板类型">
+        select bm, mc from gl_bmwh where lx = '3'
+    </sql>
+    <sql sqlid = 'data_add_check_mbmc' desc = "打印配置新增：校验模板名称">
+        select count(1) count from gl_dymbdy
+        where mbmc = %(mbmc)s
+    </sql>
+    <sql sqlid = 'data_add_insert_dymb' desc = "打印配置新增：新增dymb">
+        insert into gl_dymbdy(id, mbmc, mbms, mblx, czr, czsj, nr_id, ssyw_id)
+        values ( %(dyid)s, %(mbmc)s, %(mbms)s, %(mblx)s, %(hydm)s, %(czsj)s, %(blob_id)s, %(ywid)s)
+    </sql>
+    <sql sqlid = 'data_edit_sel_dymbdy' desc = "打印配置编辑页面参数查询：打印模板信息">
+        select a.nr nr,a.id blobid,b.wym wym,b.id dyid,b.mbmc,b.mbms,b.mblx,c.ywmc
+        from gl_blob a, gl_dymbdy b, gl_ywdy c
+        where a.id = b.nr_id
+        and b.ssyw_id = c.id
+        and b.id = %(dymbdy_id)s
+    </sql>
+    <sql sqlid = 'select_dymbdy' desc = "查询修改前的信息">
+        select mbmc,mbms,mblx from gl_dymbdy
+        where id = %(dyid)s
+    </sql>
+    <sql sqlid = 'data_edit_dymbdy' desc = "打印配置编辑：打印模板信息">
+        update gl_dymbdy set 
+        mblx = %(mblx)s,
+        mbms = %(mbms)s,
+        czr = %(hydm)s,
+        czsj = %(czsj)s
+        where id = %(dyid)s
+    </sql>
+    <sql sqlid = 'data_del_dymbdy' desc = "打印配置删除：打印模板信息">
+        delete from gl_dymbdy
+        where ${paras._or('id',paras.id_lst)}
+    </sql>
+</sqllist>

@@ -1,0 +1,69 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>阈值校验_业务配置</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 阈值校验业务配置调用js	 -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_gtpm/yw_gtpm_002/yw_gtpm_002.js"></script>
+</head>
+<body>
+    
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <div data-options="region:'north'" style="text-align:right;padding:4px;height:50px;">
+            <form id="forSearch" action="">
+                <table id="datagrid_search" style="width:auto;margin:4px 0;" border="0">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            所属业务：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <input id="combSearchSsyw" name="ssyw"
+                                   class="easyui-combobox"
+                                   data-options="
+                                       data: ${ ssyw_lst },
+                                       editable: false,
+                                       valueField:'value',
+                                       textField:'text'
+                                   " />
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            文件类型：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <input name="wjlx" id="txtSearchWjlx" class="easyui-textbox" style="width:150px;">
+                        </td>
+                        <td style="text-align:right;width:100px;">
+                            <button id="lbtnSearch" class="easyui-linkbutton" style="width:80px;">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div data-options="region:'center',border:false">
+            <table id="dgYwGtpm002"></table>
+        </div>
+    </div>
+    
+    <!--新增、编辑窗口引用-->
+    <div id="divYwGtpm002" class="easyui-window"
+         data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+         style="overflow:hidden">
+        <iframe scrolling="auto" id="ifmXzcs" frameborder="0" style="width:100%;height:100%;"></iframe>
+    </div>
+    
+</body>
+</html>

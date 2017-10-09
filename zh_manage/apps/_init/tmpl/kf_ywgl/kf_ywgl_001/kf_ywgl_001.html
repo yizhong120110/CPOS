@@ -1,0 +1,105 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>业务管理</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/accounting.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_001/kf_ywgl_001.js"></script>
+    <!-- 代码下载使用 -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+</head>
+<body>
+<!-- 用户展现页面的div -->
+<div class="easyui-layout" data-options="fit:true, border:false">
+    <!-- 用户列表展示的div -->
+    <div data-options="region:'center',border:false">
+        <table id="dgYwlb"></table>
+    </div>
+</div>
+
+<!-- 增加业务的弹出框 -->
+<div id="divYwWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <form method="post">
+        <div class="esayui-panel" style="margin-top:15px">
+            <table style="font-size:14px;" align="center" cellspacing="10px">
+                <tr>
+                    <td nowrap="nowrap" >业务简称：</td>
+                    <td nowrap="nowrap" >
+                        <input id="txtYwbm" name="ywbm" class="easyui-textbox"
+                               data-options="required:true,validType:['engNum','maxLength[10]']" style="width:250px">
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" >业务名称：</td>
+                    <td nowrap="nowrap" >
+                        <input id="txtYwmc" name="ywmc" class="easyui-textbox"
+                               data-options="required:true,validType:'length[1,50]'" style="width:250px">
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" >业务描述：</td>
+                    <td><input id="txtYwms" name="ywms" class="easyui-textbox"
+                               data-options="validType:'length[1,150]',multiline:true" style="width:250px;height:50px">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnYwSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                保存
+            </button>
+            <button id="lbtnYwCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">
+                取消
+            </button>
+        </div>
+    </form>
+</div>
+<!-- 业务导人选择框 -->
+<div id="divYwdrWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <form method="post">
+        <div class="esayui-panel" style="margin-top:15px">
+            <table style="font-size:14px;width:340px;" align="center" cellspacing="10px">
+                <tr style="width:340px;">
+                    <td nowrap="nowrap" >请选择需导入的业务：</td>
+                </tr >
+                <tr style="width:340px;">
+                    <td nowrap="nowrap" >        
+                        <span>
+                            <select id="selYwdr" class="easyui-combogrid" name="ywdr" style="width:280px;" ></select>
+                            <span class="colorRed">*</span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnYwdrSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                确定
+            </button>
+            &nbsp;&nbsp;&nbsp;
+            <button id="lbtnYwdrCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">
+                取消
+            </button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
+

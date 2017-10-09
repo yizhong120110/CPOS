@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_count_csaldy" desc="自动化测试的案例的个数">
+        select count(1) as count
+        from gl_csaldy
+        where lb = %(lb)s
+            and sslb= %(sslb)s
+            and ssid =%(ssid)s
+    </sql>
+    <sql sqlid="get_csaldylb" desc="自动化测试案例的列表">
+       select id,mc,ms,zjzxsj,xm as zjzxr, rownum rn,demoid
+       from
+           (
+            select
+              a.id,a.mc,a.ms,a.zjzxsj,a.zjzxr, rownum rn,b.xm,a.demoid
+           from gl_csaldy a
+           left join gl_hydy b
+           on a.zjzxr = b.hydm
+           where lb = %(lb)s
+                and sslb = %(sslb)s
+                and ssid = %(ssid)s
+            order by mc
+            ) x
+        where  rn >= %(rn_start)s
+        and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid="get_csal_jbxx" desc="自动化测试案例的基本信息">
+       select
+          mc,ms
+       from gl_csaldy
+       where
+            id=%(csalid)s
+    </sql>
+    <sql sqlid="get_csal_jdxx_jdcsalzxbzlb_id" desc="自动化测试案例执行步骤ID">
+        select jdcsalzxbzlb
+        from gl_csaldy
+        where id=%(csalid)s
+    </sql>
+    <sql sqlid="get_csal_jdxx_jdcsalzxbzlb_data" desc="自动化测试案例执行步骤详细信息列表">
+        select a.id, a.lx, a.ssdyid, b.jdmc, c.mc, a.fhz, a.sftg, a.demoid
+        from gl_jdcsalzxbz a
+        left join gl_jddy b on a.ssdyid = b.id
+        left join gl_zlcdy c on a.ssdyid = c.id
+        where ${paras._or('a.id',paras.jdcsalzxbz)}
+    </sql>
+    <sql sqlid="get_csal_jdxx_yslb" desc="自动化测试案例执行步骤要素列表">
+        select id, lx, ysdm, ysz
+        from gl_jdcsalys
+        where jdcsalzxbz =%(jdcsalzxbzid)s
+    </sql>
+    <sql sqlid="get_csal_demo" desc="自动化测试案例demo信息">
+        select a.id, a.mc, a.sjms from gl_demo_jbxx a
+        where a.id = %(demoid)s
+    </sql>
+    <sql sqlid="get_csal_demojbxx_sjb" desc="自动化测试案例demo数据表信息">
+        select a.id as sjbid, a.sjbjc, nvl(b.sjbmcms, '未知数据表') as sjbmc, b.id as sjkmxdyid
+        from gl_demo_sj a  left join gl_sjkmxdy b on a.sjbjc = b.sjbmc
+        where demojbxxid = %(demojbxxid)s and sjjb = '1'
+        order by a.sjbjc
+    </sql>
+    <sql sqlid="get_csal_demojbxx_bzdmc" desc="自动化测试案例demo表字段名称">
+        select zdmc from gl_sjkzdb where sjb_id = %(sjkmxdyid)s order by iskey DESC,zdmc
+    </sql>
+    <sql sqlid="get_csal_demojbxx_bzd" desc="自动化测试案例demo表字段值">
+       select sjid, sjbjc, xssx, zdm, to_char(zdz) zdz from gl_demo_sj
+       where sjid = %(sjbid)s and sjjb='2' order by xssx
+    </sql>
+</sqllist>

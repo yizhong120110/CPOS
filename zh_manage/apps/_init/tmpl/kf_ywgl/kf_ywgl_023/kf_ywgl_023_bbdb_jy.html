@@ -1,0 +1,98 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>版本信息对比</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <link type="text/css" rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/mergely.css"/>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/mergely.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/xml/xml.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_023/kf_ywgl_023_bbdb_jy.js"></script>
+    <style type="text/css">
+        /*隐藏光标*/
+        .CodeMirror-cursors {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="easyui-layout" data-options="border:false">
+<textarea id='bbh1' style="display:none" name="bbh1">${bbh1}</textarea>
+<textarea id='bbh2' style="display:none" name="bbh2">${bbh2}</textarea>
+<textarea style="display:none" id='bbh1_data'>${bbh1_data}</textarea>
+<textarea style="display:none" id='bbh2_data'>${bbh2_data}</textarea>
+
+<div data-options="region:'north', border:false" style="height:54px;">
+    <div class="easyui-layout" data-options="fit:true, border:false">
+        <div data-options="region:'west', border:false" style="width:50%;">
+            <div class="easyui-layout" data-options="fit:true, border:false">
+                <div style="margin:0 0 0 10px;height:100%">
+                    <div data-options="region:'north', border:false" style="height:25px;">
+                        <div id="isbd" style="font-size: 16px; font-weight:bold; text-align:center;">
+                            版本号${bbh1['bbh']}
+                        </div>
+                    </div>
+                    <div data-options="region:'center', border:false" style="text-align:center;height:30px;">
+                        <div id="tab_left" class="easyui-tabs" data-options="border:false">
+                            <div title="版本内容"></div>
+                            <div title="版本信息"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-options="region:'center', border:false" style="width:50%;">
+            <div class="easyui-layout" data-options="fit:true, border:false">
+                <div style="margin:0 11px 0 0;height:100%">
+                    <div data-options="region:'north', border:false" style="height:25px;">
+                        <div  style="font-size: 16px; font-weight:bold; text-align:center;">
+                            版本号${bbh2['bbh']}
+                        </div>
+                    </div>
+                    <div data-options="region:'center'" style="text-align:center;border:0;">
+                        <div id="tab_right" class="easyui-tabs" data-options="border:false">
+                            <div title="版本内容"></div>
+                            <div title="版本信息"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-options="region:'center', border:false">
+    <div id="bbnr_db" style="margin:0 10px;height:100%">
+        <!--版本内容对比-->
+        <div id="bbnr_db_code"></div>
+    </div>
+    
+    <!--版本信息对比-->
+    <div id="bbxx_db" class="easyui-layout" data-options="fit:true, border:false">
+        <div data-options="region:'west', border:false" style="width:50%;height:98%">
+            <div style="margin:0 0 0 10px;height:100%">
+                <table id="datagrid_bbxx_left"></table>
+            </div>
+        </div>
+        <div data-options="region:'center', border:false" style="width:50%;height:98%">
+            <div style="margin:0 11px 0 0;height:100%">
+                <table id="datagrid_bbxx_right"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

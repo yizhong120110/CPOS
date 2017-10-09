@@ -1,0 +1,148 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>阈值校验业务配置对比</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <link type="text/css" rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/mergely.css"/>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/mergely.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/xml/xml.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/view/yw_pzsj/yw_pzsj_001/yzjy_ywpz_bbdb.js"></script>
+    <style type="text/css">
+        /*隐藏光标*/
+        .CodeMirror-cursors {
+            display: none;
+        }
+    </style>
+    <script>
+        var leftYzjycspzRs = ${leftYzjycspzRs};
+        var rightYzjycspzRs = ${rightYzjycspzRs};
+        var leftYzjyRs = ${leftYzjyRs};
+        var rightYzjyRs = ${rightYzjyRs};
+    </script>
+</head>
+<body class="easyui-layout" data-options="border:false">
+<div data-options="region:'north', border:false" style="height:57px;">
+    <div class="easyui-layout" data-options="fit:true, border:false">
+        <div data-options="region:'west', border:false" style="width:50%;">
+            <div class="easyui-layout" data-options="fit:true, border:false">
+                <div style="margin:0 10px;margin-right: 14px;height:100%">
+                    <div  style="margin: 5px;font-size: 16px; font-weight:bold; text-align:center;">
+                        待导入库
+                    </div>
+                    <div data-options="region:'center', border:false" style="text-align:center;height:30px;">
+                        <div id="tbsLeft" class="easyui-tabs" data-options="border:false">
+                            <div title="基本信息" ></div>
+                            <div title="扣款明细" ></div>
+                            <div title="扩展模块"></div>
+                            <div title="导入流水"></div>
+                            <div title="异常更新"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-options="region:'center', border:false" style="width:50%;">
+            <div class="easyui-layout" data-options="fit:true, border:false">
+                <div style="margin-left:14px;margin-right: 11px;height:100%">
+                    <div style="margin: 5px;font-size: 16px; font-weight:bold; text-align:center;">
+                        本地库
+                    </div>
+                    <div data-options="region:'center', border:false" style="text-align:center;height:30px;">
+                        <div id="tbsRight" class="easyui-tabs" data-options="border:false">
+                            <div title="基本信息" ></div>
+                            <div title="扣款明细" ></div>
+                            <div title="扩展模块"></div>
+                            <div title="导入流水"></div>
+                            <div title="异常更新"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-options="region:'center', border:false" style="height:45px;margin:0;">
+    <!--交易基本信息对比-->
+    <div id="divJbxx" class="easyui-layout" data-options="fit:true, border:false" style="margin:0px;">
+        <div data-options="region:'west', border:false" style="width:50%;height:98%">
+            <div style="margin:0 10px;margin-right: 14px;height:100%">
+                <table id="dgJbxxLeft"></table>
+            </div>
+        </div>
+        <div data-options="region:'center', border:false" style="width:50%;height:98%">
+            <div style="margin-left: 14px;margin-right: 11px;height:100%">
+                <table id="dgJbxxRight"></table>
+            </div>
+        </div>
+    </div>
+    <!--扣款明细对比-->
+    <div id="divKkmx" style="margin:0px 10px;height:100%;margin-right: 4;">
+        <div style="font-size:12px;color:red;margin:7px;">**********获取扣款明细金额SQL：（请编写获取业务批扣明细表中扣款金额的sql，查询字段包含明细id，明细金额，用于单笔最大金额）**********</div>
+        <div id="divKkmx_u" style="margin-left: 0px;height:200px;"></div>
+        <div style="font-size:12px;color:red;margin:7px;">**********扣款明细数据查询SQL：（用于阈值校验流水展示，包含：需要提供的信息由id|业务流水号|文件名称|业务类型|三方账号|扣款金额|客户名称|状态，查询条件：文件id）**********</div>
+        <div id="divKkmx_d" style="margin-left: 0px;height:200px;"></div>
+    </div>
+    <!--扩展模块对比-->
+    <div id="divKzmk" style="margin:0px 10px;height:100%;margin-right: 4;">
+        <div style="height:100px;margin-top:10px;" class="easyui-layout">
+            <div data-options="region:'west', border:false" style="width:50%;height:98%">
+                <div style="margin:0 10px;margin-right: 14px;height:100%">
+                    <table id="dgKzjyfsLeft"></table>
+                </div>
+            </div>
+            <div data-options="region:'center', border:false" style="width:1px;height:1px;">
+            </div>
+            <div data-options="region:'east', border:false" style="width:50%;height:98%">
+                <div style="margin-left: 14px;margin-right: 11px;height:100%">
+                    <table id="dgKzjyfsRight"></table>
+                </div>
+            </div>
+        </div>
+        <div style="font-size:12px;color:red;margin:7px;">**********扩展效验SQL/模块代码：（用于其它的校验执行SQL/模块代码，该模块在导入批扣模块之前执行）**********</div>
+        <div id="divKzmk_u" style="margin-left: 0px;height:300px;"></div>
+    </div>
+    <!--导入流水对比-->
+    <div id="divDrls" style="margin:0px 10px;height:100%;margin-right: 4;">
+        <div style="height:100px;margin-top:10px;" class="easyui-layout">
+            <div data-options="region:'west', border:false" style="width:50%;height:98%">
+                <div style="margin:0 10px;margin-right: 14px;height:100%">
+                    <table id="dgDrlsLeft"></table>
+                </div>
+            </div>
+            <div data-options="region:'center', border:false" style="width:1px;height:1px;">
+            </div>
+            <div data-options="region:'east', border:false" style="width:50%;height:98%">
+                <div style="margin-left: 14px;margin-right: 11px;height:100%">
+                    <table id="dgDrlsRight"></table>
+                </div>
+            </div>
+        </div>
+        <div style="font-size:12px;color:red;margin:7px;">**********流水导入SQ模块代码：（配置从业务明细表中导入到GTP_ls表中的sql/代码信息）**********</div>
+        <div id="divDrls_u" style="margin-left: 0px;height:300px;"></div>
+    </div>
+    <!--异常更新对比-->
+    <div id="divYcgx" style="margin:0px 10px;height:100%;margin-right: 4;">
+        <div style="font-size:12px;color:red;margin:7px;">**********异常全部撤销SQL**********</div>
+        <div id="divYcqbcx_u" style="margin-left: 0px;height:200px;"></div>
+        <div style="font-size:12px;color:red;margin:7px;">**********异常单笔状态更新SQL**********</div>
+        <div id="divYcdbzt_d" style="margin-left: 0px;height:200px;"></div>
+        <div style="font-size:12px;color:red;margin:7px;">**********异常全部通过SQL**********</div>
+        <div id="divYcqbtg_d" style="margin-left: 0px;height:200px;"></div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<xml>
+%if data['rows']:
+    %for rowdata in data['rows']:
+        <row>
+            %for k ,v in rowdata.items():
+                <${k}>${v if v != None and v != 'None' else '-'}</${k}>
+            %endfor
+        </row>
+    %endfor
+%else:
+    <row></row>
+%endif
+</xml>

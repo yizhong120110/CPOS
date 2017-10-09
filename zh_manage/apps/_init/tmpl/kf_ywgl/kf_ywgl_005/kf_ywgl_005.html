@@ -1,0 +1,529 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>流程编辑</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <!-- 流程图jsPlumb样式 -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/jsplumb.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js"></script>
+    <!-- 流程图jsPlumb库 -->
+    <script src="/static/${settings._T.APP_NAME}/js/jsPlumb/dom.jsPlumb-1.7.5-min.js"></script>
+    <!-- 生成UUID -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/uuid.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_005/kf_ywgl_005.js"></script>
+    <style type="text/css">
+    html, body {
+        font-family: 'SimSun';
+    }
+    .workflow {
+        background: url("/static/${settings._T.APP_NAME}/images/wf_bg.jpg") repeat;
+    }
+    #main {
+        position: relative;
+    }
+    .leftNode {
+        padding: 0;
+        margin: 0;
+    }
+    #cc > .panel-title {
+        margin-left: 5px;
+    }
+    #menu ul,
+    #menu ul ul {
+        list-style: none;
+        text-decoration: none;
+        margin: 0;
+        padding: 0;
+    }
+    #menu ul li {
+        width: 100%;
+        border-top: #fff 1px solid;
+    }
+    #menu ul li a {
+        display: block;
+        background: #C7D8E4;
+        padding: 12px 0;
+    }
+    #menu ul li span {
+        vertical-align: top;
+    }
+    #menu ul li ul li {
+        padding: 0;
+    }
+    #menu ul li ul {
+        display: none;
+        margin-bottom: 0;
+    }
+    .accordion-body {
+        padding: 0 !important;
+        border-top: 1px solid;
+        border-bottom: 0;
+    }
+    .ico-mn-left-1,
+    .ico-mn-left-2 {
+        display: inline-block;
+        width: 28px;
+        height: 14px;
+        margin: 0 5px;
+    }
+    .ico-mn-left-1 {
+        background: url("/static/${settings._T.APP_NAME}/images/ico_wf_mn_left_1.png") no-repeat;
+    }
+    .ico-mn-left-2 {
+        background: url("/static/${settings._T.APP_NAME}/images/ico_wf_mn_left_2.png") no-repeat;
+    }
+    .hover-arrow {
+        background-image: url('/static/${settings._T.APP_NAME}/images/arrow_right.png');
+        height: 24px;
+        position: absolute;
+        width: 24px;
+    }
+    .tabs-icon {
+        left: initial;
+        right: 10px;
+    }
+    .tabs-with-icon {
+        padding-left: 0;
+    }
+    /*搜索select样式*/
+    #pnlMain > .tabs-panels {
+        padding: 0 !important;
+    }
+    #searchbox .combo {
+        width: 88px !important;
+        border: none;
+        height: 37px;
+        line-height: 37px;
+    }
+    #searchbox .combo > input {
+        width: 75px !important;
+        margin-right: 0;
+    }
+    #searchbox .textbox-prompt {
+        background: #fff;
+    }
+    .searchbox {
+        margin-left: 0px;
+        border: 0;
+        height: 27px !important;
+    }
+    .searchbox > .textbox-text {
+        background: #fff;
+    }
+    /*searchbox */
+    .combobox-item-selected {
+        background-color: #318AAF;
+        color: #fff;
+    }
+    #searchbox .combo-arrow {
+        background: transparent url('/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/images/combo_arrow.png') no-repeat center center;
+    }
+    .searchbox-button {
+        background: transparent url('/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/images/searchbox_button.png') no-repeat center center;
+    }
+    #searchbox .combo-p {
+        -webkit-box-shadow: 2px 3px 8px rgba(0, 0, 0, .3);
+        -moz-box-shadow: 2px 3px 8px rgba(0, 0, 0, .3);
+        box-shadow: 2px 3px 8px rgba(0, 0, 0, .3);
+        -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    }
+    #searchbox .combo-panel {
+        background-color: #fff;
+        width: atuo;
+        border: 0;
+    }
+    #searchbox .combobox-item {
+        padding: 6px;
+    }
+    .panel {
+        width: 236px;
+    }
+    .accordion-collapse {
+        background: url('/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/images/spinner_arrows.png') no-repeat 0 0;
+    }
+    .accordion-expand {
+        background: url('/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/images/spinner_arrows.png') no-repeat -16px 0;
+    }
+    #menu .panel-title,
+    #cc .panel-title {
+        height: 26px;
+        line-height: 26px;
+    }
+    .accordion .accordion-header {
+        height: 26px;
+    }
+    .red-color {
+        color: red;
+    }
+    .l-btn-disabled:hover {
+        color: #404040;
+    }
+    a, a:hover, a:visited {
+        text-decoration: none;
+        color: #00E;
+    }
+    </style>
+    <script>
+    // 所有的业务名称
+    var ywmc_arr = ${[yw['ywmc'] for yw in yw_data]};
+    </script>
+</head>
+
+<body>
+    <!-- lc交易/zlc子流程-->
+    <input type="hidden" id="lx" value="${lx}" />
+    <!-- 交易ID/子流程ID -->
+    <input type="hidden" id="id" value="${id}" />
+    <!-- 交易码/子流程编码 -->
+    <input type="hidden" id="lcbm" value="${lcbm}" />
+    <!-- 交易名称/子流程名称 -->
+    <input type="hidden" id="mc" value="${mc}" />
+    <!-- 本地唯一码 -->
+    <input type="hidden" id="wym" value="${wym}" />
+    <!-- 最新版本库唯一码 -->
+    <input type="hidden" id="wym_bbk" value="${wym_bbk}" />
+    <!-- 所属业务ID -->
+    <input type="hidden" id="ywid" value="${ywid}" />
+    <!-- 所属业务名称 -->
+    <input type="hidden" id="ywmc" value="${ywmc}" />
+
+    <div id="cc" class="easyui-layout" data-options="border:true, fit:true">
+        <div id="ww" data-options="region:'west',title:'节点选择',split:true" style="width:260px;overflow:scroll;padding-right:18px;">
+            <div id="menu" class="easyui-accordion" data-options="multiple:true" style="width:100%;height:auto;">
+                <!-- 基础库 -->
+                <div title="基础库" data-options="iconCls:'icon-large-shapes'" style="padding:10px;">
+                    <div class="node" nodestyle="a" data-type="">
+                        <i class="ico-mn-left-1"></i>
+                        <span>基础节点</span>
+                    </div>
+                </div>
+                <!-- BEAI通讯 -->
+                <div title="BEAI通讯" data-type="beai" data-options="iconCls:'icon-large-shapes'" style="padding:10px;">
+                    %for beai in beai_data:
+                    <div class="node" nodestyle="b" data-nodeid="${beai['id']}" data-type="zlc" data-saved="1">
+                        <i class="ico-mn-left-2"></i>
+                        <span>${beai['mc']}</span>
+                    </div>
+                    %endfor
+                </div>
+                
+                %for yw in yw_data:
+                <!-- 各业务的通讯子流程 -->
+                <div title="${yw['ywmc'].rstrip('通讯')}通讯" data-ywid="${yw['id']}" data-type="txk" data-options="iconCls:'icon-large-shapes'" style="padding:10px;">
+                    %for txzlc in txk_data:
+                    %if txzlc['ssywid'] == yw['id']:
+                    <div class="node" nodestyle="b" data-nodeid="${txzlc['id']}" data-type="zlc" data-saved="1">
+                        <i class="ico-mn-left-2"></i>
+                        <span>${txzlc['mc']}</span>
+                    </div>
+                    %endif
+                    %endfor
+                </div>
+                <!-- 各业务的普通节点/子流程 -->
+                <div title="${yw['ywmc'].rstrip('业务')}业务" data-ywid="${yw['id']}" data-type="ptk" data-options="iconCls:'icon-large-shapes'" style="padding:10px;position: relative;">
+                    %for ptzlc in ptk_data:
+                    %if ptzlc['ssywid'] == yw['id']:
+                    <div class="node" nodestyle="b" data-nodeid="${ptzlc['id']}" data-type="zlc" data-saved="1">
+                        <i class="ico-mn-left-2"></i>
+                        <span>${ptzlc['mc']}</span>
+                    </div>
+                    %endif
+                    %endfor
+                    %for jd in jd_data:
+                    %if jd['ssywid'] == yw['id']:
+                    <div class="node" nodestyle="a" data-nodeid="${jd['id']}" data-saved="1" data-wym="${jd['wym1']}" data-wym_bbk="${jd['wym2'] or ''}">
+                        <i class="ico-mn-left-1"></i>
+                        <span>${jd['jdmc']}</span>
+                    </div>
+                    %endif
+                    %endfor
+                </div>
+                %endfor
+            </div>
+            
+            <!-- 开始节点右键菜单 -->
+            <div id="mm_start" class="easyui-menu" style="width:150px;">
+                <div id="itemStartSelDb" style="font-weight:bold">选择解包</div>
+                <div class="menu-sep"></div>
+                <div id="start_csal">节点测试案例</div>
+                <div id="itemStartDbgz">单步调试</div>
+                <div class="menu-sep"></div>
+                <div id="start_ydqbbdb">与当前版本比对</div>
+                <div id="start_tjbb">提交节点版本</div>
+                <div id="start_bbxxck">节点版本信息查看</div>
+            </div>
+            
+            <!-- 结束节点右键菜单 -->
+            <div id="mm_end" class="easyui-menu" style="width:150px;">
+                <div id="itemEndSelDb" style="font-weight:bold">选择打包</div>
+                <div class="menu-sep"></div>
+                <div id="end_csal">节点测试案例</div>
+                <div id="itemEndDbgz">单步调试</div>
+                <div class="menu-sep"></div>
+                <div id="end_ydqbbdb">与当前版本比对</div>
+                <div id="end_tjbb">提交节点版本</div>
+                <div id="end_bbxxck">节点版本信息查看</div>
+            </div>
+            
+            <!-- 节点右键菜单 -->
+            <div id="mm_jd" class="easyui-menu" style="width:150px;">
+                <div id="jd_upd" style="font-weight:bold" data-options="iconCls:'icon-edit'">节点编辑</div>
+                <div id="jd_del" data-options="iconCls:'icon-remove'">节点删除</div>
+                <div class="menu-sep"></div>
+                <div id="jd_csal">节点测试案例</div>
+                <div id="jd_dbgz">单步调试</div>
+                <div class="menu-sep"></div>
+                <div id="jd_ydqbbdb">与当前版本比对</div>
+                <div id="jd_tjbb">提交节点版本</div>
+                <div id="jd_bbxxck">节点版本信息查看</div>
+                <div id="cz_czpz">冲正配置</div>
+            </div>
+            
+            <!-- 子流程右键菜单 -->
+            <div id="mm_zlc" class="easyui-menu" style="width:150px;">
+                <div id="zlc_ck" style="font-weight:bold">子流程查看</div>
+                <div id="zlc_del" data-options="iconCls:'icon-remove'">子流程删除</div>
+                <div class="menu-sep"></div>
+                <div id="zlc_csal">子流程测试案例</div>
+                <div id="zlc_dbgz">单步调试</div>
+            </div>
+            
+            <!-- 连接线右键菜单 -->
+            <div id="mm_line" class="easyui-menu" style="width:150px;">
+                <div id="line_edit" data-options="iconCls:'icon-edit'" style="font-weight:bold;">连接线编辑</div>
+                <div id="line_del" data-options="iconCls:'icon-remove'">连接线删除</div>
+            </div>
+        </div>
+        
+        <div data-options="region:'center',title:'${mc}'" style="padding:5px;background:#eee;">
+            <!-- 顶部菜单 -->
+            <div style="padding:5px;background:#fafafa;border:#abafb8 1px solid;">
+                <a href="javascript:;" id="btnLcSubmit" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-save'">保存</a>
+                <a href="javascript:;" id="btnLcCommit" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-ok'">${'交易版本提交' if lx == 'lc' else '子流程版本提交'}</a>
+                <a href="javascript:;" id="btnJdDbts" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-debug'">单步调试</a>
+                <a href="javascript:;" id="btnLcBbck" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-look-over'">${'交易版本信息查看' if lx == 'lc' else '子流程版本信息查看'}</a>
+                <a href="javascript:;" id="btnLcCsal" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-look-over'">${'交易测试案例查看' if lx == 'lc' else '子流程测试案例查看'}</a>
+            </div>
+            <!-- 流程图 -->
+            <div id="main">
+                <div id="workflow" class="workflow" style='margin-top:5px;'></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 节点编辑 -->
+    <div id="winNodeEdit" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="overflow:hidden">
+        <iframe scrolling="no" frameborder="0" style="width:100%;height:100%"></iframe>
+    </div>
+    
+    <!-- 版本提交 -->
+    <div id="bbtj_window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="overflow:hidden">
+        <iframe scrolling="no" frameborder="0" style="width:100%;height:100%"></iframe>
+    </div>
+    
+    <!-- 查看日志 -->
+    <div id="divLog" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="left:124px;top:185px;overflow:hidden">
+        <div style="height:100%;width:100%;overflow:scroll;">
+            <pre style='margin:3px;line-height:150%;'></pre>
+        </div>
+    </div>
+    
+    <!-- 单步调试记录 -->
+    <div id="winDbtsjl" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="overflow:hidden">
+        <iframe scrolling="no" frameborder="0" style="width:100%;height:100%"></iframe>
+    </div>
+    
+    <!-- 选择demo数据 -->
+    <div id="bean_window_demo" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div id="searchYhxx" data-options="region:'north'" style="text-align:right;padding:3px;height: 35px;">
+            <!--form表单-->
+            <form>
+                <table id="dgSearch" style="width:auto;margin:1px 0;" border="0">
+                    <tr>
+                        <td nowrap="nowrap"  style="text-align:right;width:70px;">名称：</td>
+                        <td style="text-align:left;width:150px;">
+                            <!--名称输入框-->
+                            <input name="seaDlzh" id="txtSearchMc" class="easyui-textbox" style="width:150px;">
+                        </td>
+                        <td nowrap="nowrap"  style="text-align:right;width:50px;">描述：</td>
+                        <td style="text-align:left;width:150px;">
+                            <!--描述输入框-->
+                            <input name="seaXm" id="txtSearchMs" class="easyui-textbox" style="width:150px;">
+                        </td>
+                        <td nowrap="nowrap"  style="text-align:right;width:140px;">
+                            <!-- 查询按钮，发起条件查询请求 -->
+                            <button id="btnSearch" href="#" class="easyui-linkbutton" style="width:100px;">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div class="easyui-layout" data-options="region:'center',border:false">
+            <table id="dgDemo"></table>
+        </div>
+    </div>
+    
+    <!-- 单步调试 -->
+    <div id="winDbts" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="overflow:hidden">
+        <iframe scrolling="no" frameborder="0" style="width:100%;height:100%"></iframe>
+    </div>
+    
+    <!-- 通用弹窗 -->
+    <div id="winCommon" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="overflow:hidden">
+        <iframe scrolling="no" frameborder="0" style="width:100%;height:100%"></iframe>
+    </div>
+    
+    <!-- 增加/修改DEMO数据 -->
+    <div id="bean_window_add_demo" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div id="tbsDemo" class="easyui-tabs" data-options="fit:true">
+            <div title="基本信息" data-options="fit:true,disabled:true">
+                <input type="hidden" id="txtDemoid" name="demo_id" />
+                <!-- 这个input的作用是为了标识用户选的是录入单个demo的方式，还是批量录入demo的方式 -->
+                <input type="hidden" id="txtSelectDemo"/>
+                <table style="font-size:14px;margin-top:30px;" align="center" cellspacing="10px">
+                    <tr>
+                        <td style="text-align:right">名称：</td>
+                        <td>
+                            <input type="text" id="txtDemomc" name="demo_mc" class="easyui-textbox" style="width:410px;" />
+                            <span class="red-color">*</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right">描述：</td>
+                        <td>
+                            <input type="text" id="txtDemoms" name="demo_ms" class="easyui-textbox" data-options="multiline:true" style="width:410px;height:52px" />
+                        </td>
+                    </tr>
+                </table>
+                <div data-options="region:'south',border:false" style="text-align:center;padding:140px 0 0;">
+                    <button id="btnDemoJbxxSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:80px">保存</button>
+                    <button id="btnDemoJbxxCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+                </div>
+            </div>
+            <div title="表信息" data-options="fit:true">
+                <div id="tbsYwsjb" class="easyui-tabs" data-options="fit:true,border:false"></div>
+                <!-- 数据表的下拉框 -->
+                <div id="divYwsj" style="width:100%;height:100%;">
+                    <div  style="margin:5px;">业务数据表信息：<input id="comboYwsjb" class="easyui-combobox" name="comboYwsjb"/></div>
+                    <!-- 显示数据表的iframe，外链的kf_ywgl_012的页面 -->
+                    <table style="width:100%;height:92%;">
+                    <tr><td style="100%;height:100%;">
+                        <iframe id="iframeYwsjb" src="" scrolling="no" frameborder="0" style="width:100%;height:100%;"></iframe>
+                    </td></tr></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 保存为测试案例 -->
+    <div id="divSaveCsal" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <form method="post">
+            <div class="esayui-panel" style="margin-top:10px">
+                <table style="font-size:14px;" align="center" cellspacing="10px">
+                    <tr>
+                        <td style="text-align:right">所属业务：</td>
+                        <td>
+                            <input type="text" id="txtCsalSsyw" class="easyui-textbox" data-options="disabled:true" style="width:320px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right">所属流程：</td>
+                        <td>
+                            <input type="text" id="txtCsalSsjy" class="easyui-textbox" data-options="disabled:true" style="width:320px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right">测试案例名称：</td>
+                        <td>
+                            <input type="text" id="txtCaslmc" name="mc" class="easyui-textbox" style="width:320px" />
+                            <span class="colorRed">*</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right">测试案例描述：</td>
+                        <td>
+                            <input type="text" id="txtCaslms" name="ms" class="easyui-textbox" data-options="multiline:true" style="width:320px;height:55px" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div data-options="region:'south',border:false" style="text-align:center;padding:10px 0 0;">
+                <button id="btnSubmitSaveCsal" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:80px">保存</button>
+                <button id="btnCancelSaveCsal" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 选择打解包 -->
+    <div id="divDajiebao" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <form method="post">
+            <input type="hidden" id="djblx" name="lx">
+            <div class="esayui-panel" style="margin:15px 0 0 43px">
+                <table style="font-size:14px;" align="center" cellspacing="10px">
+                    <tr>
+                        <td>业务名称：</td>
+                        <td>
+                            <input id="txtYwmc" class="easyui-textbox" data-options="disabled:true" style="width:200px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>交易名称：</td>
+                        <td>
+                            <input id="txtJymc" class="easyui-textbox" data-options="disabled:true" style="width:200px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="djb">流程解包</span>：</td>
+                        <td>
+                            <input id="selLcdjb" name="jdid" class="easyui-combobox" data-options="editable:true,valueField:'id',textField:'jdmc'" style="width:200px;">
+                            <span class="colorRed">*</span>
+                            <a id="btnEditDjbjd" href="javascript:;" style="vertical-align:middle">编辑</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+                <button id="lbtnDjbjdSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                <button id="lbtnDjbjdCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 配置冲正 -->
+    <div id="divPzcz" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <form id = 'formPzcz' method="post">
+            <input type="hidden" id="djblx" name="lx">
+            <div class="esayui-panel" style="margin:15px 0 0 43px">
+                <table style="font-size:14px;" align="center" cellspacing="10px">
+                    <tr>
+                        <td>冲正配置：</td>
+                        <td>
+                            <input type = 'hidden' id = 'hidCzpzid' value = ''>
+                            <input id="selCzpzid" name="czpzid" class="easyui-combobox" data-options="" style="width:250px;">
+                            <span class="colorRed">*</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+                <button id="lbtnCzpzSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                <button id="lbtnCzpzCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+        </form>
+    </div>
+    
+</body>
+</html>

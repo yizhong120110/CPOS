@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    
+    <!--业务总数据
+        只查询业务定义表中排除编码为BEAITX的业务即可，不需要关联其他表-->
+    <sql sqlid = 'data_count' desc = "数据表信息查看：获取业务数量">
+        select count(0) as count
+        from gl_ywdy
+        where ywbm != 'BEAITX'   
+    </sql>
+    
+    <!--数据表信息查看业务详情:
+        查询业务定义表，排除编码为BEAITX的业务，分页后，关联数据库模型定义表，查询出各个业务下的数据表数量
+        查询信息：id、业务编码、业务名称、数据表数量
+        根据传入开始页数和结束页数，进行分页查询-->
+    <sql sqlid = 'data_rs' desc = "数据表信息查看：获取业务信息">
+        select b.id, b.ywbm, b.ywmc, nvl( c.sjbsl, 0 ) as sjbsl 
+        from (
+          select id, ywbm, ywmc
+          from (
+            select a.id, a.ywbm, a.ywmc,rownum rn
+            from (
+              select id, ywbm, ywmc
+              from gl_ywdy
+              where ywbm != 'BEAITX'
+              order by ywbm 
+              ) a
+          ) 
+          where rn >= %(rn_start)s and %(rn_end)s >= rn
+        )b
+        left join (
+             select ssyw_id, count(sjbmc) as sjbsl 
+             from gl_sjkmxdy
+             group by ssyw_id
+             ) c
+        on b.id = c.ssyw_id
+        order by b.ywbm
+    </sql>
+</sqllist>

@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+    <sql sqlid="get_jklb" desc="获取监控类别">
+        select lbbm ,lbmc from gl_jklb order by lbbm
+    </sql>
+    <sql sqlid="get_jkdx" desc="获取监控对象">
+        select a.id,a.wym,a.dxbm,a.dxmc||'('||a.dxbm||')'  as name,b.xm as czr,a.czsj, '' as diff,'jkdx' as lx
+        from ${paras._tb(paras.table_name)} a left join gl_hydy b on a.czr = b.hydm
+        where ${paras._or('sslbbm',paras.jkdxlb_sql_data)}
+        order by dxbm,dxmc
+    </sql>
+    <sql sqlid="get_fxgz" desc="获取分析规则">
+        select a.id ,a.hsmc,a.zwmc||'('||a.hsmc||')' as name,b.xm as czr,a.czsj,a.wym,'' as diff,'fxgz' as lx
+        from ${paras._tb(paras.table_name)} a left join gl_hydy b on a.czr = b.hydm
+        where a.lb = 'gz' --分析规则
+        --去掉来源,因为有可能铺地数据也是可以修改的
+        --And a.来源 = ‘1’—-自定义（铺地的数据在上平台的时候就已经铺地进去了）
+        order by a.hsmc
+    </sql>
+    <sql sqlid="get_xydz" desc="获取相应动作">
+        select a.id ,a.hsmc,a.zwmc||'('||a.hsmc||')' as name,b.xm as czr,a.czsj,a.wym,'' as diff,'xydz' as lx
+        from ${paras._tb(paras.table_name)} a left join gl_hydy b on a.czr = b.hydm
+        where a.lb = 'dz' --响应动作
+        --去掉来源,因为有可能铺地数据也是可以修改的
+        --And a.来源 = ‘1’—-自定义（铺地的数据在上平台的时候就已经铺地进去了）
+        order by a.hsmc
+    </sql>
+    <sql sqlid="get_sjcjpz" desc="获取数据采集配置">
+        select a.id,a.mc as name,b.xm as czr,a.czsj,a.wym,'' as diff,'sjcjpz' as lx
+        from ${paras._tb(paras.table_name)} a left join gl_hydy b on a.czr = b.hydm
+        where a.scbz != '1'
+        %if paras.id_list:
+            and ${paras._or('a.id',paras.id_list)}
+        %endif
+        order by mc
+    </sql>
+    <sql sqlid="get_jkfxpz" desc="获取监控分析配置">
+       select a.id,a.mc as name,b.xm as czr,a.czsj,a.wym,'' as diff,'jkfxpz' as lx,gzid
+        from ${paras._tb(paras.table_name)} a left join gl_hydy b on a.czr = b.hydm
+        where 1=1
+        %if paras.id_list:
+            and ${paras._or('a.id',paras.id_list)}
+        %endif
+        order by mc
+    </sql>
+    <sql sqlid="get_yzjycspz" desc="获取阈值校验参数配置">
+        select a.id,b.ywmc,b.ywbm,a.csdm as name,c.xm as czr,a.czsj,a.wym,'' as diff,'yzjycspz' as lx,a.ssywid
+        from ${paras._tb(paras.table_name)} a left join gl_hydy c on a.czr = c.hydm, gl_ywdy b
+        where a.ssywid = b.id
+        %if paras.ywbm:
+            and b.ywbm = %(ywbm)s
+        %endif
+        %if paras.id_list:
+            and ${paras._or('a.id',paras.id_list)}
+        %endif
+        order by b.ywmc,a.csdm
+    </sql>
+    <sql sqlid="get_yzjypz" desc="获取阈值校验配置">
+        select a.id,b.ywmc||'('||b.ywbm||')' as name,b.ywbm,c.xm as czr,a.czsj,a.wym,'' as diff,'yzjypz' as lx,a.ssywid
+        from ${paras._tb(paras.table_name)} a left join gl_hydy c on a.czr = c.hydm , gl_ywdy b
+        where a.ssywid = b.id
+        %if paras.id_list:
+            and ${paras._or('a.id',paras.id_list)}
+        %endif
+        order by b.ywmc,b.ywbm
+    </sql>
+    <sql sqlid="get_jcxxpz" desc="获取进程信息配置">
+        select a.id,a.jcmc||'('||a.sszj_ip||')' as name,a.sszj_ip,b.xm as czr,a.czsj,a.wym,'' as diff,'jcxxpz' as lx,a.txwjmc
+        from ${paras._tb(paras.table_name)} a left join gl_hydy b on a.czr = b.hydm
+        where a.scbz != '1' ---删除标记
+        %if paras.id_list:
+            and ${paras._or('a.id',paras.id_list)}
+        %endif
+        order by jcmc,sszj_ip
+    </sql>
+    <sql sqlid="get_jkdx_bbdb" desc="获取监控对象">
+        select a.id,a.dxbm,b.lbmc as sslbbm,a.dxmc,a.dxms,c.mc as zt,'' as diff
+        from ${paras._tb(paras.table_name)} a 
+        left join gl_bmwh c on (c.bm = a.zt and c.lx = '10001') 
+        ,gl_jklb b
+        where a.sslbbm = b.lbbm
+        and a.id = %(id)s
+    </sql>
+    <sql sqlid="get_fxgz_jbxx" desc="获取分析规则基本信息">
+        select a.id,a.hsmc,a.zwmc,a.ms,b.mc as zt,'' as diff
+        from ${paras._tb(paras.table_name)} a 
+        left join gl_bmwh b on (a.zt = b.bm and b.lx = '10001')
+        where lb = 'gz'--分析规则
+        and a.id = %(id)s
+    </sql>
+    <sql sqlid="get_fxgz_fxgz" desc="获取规则代码">
+        select a.nr 
+        from ${paras._tb(paras.table_name_blob)} a,${paras._tb(paras.table_name_hsxx)} b
+        where a.id = b.nr_id
+        and b.lb = %(lb)s --分析规则
+        and b.id = %(id)s
+    </sql>
+    <sql sqlid="get_fxgz_crcs" desc="获取规则的传入参数">
+        select id,csdm,cssm,sfkk,mrz,'' as diff
+        from ${paras._tb(paras.table_name)}
+        where ssid = %(id)s
+        and sslb = %(sslb)s --规则
+        order by sxh
+    </sql>
+    
+    <sql sqlid="get_xydz_jbxx" desc="获取相应动作基本信息">
+        select a.id,a.hsmc,a.zwmc,a.ms,b.mc as zt,c.mc as dmlx,'' as diff
+        from ${paras._tb(paras.table_name)} a
+        left join gl_bmwh b on (a.zt = b.bm and b.lx = '10001')
+        left join gl_bmwh c on (a.dmlx = b.bm and b.lx = '10008')
+        where lb = 'dz'--响应动作
+        and a.id = %(id)s
+    </sql>
+    <sql sqlid="get_dxcjpz" desc="获取对象采集配置">
+        select a.id,a.mc,a.ms,b.lbmc as cjlb,a.zbid,c.zbmc as cjzb,a.lx,zdfqpz,zdfqpzsm,d.mc as sfkbf
+        from ${paras._tb(paras.table_name)} a
+        left join gl_bmwh d on (d.bm = a.sfkbf and d.lx = '10007')
+        ,gl_jklb b , gl_jkzb c
+        where a.sslbbm = b.lbbm
+        and a.scbz != '1'
+        and a.zbid = c.id
+        and a.id = %(id)s
+    </sql>
+    <!--获取参数代码，参数说明-->
+    <sql sqlid = 'get_csxx' desc = "获取参数代码，参数说明">
+        select csdm,cssm from ${paras._tb(paras.table_name)}
+        where ssid = %(zbid)s
+        order by sxh
+    </sql>
+    <!--获取适用对象列表-->
+    <sql sqlid = 'get_sydxs' desc = "获取适用对象列表">
+        select a.id,b.dxmc,c.mc as zdzj,case a.cjpzzt when '1' then '启用' else '禁用' end  as dxzt,a.dxid
+        from ${paras._tb(paras.table_name_dxcjpz)} a,${paras._tb(paras.table_name_dxdy)} b,${paras._tb(paras.table_name_zjxx)} c
+        where a.dxid = b.id
+        and a.zdzjip = c.ip
+        and a.scbz != '1'
+        and a.sscjpzid = %(cjpzid)s
+        order by b.dxmc,a.zdzjip
+    </sql>
+    <sql sqlid = 'get_csdyb' desc = "查询参数值">
+        select a.csdm,a.mrz, b.csz from ${paras._tb(paras.table_name_crcs)} a
+        left join ${paras._tb(paras.table_name_csdy)} b
+        on a.ssid = b.crcsid
+        where b.ssid = %(ssid)s
+        and a.ssid = %(zbid)s
+        order by a.sxh
+    </sql>
+    <!-- 进程配置 -->
+    
+    <sql sqlid = 'get_jcpz' desc = "查询进程配置">
+        select a.id , a.mc,a.ms,a.gzid,b.hsmc as fxgz,b.zwmc,c.mc as zt,d.mc as yjjb,e.mc as sfkbf,a.zdfqpz,a.zdfqpzsm
+        from ${paras._tb(paras.table_name_jkfxpz)} a 
+        left join gl_bmwh c on (a.zt = c.bm and c.lx = '10001') 
+        left join  gl_bmwh d on (a.yjjb = c.bm and c.lx = '10011')
+        left join gl_bmwh e on (e.bm = a.sfkbf and e.lx = '10007')
+        ,${paras._tb(paras.table_name_hsxxb)} b 
+        where a.gzid = b.id
+        and b.lb = 'gz' --分析规则
+        and a.id = %(id)s
+    </sql>
+    <sql sqlid = 'get_jcpz_fxgzcs' desc = "查询进程配置的分析规则参数">
+        select a.id,a.csdm,a.cssm,a.sfkk,a.mrz,b.id as cszid,b.csz
+        from ${paras._tb(paras.table_name_crcs)} a
+        left join ${paras._tb(paras.table_name_csdyb)} b on a.id = b.crcsid and b.ssid = %(id)s
+        where a.ssid = %(gzid)s
+        and a.sslb = '1' --分析规则
+        order by a.sxh
+    </sql>
+    <!--获取监控配置下响应动作-->
+    <sql sqlid = 'get_jcpz_xydzcs' desc = "获取监控配置下响应动作">
+        select a.id,a.dzid,a.fxjgcf,b.zwmc,b.hsmc,d.mc as fqfs,a.jhsj
+        from ${paras._tb(paras.table_name_xydzpz)} a 
+        inner join ${paras._tb(paras.table_name_hsxxb)} b on a.dzid = b.id
+        inner join ${paras._tb(paras.table_name_jkfxpz)} c on a.ssjkfxid = c.id
+        left join gl_bmwh d 
+        on a.fqfs = d.bm 
+        where d.lx = '10004' --动作类型(发起方式)
+        and b.lb = 'dz'   --动作    
+        and c.id = %(id)s
+        order by a.fxjgcf,b.zwmc
+    </sql>
+    <!-- 动作执行主机查询 -->
+    <sql sqlid = 'get_jcpz_zxzj' desc = "动作执行主机查询">
+        select a.id as xydzid, b.zjip, c.mc
+        from ${paras._tb(paras.table_name_xydzpz)} a, ${paras._tb(paras.table_name_dzzxzj)} b, ${paras._tb(paras.table_name_zjxx)} c
+        where a.id = b.ssid
+        and b.zjip = c.ip
+        and ( ${paras._or('a.id',paras.xydzidlst)} )
+    </sql>
+    <!-- 获取响应动作 -->
+    <sql sqlid = 'get_jcpz_xydz' desc = "获取响应动作">
+        select a.id as xydzid,a.dzid,b.zwmc,b.hsmc
+        from ${paras._tb(paras.table_name_xydzpz)} a , ${paras._tb(paras.table_name_hsxxb)} b
+        where a.dzid = b.id
+        and a.ssjkfxid = %(id)s
+    </sql>
+    <!-- 获取响应动作的传入参数 -->
+    <sql sqlid = 'get_jcpz_xydz_crcs' desc = "获取响应动作的传入参数">
+        select a.csdm,a.cssm,a.sfkk,a.mrz,c.csz,'' as diff,a.id
+        from ${paras._tb(paras.table_name_crcs)} a 
+        left join ${paras._tb(paras.table_name_csdyb)} c  
+        on a.id = c.crcsid 
+        where a.ssid = %(xydzid)s
+        and c.ssid = %(xydzpzid)s
+        order by a.sxh
+    </sql>
+    <!-- 获取阈值校验参数 -->
+    <sql sqlid = 'get_yzjycs' desc = "获取阈值校验参数">
+        select a.id,b.ywmc,a.csdm,c.mc as kgl,a.csz,a.csz2,a.csms
+        from ${paras._tb(paras.table_name_yzjycspz)} a 
+        left join gl_bmwh c on ( a.kgl = c.bm and c.lx = '10014') ,gl_ywdy b
+        where a.ssywid = b.id
+        and a.id = %(id)s
+    </sql>
+    <!-- 获取阈值校验业务配置基本信息 -->
+    <sql sqlid = 'get_yzjy_jbxx' desc = "获取阈值校验业务配置基本信息">
+        select b.id,b.ywmc,b.ywbm,a.wjlx
+        from ${paras._tb(paras.table_name_yzjypz)} a, gl_ywdy b
+        where a.ssywid = b.id
+        and a.id = %(id)s
+    </sql>
+    <!--
+    所属业务查询sql:
+    -->
+    <sql sqlid = 'data_ssyw' desc = "业务配置：所属业务查询">
+        select id as value,ywmc||'('||ywbm||')' as text,ywbm textt,ywmc
+        from gl_ywdy
+        %if paras.ssyw:
+             where id = %(ssyw)s
+        %endif
+        order by ywmc,ywbm
+    </sql>
+    <!--
+    扩展校验方式查询sql:
+    -->
+    <sql sqlid = 'data_kzjyfs' desc = "业务配置：扩展校验方式查询">
+        select bm as value,mc as text
+        from gl_bmwh
+        where lx = '10016'
+        order by bm
+    </sql>
+    <!--查询业务配置基本信息-->
+    <sql sqlid="yzjypz_select" desc="查询阈值校验配置表">
+        select a.ssywid,a.wjlx,a.lsdrfs,a.kzjyfs
+        from ${paras._tb(paras.table_name_yzjypz)} a
+        where a.id = %(id)s
+    </sql>
+    <!--查询blob表-->
+    <sql sqlid="blob_select" desc="查询blob表">
+     select a.nr as nr
+        from ${paras._tb(paras.table_name_blob)} a ,
+            ( select ${paras._tb(paras.sqlid_name)} as id
+              from ${paras._tb(paras.table_name_yzjypz)}
+              where id = %(ywpz_id)s ) b
+        where a.id = b.id
+    </sql>
+    
+    <sql sqlid="get_jcxxpz_jc" desc="获取进程信息配置">
+        select a.id,a.sszj_ip as zdzj,a.jcmc,a.jcsl,a.ckml,a.jclx,b.mc as zt ,a.txwjmc as qdlx
+        from ${paras._tb(paras.table_name_jcxxpz)} a 
+        left join gl_bmwh b on ( a.zt = b.bm and b.lx = '10001')
+        where a.id = %(id)s
+        and a.scbz != '1'
+    </sql>
+    
+    <sql sqlid="get_dr_sj" desc="根据id获取表数据">
+        select * from ${paras._tb(paras.table_name)}
+        where (${paras._or('id',paras.id_lst)})
+        %if paras.lb:
+            and lb = %(lb)s
+        %endif
+        %if paras.scbz:
+            and scbz != '1'
+        %endif
+        
+    </sql>
+    <sql sqlid="insert_dr_sj" desc="将临时表内容插入到正式表中">
+        insert into ${paras._tb(paras.table_name_zs)}
+        select * from ${paras._tb(paras.table_name_ls)}
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_scbz_count" desc="查询带有删除标志的数据">
+        select count(1) as count from ${paras._tb(paras.table_name)} where id = %(id)s and scbz = %(scbz)s
+    </sql>
+    <sql sqlid="update_scbz" desc="更新删除标志状态">
+        update ${paras._tb(paras.table_name)} set scbz = %(scbz)s where id = %(id)s
+    </sql>
+    <sql sqlid="update_dr_sj" desc="将临时表内容更新到正式表中">
+        update ${paras._tb(paras.table_name)}
+        set ${paras._set( paras.col)}
+        where id = %(id)s
+    </sql>
+    <sql sqlid="del_dr_sj" desc="删除表的内容">
+        delete from ${paras._tb(paras.table_name1)}
+        where id in (select nr_id from ${paras._tb(paras.table_name3)} where 1=1
+        %if paras.id:
+            and ${paras._or('id',paras.id)}
+        %endif
+        )
+    </sql>
+    <sql sqlid="insert_dr_in" desc="将临时表内容导入到正式表中">
+        insert into ${paras._tb(paras.table_name1)}
+        select * from ${paras._tb(paras.table_name2)}
+        where id in (select nr_id from ${paras._tb(paras.table_name3)} where 1=1
+        %if paras.id:
+            and ${paras._or('id',paras.id)}
+        %endif
+        )
+    </sql>
+    <sql sqlid="get_dr_in" desc="获取原始数据">
+        select * from ${paras._tb(paras.table_name2)}
+        where id in (select nr_id from ${paras._tb(paras.table_name3)} where 1=1 
+        %if paras.id:
+            and ${paras._or('id',paras.id)}
+        %endif
+        )
+    </sql>
+    
+    <sql sqlid="del_dr_crcs" desc="删除传入参数">
+        delete from ${paras._tb(paras.table_name1)}
+        where 1=1
+        %if paras.id:
+            and ${paras._or('ssid',paras.id)}
+        %endif
+        %if paras.sslb:
+            and sslb = %(sslb)s
+        %endif
+    </sql>
+    <sql sqlid="insert_dr_crcs" desc="插入传入参数">
+        insert into ${paras._tb(paras.table_name1)}
+        select * from ${paras._tb(paras.table_name2)}
+        where 1=1
+        %if paras.id:
+            and ${paras._or('ssid',paras.id)}
+        %endif
+        %if paras.sslb:
+            and sslb = %(sslb)s
+        %endif
+    </sql>
+    <sql sqlid="get_dr_crcs" desc="插入传入参数">
+        select * from ${paras._tb(paras.table_name2)}
+        where 1=1
+        %if paras.id:
+            and ${paras._or('ssid',paras.id)}
+        %endif
+        %if paras.sslb:
+            and sslb = %(sslb)s
+        %endif
+        order by sxh
+    </sql>
+    <sql sqlid="del_dr_csdyb" desc="删除参数对应表">
+        delete from ${paras._tb(paras.table_name_csdyb)}
+        where ssid in (select id from ${paras._tb(paras.table_name_dxcjpz)} where 1=1
+        %if paras.sscjpzid:
+            and ${paras._or('sscjpzid',paras.sscjpzid)}
+        %endif
+        )
+    </sql>
+    <sql sqlid="del_dr_jhrw" desc="删除计划任务表">
+        delete from ${paras._tb(paras.table_name_jhrwb)}
+        where rwlx = %(rwlx)s and ssid in (select id from ${paras._tb(paras.table_name_dxcjpz)} where 1=1
+        %if paras.sscjpzid:
+            and ${paras._or('sscjpzid',paras.sscjpzid)}
+        %endif
+        )
+    </sql>
+    <sql sqlid="del_dr_dxcjpz" desc="删除对象采集配置">
+        delete from ${paras._tb(paras.table_name_dxcjpz)}
+        where 1=1
+        %if paras.sscjpzid:
+            and ${paras._or('sscjpzid',paras.sscjpzid)}
+        %endif
+    </sql>
+    
+    <sql sqlid="get_dr_dxcjpz" desc="查询对象采集配置表中的ID">
+        select * from ${paras._tb(paras.table_name_dxcjpz_ls)}
+        where 1=1
+        %if paras.sscjpzid:
+            and ${paras._or('sscjpzid',paras.sscjpzid)}
+        %endif
+        and scbz != '1'
+    </sql>
+    <sql sqlid="insert_dr_dxcjpz" desc="插入到对象采集配置表中">
+        insert into ${paras._tb(paras.table_name_dxcjpz)}
+        select * from ${paras._tb(paras.table_name_dxcjpz_ls)}
+        where 1=1
+        %if paras.dxcjpzid:
+            and ${paras._or('id',paras.dxcjpzid)}
+        %endif
+        and scbz != '1'
+    </sql>
+    <sql sqlid="get_dr_jhrw" desc="获取计划任务">
+        select * from ${paras._tb(paras.table_name_jhrwb)}
+        where rwlx = %(rwlx)s and ${paras._or('ssid',paras.dxcjpzid)}
+        %if paras.zt:
+            and zt = %(zt)s
+        %endif
+    </sql>
+    <sql sqlid="get_dr_jhrw_qy" desc="获取计划任务">
+        select * from gl_jhrwb
+        where rwlx = %(rwlx)s and （${paras._or('ssid',paras.dxcjpzid)}）
+        and zt = %(zt)s
+    </sql>
+    <sql sqlid="insert_dr_jhrw" desc="插入计划任务">
+        insert into ${paras._tb(paras.table_name_jhrwb)}
+        select * from ${paras._tb(paras.table_name_jhrwb_ls)}
+        where rwlx = %(rwlx)s and ${paras._or('ssid',paras.dxcjpzid)}
+    </sql>
+    <sql sqlid="get_dr_csdyb" desc="查询参数对应表信息">
+        select * from ${paras._tb(paras.table_name_csdyb_ls)}
+        where ${paras._or('ssid',paras.dxcjpzid)}
+    </sql>
+    <sql sqlid="insert_dr_csdyb" desc="插入参数对应表">
+        insert into ${paras._tb(paras.table_name_csdyb)}
+        select * from ${paras._tb(paras.table_name_csdyb_ls)}
+        where ${paras._or('id',paras.csdybid)}
+    </sql>
+    
+    <sql sqlid="get_dr_zjxxcount" desc="获取主机信息">
+        select count(1) as count 
+        from ${paras._tb(paras.table_name_zjxx)}
+        where ${paras._or('ip',paras.zdzjip)}
+    </sql>
+    <sql sqlid="insert_dr_zjxx" desc="导入主机信息">
+        insert into ${paras._tb(paras.table_name_zjxx)}
+        select * from ${paras._tb(paras.table_name_zjxx_ls)}
+        where ${paras._or('ip',paras.zdzjip)}
+    </sql>
+    
+    <sql sqlid="del_dr_jcpz_jhrw" desc="删除计划任务表">
+        delete from ${paras._tb(paras.table_name_jhrwb_ls)}
+        where rwlx = %(rwlx)s and ${paras._or('ssid',paras.jcpzid)}
+    </sql>
+    <sql sqlid="insert_dr_jcpz_jhrw" desc="插入计划任务表">
+        insert into ${paras._tb(paras.table_name_jhrwb)}
+        select * from ${paras._tb(paras.table_name_jhrwb_ls)}
+        where rwlx = %(rwlx)s and ${paras._or('ssid',paras.jcpzid)}
+    </sql>
+    
+    <sql sqlid="del_dr_jcpz_fxgzcs" desc="删除分析规则参数">
+        delete from ${paras._tb(paras.table_name_csdyb)}
+        where ${paras._or('ssid',paras.jcpzid)}
+    </sql>
+    <sql sqlid="get_dr_jcpz_fxgzcs" desc="插入分析规则参数">
+        select * from ${paras._tb(paras.table_name_csdyb_ls)}
+        where ${paras._or('ssid',paras.jcpzid)}
+    </sql>
+    <sql sqlid="insert_dr_jcpz_fxgzcs" desc="插入分析规则参数">
+        insert into ${paras._tb(paras.table_name_csdyb)}
+        select * from ${paras._tb(paras.table_name_csdyb_ls)}
+        where ${paras._or('id',paras.csdybid)}
+    </sql>
+    
+    <sql sqlid="del_dr_jcpz_dzzxzj" desc="删除动作执行主机">
+        delete from ${paras._tb(paras.table_name_dzzxzj)}
+        where ssid in (select id from ${paras._tb(paras.table_name_xydzpz)} where ${paras._or('ssjkfxid',paras.jcpzid)} )
+    </sql>
+    <sql sqlid="del_dr_jcpz_xydzcs" desc="删除响应动作参数信息">
+        delete from ${paras._tb(paras.table_name_csdyb)}
+        where ssid in (select id from ${paras._tb(paras.table_name_xydzpz)} where ${paras._or('ssjkfxid',paras.jcpzid)} )
+    </sql>
+    <sql sqlid="del_dr_jcpz_xydzpz" desc="删除响应动作配置">
+        delete from ${paras._tb(paras.table_name_xydzpz)}
+        where ${paras._or('ssjkfxid',paras.jcpzid)}
+    </sql>
+    
+    
+    <sql sqlid="get_dr_jcpz_xydzpz" desc="获取响应动作配置">
+        select * from ${paras._tb(paras.table_name_xydzpz)}
+        where ${paras._or('ssjkfxid',paras.jcpzid)}
+    </sql>
+    <sql sqlid="insert_dr_jcpz_xydzpz" desc="插入响应动作配置">
+        insert into ${paras._tb(paras.table_name_xydzpz)}
+        select * from ${paras._tb(paras.table_name_xydzpz_ls)}
+        where ${paras._or('id',paras.xydzpzid)}
+    </sql>
+    <sql sqlid="get_dr_jcpz_csdyb" desc="获取参数对应表">
+        select * from ${paras._tb(paras.table_name_csdyb_ls)}
+        where ${paras._or('ssid',paras.xydzpzid)}
+    </sql>
+    <sql sqlid="insert_dr_jcpz_csdyb" desc="插入参数对应表">
+        insert into ${paras._tb(paras.table_name_csdyb)}
+        select * from ${paras._tb(paras.table_name_csdyb_ls)}
+        where ${paras._or('id',paras.csdybid)}
+    </sql>
+    <sql sqlid="get_dr_jcpz_zxzj" desc="查询响应动作执行主机">
+        select * from ${paras._tb(paras.table_name_dzzxzj_ls)}
+        where ${paras._or('ssid',paras.xydzpzid)}
+    </sql>
+    <sql sqlid="insert_dr_jcpz_zxzj" desc="插入响应动作执行主机">
+        insert into ${paras._tb(paras.table_name_dzzxzj)}
+        select * from ${paras._tb(paras.table_name_dzzxzj_ls)}
+        where ${paras._or('id',paras.dzzxzjid)}
+    </sql>
+    <!--删除blob表内容-->
+    <sql sqlid="del_blob_nr" desc="删除blob表内容">
+        delete from ${paras._tb(paras.table_name_blob)}
+        where id in
+            ( select ${paras._tb(paras.colum_name)}
+              from ${paras._tb(paras.table_name_yzjypz)}
+              where ${paras._or('id',paras.ywpzid)} )
+    </sql>
+    <!--插入blob表内容-->
+    <sql sqlid="insert_blob_nr" desc="插入blob表内容">
+        insert into ${paras._tb(paras.table_name_blob)}
+        select * from ${paras._tb(paras.table_name_blob_ls)} 
+        where id in
+            ( select ${paras._tb(paras.colum_name)}
+              from ${paras._tb(paras.table_name_yzjypz_ls)}
+              where ${paras._or('id',paras.ywpzid)} )
+    </sql>
+    <sql sqlid="get_jcxxpz_zjip" desc="获取进程信息配置的主机ip">
+       select sszj_ip as sszjip from ${paras._tb(paras.table_name_jcxxpz)}
+       where ${paras._or('id',paras.jcpzid)} 
+    </sql>
+    <sql sqlid="update_drls" desc="更新导入流水">
+        update gl_drls set czr=%(czr)s,czsj=%(czsj)s,bz=%(bz)s,czms=%(czms)s,fhr=%(fhr)s,zt=%(zt)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_gzid" desc="获取监控配置的规则">
+        select gzid from ${paras._tb(paras.table_name_jkfxpz)}
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_sydx_qy" desc="获取对象状态和采集配置状态都是启用的使用对象">
+        select id from gl_dxcjpz
+        where cjpzzt = '1' and dxzt = '1'
+    </sql>
+    <sql sqlid="get_jkfxpz_zt_qy" desc="获取监控分析配置状态是启用的">
+        select id from gl_jkfxpz
+        where zt = '1'
+    </sql>
+    
+    <sql sqlid="get_fxgz_xydz" desc="获取所有分析规则和相应动作">
+        select a.id,a.hsmc,a.zwmc,a.ms,b.mc as zt,nr_id
+        from ${paras._tb(paras.table_name)} a 
+        left join gl_bmwh b on (a.zt = b.bm and b.lx = '10001')
+        where lb in ('gz','dz')
+    </sql>
+    <sql sqlid="update_fxgz_xydz_id" desc="获取所有分析规则和相应动作">
+        update ${paras._tb(paras.table_name)} set id = %(zs_id)s where lb in ('gz','dz') and id = %(ls_id)s
+    </sql>
+    <sql sqlid="update_crcs_ssid" desc="更新分析规则响应动作的的传入参数的所属id">
+        update ${paras._tb(paras.table_name)} set ssid = %(zs_id)s where sslb in ('1','2') and ssid = %(ls_id)s
+    </sql>
+    <sql sqlid="update_jkfxpz_fxgz_id" desc="更新监控分析配置中的【分析规则动作id】">
+        update ${paras._tb(paras.table_name)} set gzid = %(zs_id)s where gzid = %(ls_id)s
+    </sql>
+    <sql sqlid="update_xydz_id" desc="更新响应动作id">
+        update ${paras._tb(paras.table_name)} set dzid = %(zs_id)s where dzid = %(ls_id)s
+    </sql>
+    <sql sqlid="get_crcs_id" desc="获取传入参数id">
+        select id,csdm from ${paras._tb(paras.table_name)} where sslb in ('1','2') and ssid = %(hsxxb_id)s
+    </sql>
+    <sql sqlid="update_crcs_id" desc="更新传入参数id">
+        update ${paras._tb(paras.table_name)} set id = %(zs_id)s where sslb in ('1','2') and id = %(ls_id)s
+    </sql>
+    <sql sqlid="update_csdyb_crcsid" desc="更新参数对应表的传入参数id">
+        update ${paras._tb(paras.table_name)} set crcsid = %(zs_id)s where lx in ('gz','dz') and crcsid = %(ls_id)s
+    </sql>
+    <sql sqlid="get_jkdx_for_sjcjpz" desc="获取采集配置所需要的监控对象">
+        select distinct b.dxid as dxid from gl_dxcjpz_ls b
+        inner join gl_cjpzb_ls c on c.id = b.sscjpzid
+        where b.scbz != '1' and c.id = %(cjpzid)s
+    </sql>
+    <sql sqlid="update_nrid" desc="更新函数信息表的内容id">
+        update ${paras._tb(paras.table_name)} set nr_id = %(zs_id)s where lb in ('gz','dz') and nr_id = %(ls_id)s
+    </sql>
+    <!--  校验阈值校验参数是否重复  -->
+    <sql sqlid="check_yzjycspz" desc="校验阈值校验参数是否重复">
+        select count(1) as count from gl_yzjycspz
+        where 1=1
+        %if paras.csdm:
+            and csdm = %(csdm)s
+        %endif
+        %if paras.ssywid:
+            and ssywid = %(ssywid)s
+        %endif
+        %if paras.id:
+            and id != %(id)s
+        %endif
+    </sql>
+    
+    <!-- 校验阈值校验业务是否重复 -->
+    <sql sqlid = 'check_yzjypz' desc = "校验阈值校验业务是否重复">
+        select count(0) as count
+        from gl_yzjypz
+        where ssywid = %(ssywid)s
+        and id!=%(id)s
+    </sql>
+    <!--获取进程类型数量-->
+    <sql sqlid = 'get_jclxcount' desc = "获取进程类型数量">
+        select count(0) as count from gl_jcxxpz
+        where sszj_ip = %(ip)s
+        and txwjmc = %(txwjmc)s
+        and scbz !='1'
+        %if paras.id:
+            and id != %(id)s
+        %endif
+    </sql>
+    <!-- 校验监控分析配置名称是否唯一 -->
+    <sql sqlid = 'check_jkfxpzmc' desc = "校验监控分析配置名称是否唯一">
+        select count(1) as count from gl_jkfxpz 
+        where mc = %(mc)s
+        and id != %(id)s
+    </sql>
+    <!--校验采集名称是否唯一-->
+    <sql sqlid = 'check_cjmc' desc = "校验采集名称是否唯一">
+        select count(1) as count from gl_cjpzb where mc = %(mc)s
+        and scbz != '1'
+        and id != %(id)s
+    </sql>
+    <sql sqlid="get_jkdx_all" desc="获取监控对象">
+        select a.id,a.dxbm,a.dxmc||'('||a.dxbm||')'  as name,sslbbm
+        from gl_dxdy_ls a 
+        %if paras.id:
+            and a.id != %(id)s
+        %endif
+    </sql>
+    <!--校验对象编码是否存在-->
+    <sql sqlid = 'check_dxbm' desc = "校验对象编码是否存在">
+        select count(1) as count 
+        from gl_dxdy 
+        where sslbbm = %(dxlx)s 
+        and dxbm = %(dxbm)s
+        and id != %(id)s
+    </sql>
+    <!--获取传入参数列表中参数信息-->
+    <sql sqlid = 'get_zb_crcs' desc = "获取传入参数列表中参数信息">
+        select a.id,a.csdm,a.cssm,a.sfkk,a.mrz ,b.csz,b.id as cs_id,d.dxmc from ${paras._tb(paras.table_name_crcs)} a
+        left join ${paras._tb(paras.table_name_csdyb)} b on a.id = b.crcsid
+        left join ${paras._tb(paras.table_name_dxcjpz)} c on b.ssid = c.id
+        left join ${paras._tb(paras.table_name_dxdy)} d on c.dxid = d.id
+        where a.ssid = %(zbid)s 
+        %if paras.sydxid:
+            and (${paras._or('b.ssid',paras.sydxid)})
+        %endif
+        order by d.dxmc,a.sxh
+    </sql>
+    <!--校验是否有监控对象-->
+    <sql sqlid = 'check_drlx' desc = "校验是否有监控对象">
+        select count(0) as count from gl_dxdy_ls
+    </sql>
+</sqllist>

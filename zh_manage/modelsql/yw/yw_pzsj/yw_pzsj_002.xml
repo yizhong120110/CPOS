@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+    <sql sqlid="get_jklb" desc="获取监控类别">
+        select lbbm ,lbmc from gl_jklb order by lbbm
+    </sql>
+    <sql sqlid="get_jkdx" desc="获取监控对象">
+        select a.id,a.dxbm,a.dxmc||'('||a.dxbm||')'  as name,b.xm as czr,a.czsj
+        from gl_dxdy a left join gl_hydy b on a.czr = b.hydm
+        where (${paras._or('sslbbm',paras.jkdxlb_sql_data)})
+        order by dxbm
+    </sql>
+    <sql sqlid="get_fxgz" desc="获取分析规则">
+        select a.id ,a.hsmc,a.zwmc||'('||a.hsmc||')' as name,b.xm as czr,a.czsj
+        from gl_hsxxb a left join gl_hydy b on a.czr = b.hydm
+        where lb = 'gz' --分析规则
+        order by hsmc
+    </sql>
+    <sql sqlid="get_xydz" desc="获取相应动作">
+        select a.id ,a.hsmc,a.zwmc||'('||a.hsmc||')' as name,b.xm as czr,a.czsj
+        from gl_hsxxb a left join gl_hydy b on a.czr = b.hydm
+        where lb = 'dz' --响应动作
+        order by hsmc
+    </sql>
+    <sql sqlid="get_sjcjpz" desc="获取数据采集配置">
+        select a.id,a.mc as name,b.xm as czr,a.czsj
+        from gl_cjpzb a left join gl_hydy b on a.czr = b.hydm
+        where a.scbz != '1'
+        order by mc
+    </sql>
+    <sql sqlid="get_jkfxpz" desc="获取监控分析配置">
+        select a.id,a.mc as name,b.xm as czr,a.czsj
+        from gl_jkfxpz a left join gl_hydy b on a.czr = b.hydm
+        order by mc
+    </sql>
+    <sql sqlid="get_yzjycspz" desc="获取阈值校验参数配置">
+        select a.id,b.ywmc,b.ywbm,a.csdm as name,c.xm as czr,a.czsj
+        from gl_yzjycspz a left join gl_hydy c on a.czr = c.hydm, gl_ywdy b
+        where a.ssywid = b.id
+        %if paras.ywbm:
+            and b.ywbm = %(ywbm)s
+        %endif
+        order by b.ywmc,a.csdm
+    </sql>
+    <sql sqlid="get_yzjypz" desc="获取阈值校验配置">
+        select a.id,b.ywmc||'('||b.ywbm||')' as name,b.ywbm,c.xm as czr,a.czsj
+        from gl_yzjypz a left join gl_hydy c on a.czr = c.hydm, gl_ywdy b
+        where a.ssywid = b.id
+        order by b.ywmc,b.ywbm
+    </sql>
+    <sql sqlid="get_jcxxpz" desc="获取进程信息配置">
+        select a.id,a.jcmc||'('||a.sszj_ip||')' as name,a.sszj_ip,b.xm as czr,a.czsj
+        from gl_jcxxpz a left join gl_hydy b on a.czr = b.hydm
+        where a.scbz != '1' ---删除标记
+        order by jcmc,sszj_ip
+    </sql>
+    <sql sqlid="get_table_ls" desc="获取临时表">
+        select table_name from user_tables where (${paras._or('table_name',paras.table_name)}) 
+    </sql>
+    <sql sqlid="del_table_ls" desc="删除临时表">
+        drop table ${paras._tb(paras.table_name)} 
+    </sql>
+    <sql sqlid="create_ls_table" desc="创建临时表">
+        create table ${paras._tb(paras.table_name_ls)} as select * from ${paras._tb(paras.table_name)}
+    </sql>
+    <sql sqlid="create_jhrw_ls" desc="创建计划任务表">
+        create table GL_JHRWB_LS as select * from GL_JHRWB where (rwlx = 'fx') or (rwlx = 'cj')
+    </sql>
+    <sql sqlid="get_yzjypz_for_blob" desc="获取阈值校验">
+        select kkmxsqlid , lsdrid,kzjyid,kkmxcxsqlid,yc_allpass_sqlid,yc_allcancel_sqlid,yc_single_sqlid from gl_yzjypz
+    </sql>
+    <sql sqlid="insert_blob" desc="将gl_blob内容插入到gl_blob_ls">
+        insert into gl_blob_ls select * from gl_blob where (${paras._or('id',paras.ids)}) 
+    </sql>
+</sqllist>

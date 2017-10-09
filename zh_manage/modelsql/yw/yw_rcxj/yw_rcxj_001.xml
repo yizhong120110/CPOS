@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    
+    <!--从日常巡检结果表表中获取需要监控的主机IP-->
+    <sql sqlid = 'data_zjip' desc = "获取需要监控的主机IP">
+        select distinct(jkzj_ip)
+        as zj_ip
+        from gl_rcxjjgb
+    </sql>
+    
+    <!--从日常巡检结果表表中获取文件系统监控 
+        查询信息：监控主机IP,监控对象类型,对象名称,阈值,监控情况-->
+    <sql sqlid = 'data_wjxt' desc = "获取文件系统监控">
+       select b.MC as zjmc,a.jkzj_ip as jkzj_ip,a.jkdxlx as jkdxlx,a.dxmc as dxmc,a.yz as yz,a.jkqk as jkqk
+       from gl_rcxjjgb a, GL_ZJXX b
+       where a.jkdxlx = 'get_filesystem()'
+       and a.jkzj_ip = b.IP
+       order by a.jkzj_ip
+    </sql>
+    
+    <!--从日常巡检结果表表中获取内存使用率监控
+        查询信息：监控主机IP,监控对象类型,对象名称,阈值,监控情况-->
+    <sql sqlid = 'data_ncsyl' desc = "获取内存使用率监控">
+       select  b.MC as zjmc,a.jkzj_ip as jkzj_ip,a.jkdxlx as jkdxlx,a.dxmc as dxmc,a.yz as yz,a.jkqk as jkqk
+        from gl_rcxjjgb a, GL_ZJXX b
+       where a.jkdxlx = 'get_ram()'
+        and a.jkzj_ip = b.IP
+    </sql>
+    
+    <!--从日常巡检结果表表中获取CPU使用率-->
+    <sql sqlid = 'data_cpusyl' desc = "获取CPU使用率">
+        select  b.MC as zjmc,a.jkzj_ip as jkzj_ip,a.jkdxlx as jkdxlx,a.dxmc as dxmc,a.yz as yz,a.jkqk as jkqk
+         from gl_rcxjjgb a, GL_ZJXX b
+        where a.jkdxlx = 'get_cpu()'
+        and a.jkzj_ip = b.IP
+    </sql>
+    
+    <!--从日常巡检结果表表中获取磁盘I/O使用率-->
+    <sql sqlid = 'data_cpsyl' desc = "获取磁盘I/O使用率">
+        select  b.MC as zjmc,a.jkzj_ip as jkzj_ip,a.jkdxlx as jkdxlx,a.dxmc as dxmc,a.yz as yz,a.jkqk as jkqk
+         from gl_rcxjjgb a, GL_ZJXX b
+        where a.jkdxlx = 'get_io()'
+        and a.jkzj_ip = b.IP
+    </sql>
+    
+    <!--从日常巡检结果表表中获取oracle数据库表监控信息
+        查询信息： 监控主机IP,对象名称,阈值,监控情况-->
+    <sql sqlid = 'data_sjkjk' desc = "获取oracle数据库表监控信息">
+        select jkzj_ip,dxmc,yz,jkqk
+         from gl_rcxjjgb
+        where jkdxlx = 'get_bkjsyl(bkjmc="TSYW")'
+        order by jkzj_ip,dxmc
+    </sql>
+    
+    <!--从进程信息配置表和主机信息表表中获取特色业务系统进程信息
+        查询信息： 监控主机IP,对象名称,阈值,监控情况-->
+    <sql sqlid = 'data_jcjk' desc = "获取oracle数据库表监控信息">
+        select b.mc as zjmc,a.sszj_ip as zjip,a.jcmc as jcmc
+        from gl_jcxxpz a,gl_zjxx b
+        where a.zt = '1'
+        and a.sszj_ip = b.ip
+        order by a.sszj_ip,a.jcmc
+    </sql>
+    
+    <!--从参数定义表表中获取Tong中间件日志检查信息
+        查询信息： 参数值-->
+    <sql sqlid = 'data_logjk' desc = "获取Tong中间件日志检查信息">
+        select value
+        from gl_csdy 
+        where id = 'loglj'
+    </sql>
+    
+    
+</sqllist>

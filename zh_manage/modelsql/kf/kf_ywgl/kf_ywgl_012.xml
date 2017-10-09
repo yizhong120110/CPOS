@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid = 'index_sjbmc' desc = "主页面：数据表名称">
+        select sjbmc, sjbmcms
+        from gl_sjkmxdy
+        where gl_sjkmxdy.id = %(sjkmxdy_id)s
+    </sql>
+    <sql sqlid = 'index_zwmc' desc = "主页面：数据表中文名称">
+        select comments from user_tab_comments where table_name = %(sjbmc)s
+    </sql>
+    <sql sqlid = 'index_zd_ms' desc = "主页面：数据表中的字段及描述">
+        select lower(a.zdmc) as zdmc,a.zdms,a.zdcd,a.sfkk,a.zdtype,
+        case when b.zjzdmc is null then 'f' else 's' end  as zjtype,
+        a.zsws, a.xsws, a.mrz
+        from
+        (
+            select a.column_name as zdmc,a.comments as zdms,
+            b.column_id as zdsx,
+            case b.char_col_decl_length when b.char_col_decl_length then b.char_col_decl_length else b.data_length end as zdcd,
+            b.nullable as sfkk, b.data_type as zdtype,
+            b.data_precision as zsws, b.data_scale as xsws,
+            b.data_default as mrz
+            from user_col_comments a,user_tab_columns b
+            where a.table_name = b.table_name
+            and a.column_name = b.column_name
+            and a.table_name = %(sjbmc)s
+        ) a
+        left join
+        (
+            select col.column_name as zjzdmc
+            from user_constraints con,user_cons_columns col
+            where con.constraint_name = col.constraint_name 
+            and con.constraint_type = 'P'
+            and col.table_name = %(sjbmc)s
+        ) b
+        on a.zdmc = b.zjzdmc
+        order by b.zjzdmc, a.zdsx
+    </sql>
+
+</sqllist>

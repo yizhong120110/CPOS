@@ -1,0 +1,223 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>C端通讯管理</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <script src="/static/${settings._T.APP_NAME}/js/autocomplete/jquery.autocomplete.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_txgl/kf_txgl_001/kf_txgl_001_txxq_cdtx.js"></script>
+    <!-- 代码下载使用 -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+    <style>
+        /* 实时过滤窗口宽度和高度设置 */
+        .twitter-typeahead {
+            width: 100%;
+        }
+
+        /* 实时查询问题 */
+        .container {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        .autocomplete-suggestions {
+            border: 1px solid #999;
+            background: #FFF;
+            cursor: default;
+            overflow: auto;
+            -webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+            -moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+            box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+        }
+
+        .autocomplete-suggestion {
+            padding: 2px 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 13px;
+        }
+
+        .autocomplete-no-suggestion {
+            padding: 2px 5px;
+        }
+
+        .autocomplete-selected {
+            background: #F0F0F0;
+        }
+
+        .autocomplete-suggestions strong {
+            font-weight: normal;
+            color: #3399FF;
+        }
+    </style>
+</head>
+
+<body>
+<!-- 展现页面的div -->
+<input type='hidden' name='txid' id='hidTxid' value="${txid}">
+<div  class="easyui-layout" data-options="fit : true,border : false" style="font-size:12px;">
+<div data-options="region:'north'" style="text-align:right;padding:5px;height:70px;">
+<!--查询form-->
+<form id="formSearch">
+    <table border="0" style="width:auto;">
+        <tr>
+            <!-- 编码 -->
+            <td nowrap="nowrap" style="text-align:right;width:70px;">编码：</td>
+            <td nowrap="nowrap" style="text-align:left;width:150px;"><input id="searchBm" name="bm" class="easyui-textbox" style="width:150px"/></td>
+            <!-- 对方交易名称 -->
+            <td nowrap="nowrap" style="text-align:right;width:90px;">对方交易名称：</td>
+            <td nowrap="nowrap" style="text-align:left;width:150px;"><input id="searchDfjymc" name="dfjymc" class="easyui-textbox" style="width:150px"/></td>
+            <!-- 打包 -->
+            <td nowrap="nowrap" style="text-align:right;width:50px;">打包：</td>
+            <td nowrap="nowrap" style="text-align:left;width:150px;"><input id="txtDb" name="db" class="easyui-textbox" style="width:150px"/></td>
+            <!-- 对方交易码 -->
+            <td nowrap="nowrap" style="text-align:right;width:80px;">对方交易码：</td>
+            <td nowrap="nowrap" style="text-align:left;width:150px;"><input id="searchDfjym" name="dfjym" class="easyui-textbox" style="width:150px"/></td>
+            
+        </tr>
+        <tr>
+            <!--有无挡板-->
+            <td nowrap="nowrap" style="text-align:right;width:70px;">有无挡板：</td>
+            <td nowrap="nowrap" style="text-align:left;width:150px;"><input id="searchYwdb" name="ywdb" class="easyui-combobox" style="width:150px" data-options="editable:false,data: ${ ywdb_lst },valueField:'bm',textField:'mc' "/></td>
+            <!--接口校验-->
+            <td nowrap="nowrap" style="text-align:right;width:90px;">接口校验：</td>
+            <td nowrap="nowrap" style="text-align:left;width:150px;"><input id="searchJkjy" name="jkjy" class="easyui-combobox" style="width:150px" data-options="editable:false,data: ${ jkjy_lst },valueField:'bm',textField:'mc' "/></td>
+            <!-- 解包 -->
+            <td nowrap="nowrap" style="text-align:right;width:50px;">解包：</td>
+            <td nowrap="nowrap" style="text-align:left;width:150px;"><input id="txtJb" name="jb" class="easyui-textbox" style="width:150px"/></td>
+            <!-- 查询按钮 -->
+            <td colspan="2" style="text-align:center;width:300px"><button id ='lbtnSearch' class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:100px;">查询</button></td>
+        </tr>
+    </table>
+</form>
+</div>
+    <!-- 列表展示的div -->
+    <div data-options="region:'center',border:false">
+        <table id="dgCdtx"></table>
+    </div>
+</div>
+<!-- 增加C端通讯的弹出框 -->
+<div id="divCdtxWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <form id='cdtxform' method="post">
+        <div class="esayui-panel" style="margin-top:15px">
+            <input type='hidden' id='hidCdtxid' name='cdtxid'>
+            <input type='hidden' id='hidZlcdyid' name='zlcdyid'>
+            <input type='hidden' id='hidYdbjdid' name='ydbjdid'>
+            <input type='hidden' id='hidYjbjdid' name='yjbjdid'>
+            <table style="font-size:12px;width:100%" cellspacing="10px">
+                <tr>
+                    <td nowrap="nowrap" align='right' width='75px;'>
+                        C端通讯编码：
+                    </td>
+                    <td nowrap="nowrap" align='left' width='200px;'>
+                        <input type="text" id="txtBm" name="bm" class="easyui-textbox" style="width:200px"/>
+                        <span class="colorRed">*</span>
+                    </td>
+                    <td nowrap="nowrap" align='right' width='75px;'>
+                        对方交易码：
+                    </td>
+                    <td nowrap="nowrap" align='left' width='200px;'>
+                        <input type="text" id="txtDfjym" name="dfjym" class="easyui-textbox" style="width:200px"/>
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" align='right'>
+                        对方交易名称：
+                    </td>
+                    <td nowrap="nowrap" align='left'>
+                        <input type="text" id="txtDfjymc" name="dfjymc" class="easyui-textbox" style="width:200px"/>
+                        <span class="colorRed">*</span>
+                    </td>
+                    <td nowrap="nowrap" align='right'>
+                        超时时间：
+                    </td>
+                    <td nowrap="nowrap" align='left'>
+                        <input type="text" id="txtCssj" name="cssj" class="easyui-numberbox" style="width:180px"/>(秒)<span
+                            class="colorRed">*</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td nowrap="nowrap" align='right'>
+                        打包配置：
+                    </td>
+                    <td nowrap="nowrap" align='left'>
+                        <select id="selDbjdid" name="dbjdid" class = "easyui-combobox" style="width:167px" data-options="editable:true,valueField:'data',textField:'value'"></select>
+                        <a href="javascript:nodeEdit('', 'selDbjdid');">编辑</a>
+                        <span class="colorRed">*</span>
+                    </td>
+                    <td nowrap="nowrap" align='right'>
+                        解包配置：
+                    </td>
+                    <td nowrap="nowrap" align='left'>
+                        <select id="selJbjdid" name="jbjdid" class = "easyui-combobox" style="width:167px" data-options="editable:true,valueField:'data',textField:'value'"></select>
+                        <a href="javascript:nodeEdit('', 'selJbjdid');">编辑</a>
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" align='right'>
+                        所属业务：
+                    </td>
+                    <td nowrap="nowrap" align='left'>
+                        <input type="text" class="easyui-combobox" id="selSsywid" name="ssywid"
+                               style="width:200px"/>
+                        <span class="colorRed">*</span>
+                    </td>
+                    <td nowrap="nowrap" align='right'>
+                        冲正配置：
+                    </td>
+                    <td nowrap="nowrap" align='left'>
+                        <select id="selCzpzid" name="czpzid" class = "easyui-combobox" style="width:200px" data-options="editable:true,valueField:'data',textField:'value'"></select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnCdtxSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                保存
+            </button>
+            <button id="lbtnCdtxCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- C端通讯：挡板管理 -->
+<div id="divDbglWindow" class="easyui-window"
+    data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <iframe id='dbglFrame' name='dbglFrame' scrolling="auto"  frameborder="0"  src="##" style="width:100%;height:99.5%;"></iframe>
+</div>
+<!-- C端通讯：测试案例管理 -->
+<div id="csalWindow" class="easyui-window"
+    data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <iframe id='csalFrame' name='csalFrame' scrolling="auto"  frameborder="0"  src="##" style="width:100%;height:99.5%;"></iframe>
+</div>
+<!-- C端通讯：打解包管理 -->
+<div id="winNodeEdit" data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false" style="overflow:hidden">
+    <iframe scrolling="auto" src="" frameborder="0" style="width:100%;height:100%;"></iframe>
+</div>
+<!-- C端通讯：接口校验 -->
+<div id="divJkjyWindow" class="easyui-window"
+    data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <iframe id='jkjyFrame' name='jkjyFrame' scrolling="auto"  frameborder="0"  src="##" style="width:100%;height:99.5%;"></iframe>
+</div>
+</body>
+</html>

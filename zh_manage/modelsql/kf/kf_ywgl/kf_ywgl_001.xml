@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="count_yw" desc="业务总条数">
+        select count(1) as count 
+        from gl_ywdy
+        where upper(ywbm) != 'BEAITX'
+    </sql>
+    <sql sqlid="get_ywlb" desc="查询业务列表">
+        select id, ywbm, ywmc, cjr, cjsj from (
+            select id, ywbm, ywmc, cjr, cjsj, rownum rn
+            from (
+                select a.id, a.ywbm, a.ywmc, b.xm as cjr, a.cjsj
+                from gl_ywdy a, gl_hydy b
+                where a.cjr = b.hydm
+                    and upper(a.ywbm) != 'BEAITX'
+                order by a.cjsj desc, a.ywbm
+            ) x
+        ) y
+        where rn >= %(rn_start)s
+            and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid="get_drcs" desc="查询业务导入次数">
+        select a.id, count(1) as count
+        from gl_ywdy a, gl_drls b
+        where a.id = b.ss_idlb
+            and b.czlx = 'dr'
+        group by a.id
+    </sql>
+    <sql sqlid="get_jycs" desc="查询业务交易数量">
+        select a.id, count(1) as count
+        from gl_ywdy a, gl_jydy b
+        where a.id = b.ssywid
+        group by a.id
+    </sql>
+    <sql sqlid="check_ywbm" desc="校验业务简称是否存在">
+        select 1 from gl_ywdy where ywbm = %(ywbm)s
+    </sql>
+    <sql sqlid="insert_ywdy" desc="插入业务定义表">
+        insert into gl_ywdy (id, ywbm, ywmc, ywms, cjr, cjsj)
+        values (%(id)s, %(ywbm)s, %(ywmc)s, %(ywms)s, %(cjr)s, %(cjsj)s)
+    </sql>
+    <sql sqlid="get_ywdy" desc="查询业务信息">
+        select id, ywbm, ywmc
+        from gl_ywdy
+        where (${paras._or('id',paras.ywids)})
+    </sql>
+    <sql sqlid="get_sjbmc" desc="查询业务数据表名称">
+        select a.ssyw_id, b.ywbm, b.ywmc, a.sjbmc 
+        from gl_sjkmxdy a, gl_ywdy b
+        where a.ssyw_id = b.id
+            and (${paras._or('a.ssyw_id',paras.ywids)})
+    </sql>
+    <sql sqlid="get_ywzlc" desc="查询业务下的子流程">
+        select distinct id, mc
+        from gl_zlcdy
+        where (${paras._or('ssywid',paras.ywids)})
+    </sql>
+    <sql sqlid="get_zlcsj" desc="查询子流程的上级">
+        select distinct jddyid, coalesce(ssjyid, sszlcid) as ssid, case when ssjyid is null then 'zlc' else 'jy' end as lx
+        from gl_lcbj
+        where (${paras._or('jddyid',paras.zlcids)})
+    </sql>
+    <sql sqlid="get_jyssyw" desc="查询交易所属业务">
+        select ssywid, id
+        from gl_jydy
+        where (${paras._or('id',paras.jyids)})
+    </sql>
+    <sql sqlid="get_zlcssyw" desc="查询子流程所属业务">
+        select ssywid, id
+        from gl_zlcdy
+        where (${paras._or('id',paras.zlcids)})
+    </sql>
+    <sql sqlid="del_blob_jy" desc="删除BLOB管理表（交易）">
+        delete from gl_blob where id in (
+            select b.nr_id
+            from gl_jydy a, gl_bbkz b
+            where a.id = b.ssid
+                and (${paras._or('a.ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_blob_txzlc" desc="删除BLOB管理表（通讯子流程）">
+        delete from gl_blob where id in (
+            select c.nr_id
+            from gl_cdtx a, gl_zlcdy b, gl_bbkz c
+            where b.id = c.ssid
+                and (${paras._or('a.ssywid',paras.ywids)})
+                and a.zlcdyid = b.id
+        )
+    </sql>
+    <sql sqlid="del_blob_zlc" desc="删除BLOB管理表（普通子流程）">
+        delete from gl_blob where id in (
+            select b.nr_id
+            from gl_zlcdy a, gl_bbkz b
+            where a.id = b.ssid
+                and (${paras._or('a.ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_blob_gghs_bbkz" desc="删除BLOB管理表（公共函数）">
+        delete from gl_blob where id in (
+            select b.nr_id
+            from gl_yw_gghs a, gl_bbkz b
+            where a.id = b.ssid
+                and (${paras._or('a.ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_blob_gghs" desc="删除BLOB管理表（公共函数）">
+        delete from gl_blob where id in (
+            select nr_id
+            from gl_yw_gghs
+            where (${paras._or('ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_blob_sjk" desc="删除BLOB管理表（数据库）">
+        delete from gl_blob where id in (
+            select b.nr_id
+            from gl_sjkmxdy a, gl_bbkz b
+            where a.id = b.ssid
+                and (${paras._or('a.ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_blob_dymb" desc="删除BLOB管理表（打印模板）">
+        delete from gl_blob where id in (
+            select nr_id 
+            from gl_dymbdy 
+            where (${paras._or('ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_bbkz_jy" desc="删除版本控制（交易）">
+        delete from gl_bbkz where ssid in (
+            select id from gl_jydy 
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_bbkz_txzlc" desc="删除版本控制（通讯子流程）">
+        delete from gl_bbkz where ssid in (
+            select b.id
+            from gl_cdtx a, gl_zlcdy b
+            where (${paras._or('a.ssywid',paras.ywids)})
+                and a.zlcdyid = b.id
+        )
+    </sql>
+    <sql sqlid="del_bbkz_zlc" desc="删除版本控制（普通子流程）">
+        delete from gl_bbkz where ssid in (
+            select id from gl_zlcdy 
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_bbkz_gghs" desc="删除版本控制（公共函数）">
+        delete from gl_bbkz where ssid in (
+            select id from gl_yw_gghs 
+            where (${paras._or('ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_bbkz_sjk" desc="删除版本控制（数据库）">
+        delete from gl_bbkz where ssid in (
+            select id from gl_sjkmxdy 
+            where (${paras._or('ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_csdy_yw" desc="删除参数定义（业务参数）">
+        delete from gl_csdy
+        where lx = '2'
+            and (${paras._or('ssid',paras.ywids)})
+    </sql>
+    <sql sqlid="del_csdy_jy" desc="删除参数定义（交易参数）">
+        delete from gl_csdy
+        where lx = '3'
+            and ssid in (
+                select id from gl_jydy 
+                where (${paras._or('ssywid',paras.ywids)})
+            )
+    </sql>
+    <sql sqlid="del_csdy_jdcsalys" desc="删除节点测试案例要素">
+        delete from gl_jdcsalys where jdcsalzxbz in (
+            select a.id 
+            from gl_jdcsalzxbz a, gl_csaldy b
+            where a.csaldyid = b.id
+                and (${paras._or('b.ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_csdy_jdcsalzxbz_jd" desc="删除节点测试案例执行步骤（节点）">
+        delete from gl_jdcsalzxbz
+        where csaldyid in (
+            select id 
+            from gl_csaldy
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_csdy_jdcsalzxbz_txzlc" desc="删除节点测试案例执行步骤（通讯子流程）">
+        delete from gl_jdcsalzxbz
+        where ssdyid in (
+            select b.id
+            from gl_cdtx a, gl_zlcdy b
+            where (${paras._or('a.ssywid',paras.ywids)})
+                and a.zlcdyid = b.id
+        )
+    </sql>
+    <sql sqlid="del_zdhcslsb" desc="删除自动化测试临时表">
+        delete from gl_zdhcslsb where csal_id in (
+            select id 
+            from gl_csaldy
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_csaldy" desc="删除测试案例定义">
+        delete from gl_csaldy 
+        where (${paras._or('ssywid',paras.ywids)})
+    </sql>
+    <sql sqlid="del_demo_jbxx" desc="删除Demo基本信息">
+        delete from gl_demo_jbxx where id not in (
+                select demoid from gl_csaldy 
+            )
+            and id not in (
+                select demoid from gl_jdcsalzxbz 
+            )
+    </sql>
+    <sql sqlid="del_demo_sj" desc="删除Demo数据">
+        delete from gl_demo_sj where demojbxxid not in (
+            select id from gl_demo_jbxx
+        )
+    </sql>
+    <sql sqlid="del_lczx" desc="删除流程走向（交易）">
+        delete from gl_lczx where ssid in (
+                select id from gl_jydy 
+                where (${paras._or('ssywid',paras.ywids)})
+            )
+            and sslb = '1'
+    </sql>
+    <sql sqlid="del_lcbj" desc="流程布局（交易）">
+        delete from gl_lcbj where ssjyid in (
+            select id from gl_jydy 
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_lczx_txzlc" desc="删除流程走向（通讯子流程）">
+        delete from gl_lczx
+        where ssid in (
+            select b.id
+            from gl_cdtx a, gl_zlcdy b
+            where (${paras._or('a.ssywid',paras.ywids)})
+                and a.zlcdyid = b.id
+        )
+    </sql>
+    <sql sqlid="del_lcbj_txzlc" desc="删除流程布局（通讯子流程）">
+        delete from gl_lcbj 
+        where sszlcid in (
+            select b.id
+            from gl_cdtx a, gl_zlcdy b
+            where (${paras._or('a.ssywid',paras.ywids)})
+                and a.zlcdyid = b.id
+        )
+    </sql>
+    <sql sqlid="del_lczx_zlc" desc="删除流程走向（普通子流程）">
+        delete from gl_lczx
+        where ssid in (
+            select id from gl_zlcdy 
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_lcbj_zlc" desc="删除流程布局（普通子流程）">
+        delete from gl_lcbj 
+        where sszlcid in (
+            select id from gl_zlcdy 
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_sjktbxxb" desc="删除数据库模型同步信息表">
+        delete from gl_sjktbxxb
+        where sstblsid in (
+            select id from gl_sjktblsb 
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_sjktblsb" desc="删除数据库模型同步流水">
+        delete from gl_sjktblsb
+        where (${paras._or('ssywid',paras.ywids)})
+    </sql>
+    <sql sqlid="del_jydy" desc="删除交易定义">
+        delete from gl_jydy 
+        where (${paras._or('ssywid',paras.ywids)})
+    </sql>
+    <sql sqlid="del_wdqd" desc="删除文档清单">
+        delete from gl_wdqd 
+        where (${paras._or('ssywid',paras.ywids)})
+    </sql>
+    <sql sqlid="del_dbys" desc="删除挡板要素">
+        delete from gl_dbys where dbdyid in (
+            select b.id
+            from gl_cdtx a, gl_dbdy b
+            where (${paras._or('a.ssywid',paras.ywids)})
+                and a.id = b.cdtxid
+        )
+    </sql>
+    <sql sqlid="del_dbdy" desc="删除挡板定义">
+        delete from gl_dbdy where cdtxid in (
+            select id
+            from gl_cdtx
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_txzlc" desc="删除通讯子流程">
+        delete from gl_zlcdy where id in (
+            select b.id
+            from gl_cdtx a, gl_zlcdy b
+            where (${paras._or('a.ssywid',paras.ywids)})
+                and a.zlcdyid = b.id
+        )
+    </sql>
+    <sql sqlid="del_cdtx" desc="删除C端通讯管理">
+        delete from gl_cdtx where (${paras._or('ssywid',paras.ywids)})
+    </sql>
+    <sql sqlid="del_zlc" desc="删除普通子流程">
+        delete from gl_zlcdy 
+        where (${paras._or('ssywid',paras.ywids)})
+    </sql>
+    <sql sqlid="del_yw" desc="删除业务定义">
+        delete from gl_ywdy 
+        where (${paras._or('id',paras.ywids)})
+    </sql>
+    <sql sqlid="del_drls" desc="删除导入历史（ss_idlb所属ID列表：业务导入存放的是业务ID ，通讯管理导入存放的是通讯ID，通讯管理导入有可能是个列表，支持多个通讯管理导入）">
+        delete from gl_drls 
+        where (${paras._or('ss_idlb',paras.ywids)})
+    </sql>
+    <sql sqlid="del_dymb" desc="删除打印模板定义">
+        delete from gl_dymbdy 
+        where (${paras._or('ssyw_id',paras.ywids)})
+    </sql>
+    <sql sqlid="del_gghs" desc="删除公共函数">
+        delete from gl_yw_gghs 
+        where (${paras._or('ssyw_id',paras.ywids)})
+    </sql>
+    <sql sqlid="del_sjkys" desc="删除数据库约束表">
+        delete from gl_sjkys where sssjb_id in (
+            select id from gl_sjkmxdy 
+            where (${paras._or('ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_sjksy" desc="删除数据库索引表">
+        delete from gl_sjksy where sssjb_id in (
+            select id from gl_sjkmxdy 
+            where (${paras._or('ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_sjkzdb" desc="删除数据库字段表">
+        delete from gl_sjkzdb where sjb_id in (
+            select id from gl_sjkmxdy 
+            where (${paras._or('ssyw_id',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="del_sjkmx" desc="删除数据库模型定义">
+        delete from gl_sjkmxdy 
+        where (${paras._or('ssyw_id',paras.ywids)})
+    </sql>
+    <sql sqlid="del_drzxrw" desc="删除业务对应交易当日执行日志">
+        delete from gl_drzxjhb
+        where ssid in (
+            select id from gl_jhrwb
+            where ssid in (
+                select id from gl_jydy
+                where (${paras._or('ssywid',paras.ywids)})
+            )
+        )
+        and zt = '0'
+    </sql>
+    <sql sqlid="del_jhrw" desc="删除业务对应交易计划任务表">
+        delete from gl_jhrwb
+        where ssid in (
+            select id from gl_jydy
+            where (${paras._or('ssywid',paras.ywids)})
+        )
+    </sql>
+    <sql sqlid="upd_drls" desc="更新导入流水的状态">
+        update gl_drls set zt = '0'
+        where nrlx in ( 'yw', 'jy' )
+        and zt = '1'
+        and (${paras._or('ssywid',paras.ywids)})
+    </sql>
+</sqllist>

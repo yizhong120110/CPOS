@@ -1,0 +1,100 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>自动化测试列表</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.jdirk.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jeasyui-extensions/jeasyui.extensions.validatebox.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_013/kf_ywgl_013.js"></script>
+
+    <style type="text/css">
+    .onoffswitch-inner > span { height:22px;line-height:24px }
+    .onoffswitch { width:80px;margin-top:1px }
+    .onoffswitch-switch { width:30px }
+    .onoffswitch-active .onoffswitch-switch:before { left:30px }
+    .onoffswitch-inactive .onoffswitch-switch:before { right:30px }
+    </style>
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit:true, border:false" style="width:100%;height:300px">
+        <div data-options="region:'west',split:true" style="width:25%">
+            <div class="panel-header"><div class="panel-title">选择需测试的交易或节点</div><div class="panel-tool"></div></div>
+            <ul id="treeCsal" class="easyui-tree" ></ul>
+        </div>
+        <div data-options="region:'center',split:true">
+            <table id="tableCsal" class="easyui-datagrid"></table>
+        </div>
+        <input type="hidden" id='txtYwid' name="txtYwid" value="${ywid}">
+    </div>
+
+    <!-- 自动化测试弹出框 -->
+    <div id="bean_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false ,maximizable:false" >
+        <!-- 测试案例div -->
+        <div class="easyui-layout" style="padding:0 10px;height:250px">
+            <iframe id="zdhcsal_iframe" scrolling="auto" frameborder="0" src="" style="width:100%;height:100%;"></iframe>
+        </div>
+        <!-- 关闭按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <a id="window_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">关闭</a>
+        </div>
+    </div>
+
+    <div id="tb">
+        <form id="tb_form">
+            <table cellspacing="0" cellpadding="0" style="width:100%">
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true" onclick="auto_test()">自动化测试</a>
+                    </td>
+                    <td style="width:207px">
+                        <span style="float:left;line-height:24px;">补充关联测试：</span>
+                        <a class="onoffswitch" style="float:left">
+                            <input type="checkbox" name="gljy" class="onoffswitch-checkbox" id="gljy">
+                            <label class="onoffswitch-label" for="gljy">
+                                <span class="onoffswitch-inner">
+                                    <span class="onoffswitch-active"><span class="onoffswitch-switch">是</span></span>
+                                    <span class="onoffswitch-inactive"><span class="onoffswitch-switch">否</span></span>
+                                </span>
+                            </label>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <input type="hidden" id="cslx" value="yw" />
+    <!-- 交易子流程自动化测试日志查看 -->
+    <div id="rzck_window" data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false">
+        <iframe id="rzck_iframe" src="" scrolling="auto" frameborder="0" style="width:100%;height:99%;"></iframe>
+    </div>
+    <!-- 节点自动化测试日志查看 -->
+    <div id="jdrzck_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false ,maximizable:false" >
+        <div class="easyui-layout" data-options="fit:true,border:false">
+            <div data-options="region:'north'" style="height:70px;padding-top:3px;padding-left:10px;">
+                <p>执行结果：<span id="zxjg"></span></p>
+                <p>结果描述：<span id="jgsm"></span></p>
+            </div>
+            <!-- 自动化测试日志查看 -->
+            <div class="easyui-layout" style="padding:70px 0px 0px 0px;height:384px">
+                <iframe id="jdrzck_iframe" scrolling="auto" frameborder="0" src="" style="width:100%;height:100%;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!--节点引用次数-->
+    <div id="yycs_window" class="easyui-window" title="引用次数" data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false" style="width:500px;height:200px;padding:10px;">
+        <iframe scrolling="auto" id="" src="" frameborder="0" style="width:100%;height:99%;"></iframe>
+    </div>
+</body>
+</html>

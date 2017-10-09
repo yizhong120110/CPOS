@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_zdjk" desc="查询终端监控信息">
+        select tcrid, tcrname, updtime, tcrstate, tcrstate_value, des
+        from(
+            select tcrid, tcrname, updtime, tcrstate, tcrstate_value, des, rownum rn
+            from(
+                    select
+                         a.terminal_id as tcrid
+                        ,a.jgmc as tcrname
+                        ,decode(b.updtime, '', '', b.updtime) as updtime
+                        ,decode(b.terminal_state, '', '', b.terminal_state) as tcrstate
+                        ,decode(b.terminal_state, '', '', b.terminal_state) as tcrstate_value
+                        ,decode(b.abnormal_des, '', '', b.abnormal_des) as des
+                    from tcr_zdxx a
+                    left join tcr_zdjk b
+                      on b.terminal_id = a.terminal_id
+                    where 1 = 1
+                    %if paras.tcrmc:
+                        and a.jgmc like '%' || %(tcrmc)s || '%'
+                    %endif
+                    order by a.terminal_id
+            )
+        )
+        %if paras.rn_start and paras.rn_end:
+          where rn >= %(rn_start)s and %(rn_end)s >= rn
+        %endif
+    </sql>
+
+    <sql sqlid="get_zdjk_cnt" desc="查询终端监控信息条数">
+        select
+            count(1) as cnt
+        from tcr_zdxx
+        where 1 = 1
+        %if paras.tcrmc:
+            and jgmc like '%' || %(tcrmc)s || '%'
+        %endif
+    </sql>
+</sqllist>

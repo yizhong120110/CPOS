@@ -1,0 +1,99 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>打印配置</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <!-- 编码框高亮显示 -->
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/python/python.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/xml/xml.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_018/kf_ywgl_018.js"></script>
+    <!--kf_ywlg_018引入模块:下载代码使用-->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+    <style type="text/css">
+        .CodeMirror {
+            font-family: monospace;
+            height: 200px;
+            width: 600px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+<!-- 打印配置展现页面的div -->
+<div class="easyui-layout" data-options="fit : true,border : false">
+    <!-- 打印配置展示的div -->
+    <div data-options="region:'center',border:false">
+        <table id="dgDypzlb"></table>
+    </div>
+</div>
+<input type="hidden" id="hidYwid" name="ywid" value="${ywid}"/>
+<!-- 新增\修改配置信息的弹出框 -->
+<div id="divDypzWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false ,maximizable:false"
+     style="left:124px;top:185px;padding-left:10px; padding-right:10px;">
+    <form id="dyform" method="post">
+        <!-- 新增\修改配置信息 -->
+        <div class="esayui-panel" style="margin-top:20px">
+            <table style="font-size:12px;" cellspacing="5px" align="center">
+                <tr>
+                    <td nowrap="nowrap" style="width:65px;align:right;">所属业务：</td>
+                    <td style="width:240px;align:left;">
+                        <input type="hidden" id='txtDyid' name='dyid'>
+                        <input type="hidden" id='txtBlobid' name='blobid'>
+                        <input disabled='disabled' id="txtSsyw" value="ssyw" class="easyui-textbox" style="width:200px">
+                    </td>
+                    <td nowrap="nowrap" style="width:65px;align:right;">模板名称：</td>
+                    <td nowrap="nowrap" style="width:240px;align:left;">
+                        <div id="mbmc_edit"></div>
+                        <div id="mbmc_add"><input id="txtMbmc" name="mbmc" class="easyui-textbox" style="width:200px">
+                            <span class="colorRed">*</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="align:right;">模板类型：</td>
+                    <td style="align:left;">
+                        <input id="txtMblx" name="mblx" class="easyui-combobox" style="width:200px">
+                    </td>
+                    <td nowrap="nowrap" style="align:right;">模板描述：</td>
+                    <td nowrap="nowrap" style="align:left;">
+                        <input id="txtMbms" name="mbms" class="easyui-textbox" style="width:200px" maxlength='25'>
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="overflow:hidden;" colspan="4">
+                        <textarea style="width: 600px;height: 100%;" id="txtNr" name="nr"
+                                  class="easyui-codemirror"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnDypzOkAddUpdate" class="easyui-linkbutton" data-options="iconCls:'icon-save'"
+                    style="width:80px">保存
+            </button>
+            <button id="lbtnDypzCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
+

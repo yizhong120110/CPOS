@@ -1,0 +1,153 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 交易监控 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>交易监控</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 交易监控调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/accounting.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jyjk/yw_jyjk_001/yw_jyjk_001.js"></script>
+</head>
+<body>
+    <!-- 平台:如果不存在默认为wh（维护） -->
+    <input type = "hidden" name = "pt" id = "hidPt" value = "${ pt if pt else 'wh' }">
+    <input type = "hidden" name = "nowtime" id = "hidNowtime" value = "${ nowdate if nowdate else '' }">
+    <input type = "hidden" name = "xtlx" id = "hidXtlx" value = "${ xtlx if xtlx else '' }">
+    <!--
+        交易监控主页面：
+        top：查询条件区域
+        main：交易列表信息
+    -->
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <!--
+            条件查询区域：支持根据：交易日期、交易名称、交易码、流水状态组合查询
+            流水状态：从gl_bmwh表中获取lx为10010的状态信息
+            所有查询都是精确查询
+        -->
+        <!-- 查询区域 -->
+        <div data-options="region:'north'" style="height:70px;">
+            <form id = 'fmSearch' method="get">
+                <table id="dgSearch" style="width:100%;margin:3px 0;" border="0">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            交易日期：
+                        </td>
+                        <td style="text-align:left;width:145px;">
+                            <input id="dateSeaJyrq" name="seaJyrq" class="easyui-datebox" style="width:145px" value = "${ nowdate }"/>
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            业务：
+                        </td>
+                        <td style="text-align:left;width:140px;">
+                            <select id="selSeaYwbm" name="seaYwbm" class = "easyui-combobox" style="width:145px" data-options="
+                                editable:true,
+                                data: ${ yw_lst },
+                                valueField:'value',
+                                textField:'text'
+                            "></select>
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            交易名称：
+                        </td>
+                        <td style="text-align:left;width:145px;">
+                            <input id="txtSeaJymc" name="seaJymc" class="easyui-textbox" style="width:145px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:65px;">
+                            交易码：
+                        </td>
+                        <td style="text-align:left;width:145px;">
+                            <input id="txtSeaJym" name="seaJym" class="easyui-textbox" style="width:145px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:75px;">
+                            机构码：
+                        </td>
+                        <td style="text-align:left;width:145px;">
+                            <input id="txtSeaJgdm" name="seaJgdm" class="easyui-textbox" style="width:145px">
+                        </td>
+                        <td style="text-align:center" rowspan="2" align="center" valign="middle">
+                            <!-- 查询按钮，发起条件查询请求 -->
+                            &nbsp;&nbsp;<button id = 'lbtnSearch' class="easyui-linkbutton" onclick="javascript:doSearch(event)" style="width:100px;">查询</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            流水号：
+                        </td>
+                        <td style="text-align:left;width:140px;">
+                            <input id="txtSeaLsh" name="seaLsh" class="easyui-textbox" style="width:145px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            卡号/账号：
+                        </td>
+                        <td style="text-align:left;width:140px;">
+                            <input id="txtSeaKhzh" name="seaKhzh" class="easyui-textbox" style="width:145px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            第三方账号：
+                        </td>
+                        <td style="text-align:left;width:140px;">
+                            <input id="txtSeaShzh" name="seaShzh" class="easyui-textbox" style="width:145px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:65px;">
+                            柜员号：
+                        </td>
+                        <td style="text-align:left;width:140px;">
+                            <input id="txtSeaGyh" name="seaGyh" class="easyui-textbox" style="width:145px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:75px;">
+                            交易状态：
+                        </td>
+                        <td style="text-align:left;width:140px;">
+                            <!-- 交易状态数据来源于后台查询，默认选择请选择 -->
+                            <input class="easyui-combobox" id = 'selSeaLszt'
+                            name="seaLszt"
+                            data-options="
+                                    data: ${ zt_lst },
+                                    editable: false,
+                                    valueField:'value',
+                                    textField:'text'
+                            "
+                            style="width:145px"
+                            >
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 数据展示、操作区域 -->
+        <div data-options="region:'center',border:false">
+            <table id="dgJyjk"></table>
+        </div>
+    </div>
+    
+    <!-- 日志查看 -->
+    <div id="divRzckWindow" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <iframe id='rzckFrame' name='rzckFrame' scrolling="auto"  frameborder="0"  src="##" style="width:100%;height:99.9%;"></iframe>
+    </div>
+    <!-- 接口校验查看 -->
+    <div id="divYxxjylsCkWindow" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <table id="dgYxxjylsCk" style="width:100%;height:99.9%;"></table>
+    </div>
+    <!-- 挡板校验查看 -->
+    <div id="divDbjylsCkWindow" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <table id="dgDbjylsCk" style="width:100%;height:99.9%;"></table>
+    </div>
+</body>
+</html>

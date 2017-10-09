@@ -1,0 +1,165 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!doctype html>
+<html>
+
+<head lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <title>泰安银行快柜业务平台</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/custom.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/newManage.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.easyui.patch.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.jdirk.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jeasyui.icons.all.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jeasyui-extensions/jquery.toolbar.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/newportal.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow: scroll;
+        }
+
+        .panel {
+            border: none;
+            margin-bottom: 0;
+        }
+
+        .panel-body {
+            font-size: inherit;
+            padding: 0;
+        }
+
+        .panel-body,
+        .layout-panel,
+        .panel {
+            overflow: initial;
+        }
+
+        #pnlMain > .tabs-panels {
+            padding: 8px 10px 10px 10px;
+        }
+
+        .tabs-selected {
+            border: #318AAF 1px solid !important;
+            border-bottom: 0;
+        }
+
+        .tabs-selected a.tabs-close {
+            margin-top: -12px !important;
+        }
+
+        .tabs-selected a {
+            height: 26px !important;
+        }
+
+        .tabs {
+            border-color: #318AAF;
+            z-index: 999;
+        }
+
+        .tabs li a.tabs-inner {
+            border-color: #ddd;
+        }
+
+        .tabs li a.tabs-inner {
+            border-bottom-color: #318aaf;
+        }
+
+        .chartLine {
+            width: 400px;
+            height: 300px;
+            border: #666 1px solid;
+            padding: 10px;
+        }
+
+        .messager-button > .l-btn-focus {
+            outline: #0000FF dotted thin;
+            color: #fff;
+        }
+    </style>
+    <script type="text/javascript">
+        var hydm = '${hyobj.hydm}';
+        var id = '${hyobj.id}';
+        var dlxt = '${str(dlxt)}'
+    </script>
+
+</head>
+
+<body>
+<div id="mainLayout" class="easyui-layout" data-options="border:true, fit:true">
+    <div data-options="region: 'north', border: false" style="height: 100px;">
+        <div class="top-color top-height">
+            <div class="m-left">
+                <h1 class="h_title">泰安银行快柜业务平台 - ${str(dlxt)} </h1>
+            </div>
+            <div class="m-right">
+                <div class="m-user-box">
+                    <div class=" m-user-left">
+                        <img src="/static/${settings._T.APP_NAME}/images/index/m-user1.png"
+                                                   width="40" height="40">
+                    </div>
+                    <div class="m-user-right">
+                        <ul>
+                            <li ><i>•</i>欢迎您 ${hyobj.xm}
+                            </li>
+                            <li><i>•</i>${hyobj.bmmc} ${hyobj.hydm}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <ul class="mnav clearfix">
+                    <li class="m-home home-color" >
+                        <a id="rEditTab" href="#"><img
+                            src="/static/${settings._T.APP_NAME}/images/index/m-edit.png"><span>修改密码</span>
+                        </a>
+                    </li>
+                    <li class="m-home home-color">
+                        <a id="rMainTab" href="#"><img
+                            src="/static/${settings._T.APP_NAME}/images/index/m-home.png"><span>主页</span>
+                        </a>
+                    </li>
+                    <li class="m-sett sett-color" hidden="true">
+                        <a href="#"><img 
+                            src="/static/${settings._T.APP_NAME}/images/index/m-sett.png"><span>设置</span>
+                        </a>
+                    </li>
+                    <li class="m-logoff logoff-color">
+                        <a href="/oa_core/logout"><img
+                            src="/static/${settings._T.APP_NAME}/images/index/m-logoff.png"><span>注销</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="pnlMenu">
+
+            <!--菜单-->
+            <ul id="mnuMain" class="nav col-sm-12 nav-pills topNav sf-menu"></ul>
+
+            <div style="clear:both"></div>
+
+        </div>
+    </div>
+
+    <div data-options="region:'center', border:false">
+        <div id="pnlMain">
+            <div id="homePanel" data-options="iconCls:'icon-home'">
+                <iframe scrolling="no" src="" frameborder="0" style="width:100%;height:100%;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

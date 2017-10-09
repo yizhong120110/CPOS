@@ -1,0 +1,81 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 用户权限管理：主页面 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>用户权限管理</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 用户权限管理调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/gl_yhqx/gl_yhqx_001/gl_yhqx_001.js"></script>
+</head>
+<body>
+    <!-- 页面信息展示 -->
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <!--首页信息展示-部门列表-->
+        <div data-options="region:'west',title:'部门一览', collapsible:true" style="width:20%" >
+            <!--部门树-->
+            <ul id="trBm" style="height:100%;"></ul>
+        </div>
+
+        <!--首页信息展示-用户列表-->
+        <div data-options="region:'center',fit:true,border:false,title:'用户一览'" style="width:15%;height:100%">
+            <form id="dgYhylForm"  style="width:100%;height:100%">
+                <!--<div id="tb" style="text-align:right;padding:3px;">-->
+                    <input id="search_box" class="easyui-searchbox" data-options="prompt:'请输入查询内容',searcher:doSearch"
+                           style="width:15%;height:5%;margin-left:0px">
+                    <div id="divSearch"></div>
+                <!--</div>-->
+                <!--首页信息展示-用户列表-->
+                <div data-options="region:'center',title:'用户一览'" style="width:15%;height:95%" >
+                    <!--用户grid-->
+                     <table  id="dgYh" style="height:100%"></table>
+                </div>
+            </form>
+        </div>
+
+        <!--权限管理模块-->
+        <div class="easyui-layout" data-options="region:'east',collapsible:true" style="width:65%;height:100%;">
+            <div style="height:80%;" >
+                <!--tab页设定-->
+                <div id="tabsCdView" class="easyui-tabs" data-options="fit:true,border: false" style="height:80%;">
+                    <!--首页信息展示-菜单列表-->
+                    <div data-options="region:'center',title:'模块权限管理', collapsible:true" style="width:100%;height:100%" >
+                        <table  id="dgCdgl" style="height:100%"></table>
+                    </div>
+                    <!--首页信息展示-功能列表-->
+                    <div class="easyui-layout" data-options="region:'center',title:'按钮权限管理'" style="width:100%;height:100%">
+                        <div data-options="region:'west',title:'模块（菜单）名', collapsible:true" style="width:30%">
+                            <ul id="trCdqx" style="height:100%;"></ul>
+                        </div>
+                        <div data-options="region:'center', collapsible:true" style="width:70%" >
+                            <table id="dgCdGngl" style="height:100%" ></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 提交按钮 -->
+            <div style="height:20% ;">
+                <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0; margin-bottom: 5%">
+                    <button id="lbtnYhqxSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:100px">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

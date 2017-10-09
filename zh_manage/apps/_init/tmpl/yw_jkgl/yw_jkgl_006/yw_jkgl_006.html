@@ -1,0 +1,392 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 监控配置 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>监控配置</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 监控配置调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jkgl/yw_jkgl_006/yw_jkgl_006.js"></script>
+</head>
+<body>
+    <!-- 平台:如果不存在默认为wh（维护） -->
+    <input type = "hidden" name = "pt" id = "hidPt" value = "${ pt if pt else 'wh' }">
+    <!--
+        监控配置主页面：
+        top：查询条件区域
+        main：监控配置列表信息
+    -->
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <!--
+            条件查询区域：支持根据：名称、分析规则、预警级别、是否可并发、状态 组合查询
+            分析规则：从gl_hsxxb表中获取gz类型的信息
+            预警级别： 从gl_bmwh表中获取lx为10011的状态信息
+            是否可并发： 从gl_bmwh表中获取lx为10007的状态信息
+            状态：从gl_bmwh表中获取lx为10001的状态信息
+            所有查询都是精确查询
+        -->
+        <!-- 查询区域 -->
+        <div data-options="region:'north',border:true" style="padding-top:1px;height:44px;">
+            <form id = 'fmSearch' method="post">
+                <table id="dgSearch" style="width:100%;margin:5px 0;" border="0">
+                    <tr>
+                        <!-- 名称：可空，最长输入20个字符 -->
+                        <td nowrap="nowrap" style="text-align:right;width:40px;">
+                            名称：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <input id="txtSeaMc" name="seaMc" class="easyui-textbox" style="width:150px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            分析规则：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!-- 分析规则数据来源于后台查询，默认选择请选择 -->
+                            <input class="easyui-combobox" id = 'selSeaGzid' style="width:150px"
+                            name="seaGzid"
+                            data-options="
+                                    data: ${ fxgz_lst },
+                                    editable: false,
+                                    valueField:'id',
+                                    textField:'zwmc'
+                            ">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            预警级别：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!-- 预警级别数据来源于后台查询，默认选择请选择 -->
+                            <input class="easyui-combobox" id = 'selSeaYjjb' style="width:150px"
+                            name="seaYjjb"
+                            data-options="
+                                    data: ${ yjjb_lst },
+                                    editable: false,
+                                    valueField:'value',
+                                    textField:'text'
+                            ">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            是否可并发：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!-- 预警级别数据来源于后台查询，默认选择请选择 -->
+                            <input class="easyui-combobox" id = 'selSeaSfkbf' style="width:150px"
+                            name="seaSfkbf"
+                            data-options="
+                                    data: ${ sfbf_lst },
+                                    editable: false,
+                                    valueField:'value',
+                                    textField:'text'
+                            ">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:40px;">
+                            状态：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!-- 交易状态数据来源于后台查询，默认选择请选择 -->
+                            <input class="easyui-combobox" id = 'selSeaZt'
+                            name="seaZt"
+                            data-options="
+                                    data: ${ zt_lst },
+                                    editable: false,
+                                    valueField:'value',
+                                    textField:'text'
+                            ">
+                        </td>
+                        <td style="text-align:left;width:80px;">
+                            <!-- 查询按钮，发起条件查询请求 -->
+                            <button id = 'lbtnSearch' class="easyui-linkbutton" style="width:80px;" onclick="javascript:doSearch(event)">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 数据展示、操作区域:
+            数据展示列：名称、分析规则函数名称、分析规则、发起频率、预警级别、是否可并发、状态、操作人、操作时间、操作
+            支持操作：新增、删除、设为启用，设为禁用
+            每行数据操作栏都有编辑操作
+        -->
+        <div data-options="region:'center',border:false">
+            <table id="dgJkpz"></table>
+        </div>
+    </div>
+    <!-- 新增与编辑监控配置 -->
+    <div id="winJkpzAdd2Edit" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div id="tbsJkpz" class="easyui-tabs" data-options="fit:true, border:true, tabPosition:'top', tools:'#tab-tools'">
+            <!--
+                新增或编辑监控分析配置的基本信息
+                新增或编辑页面打开时，默认选择此选项卡
+            -->
+            <div title="基本信息">
+                <form id = 'fmJkpzAdd2Upd' method="post">
+                <div class="esayui-panel" style="margin-top:20px">
+                    <input type = "hidden" name = "jkpzid" id = "hidJkpzid" value = "">
+                    <table style="font-size:12px;width:100%" cellspacing="5px" border='0'>
+                        <tr>
+                            <!-- 监控分析名称 -->
+                            <td nowrap="nowrap" style="text-align:right" width='18%'>
+                                名称：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left" width='32%'>
+                                <input class="easyui-textbox" id="txtJkpzMc" name="jkpzMc" style="width:150px;">
+                                <span class="colorRed">*</span>
+                            </td>
+                            <!-- 分析规则：默认请选择，新增时编辑规则参数不可用 -->
+                            <td nowrap="nowrap" style="text-align:right" width='18%'>
+                                分析规则：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left" width='32%'>
+                                <select id="selJkpzFxgz" name="jkpzFxgz" class="easyui-combobox" style="width:110px;">
+                                </select>
+                                <input type = "hidden" name = "yjkpzFxgz" id = "hidYjkpzFxgz" value = "">
+                                <span class="colorRed">*</span>
+                                <a id="aBjgzcs" href="javascript:">编辑规则参数</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <!-- 预警级别：默认请选择 -->
+                            <td nowrap="nowrap" style="text-align:right">
+                                预警级别：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left">
+                                <select id="selJkpzYjjb" name="jkpzYjjb" class="easyui-combobox" style="width:70px;">
+                                </select>
+                                <span class="colorRed">*</span>
+                                <span>（分析结果为True时触发）</span>
+                            </td>
+                            <!-- crontab配置：输入crontab格式字符串，不可为空 -->
+                            <td nowrap="nowrap" style="text-align:right">
+                                crontab配置：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left">
+                                <input class="easyui-textbox" id="txtJkpzZdfqpz" name="jkpzZdfqpz" style="width:150px">
+                                <span class="colorRed">*</span>
+                                <button id="lbtnFy" class="easyui-linkbutton">翻译</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <!-- 是否可并发：默认是 -->
+                            <td nowrap="nowrap" style="text-align:right">
+                                是否可并发：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left">
+                                <select id="selJkpzSfkbf" name="jkpzSfkbf" class="easyui-combobox" style="width:150px;">
+                                </select>
+                                <span class="colorRed">*</span>
+                            </td>
+                            <!-- crontab说明：来源翻译填写 -->
+                            <td nowrap="nowrap" style="text-align:right">
+                                crontab说明：
+                            </td>
+                            <td style="text-align:left">
+                                <input class="easyui-textbox" id="txtJkpzZdfqpzsm" name="txtJkpzZdfqpzsm" data-options="disabled: true" style="width:150px">
+                            </td>
+                        </tr>
+                        <tr>
+                            <!-- 状态：默认禁用，编辑时不可编辑 -->
+                            <td nowrap="nowrap" style="text-align:right">
+                                状态：
+                            </td>
+                            <td style="text-align:left">
+                                <a class="onoffswitch" style="float:left">
+                                    <input type="checkbox" id="nfsJkpzZt" class="onoffswitch-checkbox" checked>
+                                    <label class="onoffswitch-label" for="nfsJkpzZt" id = 'nfsJkpzZt_link'>
+                                        <span class="onoffswitch-inner">
+                                            <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                            <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                        </span>
+                                    </label>
+                                </a>
+                                
+                            </td>
+                            <td nowrap="nowrap" style="text-align:right">
+                                执行主机：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left" width='30%'>
+                            <select id="selZxzj" name="zxzj" class="easyui-combobox" style="width:200px">
+                            </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <!-- 描述：可空 -->
+                            <td nowrap="nowrap" style="text-align:right">
+                                描述：
+                            </td>
+                            <td style="text-align:left" colspan="3">
+                                <input class="easyui-textbox" id="txtJkpzMs" name="jkpzMs" data-options="multiline:true" style="height:70px;width:90%;">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- 提交按钮-->
+                <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+                    <!-- 保存：提交新增或编辑请求 -->
+                    <button id="lbtnJkpzSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                    <!-- 取消：关闭窗口 -->
+                    <button id="lbtnJkpzCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+                </div>
+                </form>
+            </div>
+            <!-- 响应动作数据表格：
+                 显示数据：分析结果触发、动作函数名称、动作名称、发起方式、动作执行时间、动作参数、动作执行主机、操作
+                 支持操作：新增、删除
+                 新增时不可用，编辑时可用
+             -->
+            <div title="响应动作">
+                <table id="dgXydz"></table>
+            </div>
+        </div>
+    </div>
+    <!-- 编辑规则参数 -->
+    <div id="winGzcsAdd2Edit" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <!-- FORM 表单使用post提交方式 -->
+        <form id = 'fmGzcsAdd2Edit' method="post">
+        <!-- 编辑规则参数：对应的监控配置id -->
+        <input type = "hidden" name = "gzcsJkpzid" id = "hidGzcsJkpzid" value = "">
+        <!-- 编辑规则参数：对应选择的规则id -->
+        <input type = "hidden" name = "gzcsGzid" id = "hidGzcsGzid" value = "">
+        <!-- 编辑规则参数：编辑前的参数信息 -->
+        <input type = "hidden" name = "ycsxxStr" id = "hidYcsxxStr" value = "">
+        <div class="esayui-panel" style="margin-top:20px">
+            <table style="font-size:12px;width:100%" cellspacing="0px" cellpadding = '5px'  border='0'>
+                <tr>
+                    <!-- 规则名称：不可编辑，只是回显 -->
+                    <td nowrap="nowrap" style="text-align:right;width: 100px;">
+                        规则名称：
+                    </td>
+                    <td style="text-align:left;">
+                        <input class="easyui-textbox" id="txtGzcsGzmc" name="gzcsGzmc" data-options="value:'jysbbsfx(yz)',disabled:true" style="width:450px">
+                    </td>
+                </tr>
+                <tr>
+                    <!-- 规则描述：不可编辑，只是回显 -->
+                    <td nowrap="nowrap" style="text-align:right;">
+                        规则描述：
+                    </td>
+                    <td style="text-align:left;width:200px;">
+                        <input class="easyui-textbox" id="txtGzcsGzms" name="gzcsGzms" data-options="multiline:true,disabled:true,value:'交易失败笔数分析'" style="width:450px;height:70px;">
+                    </td>
+                </tr>
+                <tr>
+                    <!--
+                        传入参数：回显此规则对应的参数信息：
+                        参数值可以编辑
+                        当是否可控为False时，参数值不可为空
+                    -->
+                    <td nowrap="nowrap" style="text-align:right;">
+                        传入参数：
+                    </td>
+                    <td style="text-align:left;height:200px;" colspan="3">
+                        <table id="dgGzcsCs"></table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮-->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+            <!-- 保存：提交编辑请求 -->
+            <button id="lbtnGzcsSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+            <!-- 取消：关闭窗口 -->
+            <button id="lbtnGzcsCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+        </div>
+        </form>
+    </div>
+    <!-- 新增与编辑响应动作 -->
+    <div id="winXydzAdd2Edit" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div class="easyui-layout" data-options="fit:true">
+            <!-- FORM 表单使用post提交方式 -->
+            <form id = 'fmXydzAdd2Upd' method="post">
+            <div data-options="region:'north'" style="height:95px;">
+                <!-- 编辑响应动作id -->
+                <input type = "hidden" name = "xydzid" id = "hidXydzid" value = "">
+                <table style="font-size:12px;width:100%" cellspacing="5px" border='0'>
+                    <tr>
+                        <!-- 响应动作：新增默认请选择，编辑时不可编辑，不为空 -->
+                        <td nowrap="nowrap" style="text-align:right" width='20%'>
+                            响应动作：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left" width='30%'>
+                            <select id="selXydzXydz" name="xydzXydz" class="easyui-combobox" style="width:200px">
+                            </select>
+                            <span class="colorRed">*</span>
+                        </td>
+                        <!-- 分析结果触发：新增默认请选择，不为空 -->
+                        <td nowrap="nowrap" style="text-align:right" width='20%'>
+                            分析结果触发：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left" width='30%'>
+                            <select id="selXydzFxjgcf" name="xydzFxjgcf" class="easyui-combobox" style="width:200px">
+                            </select>
+                            <span class="colorRed">*</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- 发起方式：新增默认自动发起，不为空 -->
+                        <td nowrap="nowrap" style="text-align:right" width='20%'>
+                            发起方式：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left" width='30%'>
+                            <select id="selXydzFqfs" name="xydzFqfs" class="easyui-combobox" style="width:200px">
+                            </select>
+                            <span class="colorRed">*</span>
+                        </td>
+                        <!-- 计划时间：默认不可用，当发起方式为计划发起时，此元素可用，并不可为空 -->
+                        <td nowrap="nowrap" style="text-align:right" width='20%'>
+                            计划时间：
+                        </td>
+                        <td style="text-align:left" width='30%'>
+                            <input id="selXydzJhsj" name="xydzJhsj" class="easyui-timespinner" data-options="min:'00:00',showSeconds:true,disabled:true" style="width:200px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- 动作执行主机：不可为空，支持多选 -->
+                        <td nowrap="nowrap" style="text-align:right" width='20%'>
+                            动作执行主机：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left" width='30%'>
+                            <select id="selXydzDzzxzj" name="xydzDzzxzj" data-options="multiple:true" class="easyui-combobox" style="width:200px">
+                            </select>
+                            <span class="colorRed">*</span>
+                            <!-- 原执行主机集合字符串 -->
+                            <input type = "hidden" name = "zxzjstr" id = "hidZxzjstr" value = "">
+                            <!-- 原执行主机名称集合字符串 -->
+                            <input type = "hidden" name = "zxzjmcstr" id = "hidZxzjmcstr" value = "">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div data-options="region:'center',border:false" style="height:auto">
+                <!-- 响应动作对应参数数据表格 -->
+                <table id="dgXydzCs"></table>
+                <!-- 响应动作对应原参数数据信息集合 -->
+                <input type = "hidden" name = "xydzycsxxstr" id = "hidXydzYcsxxStr" value = "">
+            </div>
+            <!-- 提交按钮-->
+            <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+                <!-- 保存：提交新增或编辑请求 -->
+                <button id="lbtnXydzSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                <!-- 取消：关闭窗口 -->
+                <button id="lbtnXydzCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+            </form>
+        </div>
+    </div>
+    <!-- 动作参数查看 -->
+    <div id="winXydzCsck" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <table id="dgXydzCsck"></table>
+    </div>
+</body>
+</html>

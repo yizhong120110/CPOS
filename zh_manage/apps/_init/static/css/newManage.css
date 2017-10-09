@@ -1,0 +1,436 @@
+html,body {height: 100%;}
+body {
+    background: #f4f4f4;
+    overflow: hidden;
+}
+
+ .hx-logo {
+    background: url("/static/_init/images/index/hx-logo.png") center center no-repeat;
+    display: inline-block;
+    width:30px;
+    height: 30px;
+    /*vertical-align: middle;*/
+
+}
+
+.leftNavBox {
+    width:251px;
+    position: absolute;
+    left:0;
+    top:100px;
+    border-right: 1px solid #dddddd;
+    background: #f4f4f4;
+    display: block;
+    bottom: 0;
+    height: 100%;
+}
+.leftNav {
+    width: 250px;
+    height: auto;
+}
+
+.leftNav > li > a {
+background-color: #f4f4f4;
+height: 42px;
+display: block;
+line-height: 45px;
+padding: 0 10px;
+border-bottom: 1px solid white;
+border-top: 1px solid #e7e7e7;
+overflow: visible !important;
+color:#333;
+}
+
+ .leftNav> li:hover > a span, .leftNav> li:focus > a span, .leftNav> li.active > a span {
+          color: #222222 !important;
+          padding-left: 2px !important; }
+
+ .leftNav > li > a span {
+          color: #3c3c3c;
+          text-shadow: 1px 1px 1px #ececec;
+          position: relative;
+          top: -2px;
+          -webkit-transition: all 100ms ease;
+          -moz-transition: all 100ms ease;
+          -o-transition: all 100ms ease;
+          transition: all 100ms ease; }
+
+
+ .leftNav > li > a [class^="icon-"],.leftNav > li > a [class*=" icon-"] {
+          color: #6e6e6e;
+          font-size: 20px;
+          margin-right: 10px;
+          display: inline-block;
+          text-align: center;
+          width: 25px;
+          -webkit-transition: all 100ms ease;
+          -moz-transition: all 100ms ease;
+          -o-transition: all 100ms ease;
+          transition: all 100ms ease; }
+         .leftNav > li > a [class^="icon-"].angle-down,.leftNav > li > a [class*=" icon-"].angle-down {
+            width: auto !important; }
+       .leftNav > li > a .icon-angle-down {
+          float: right;
+          line-height: 40px;
+          margin-right: 0;
+          -webkit-transition: all 100ms ease;
+          -moz-transition: all 100ms ease;
+          -o-transition: all 100ms ease;
+          transition: all 100ms ease; }
+       .leftNav > li > a span {
+          color: #3c3c3c;
+          text-shadow: 1px 1px 1px #ececec;
+          position: relative;
+          top: -2px;
+          -webkit-transition: all 100ms ease;
+          -moz-transition: all 100ms ease;
+          -o-transition: all 100ms ease;
+          transition: all 100ms ease; }
+     .leftNav > li:hover > a,.leftNav > li:focus > a,.leftNav > li.active > a {
+        background-color: #fefefe; }
+       .leftNav > li:hover > a [class^="icon-"],.leftNav > li:hover > a [class*=" icon-"],.leftNav > li:focus > a [class^="icon-"],.leftNav > li:focus > a [class*=" icon-"],.leftNav > li.active > a [class^="icon-"],.leftNav > li.active > a [class*=" icon-"] {
+          color: #f34541 !important; }
+       .leftNav > li:hover > a span,.leftNav > li:focus > a span,.leftNav > li.active > a span {
+          color: #222222 !important;
+          padding-left: 2px !important; }
+     .leftNav > li .nav {
+        background: #e5e5e5;
+        border-bottom: 1px solid white;
+        display: none; }
+
+
+/* FONT AWESOME CORE
+ * -------------------------- */
+[class^="icon-"],
+[class*=" icon-"] {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  -webkit-font-smoothing: antialiased;
+  *margin-right: .3em; }
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  text-decoration: inherit;
+  display: inline-block;
+  speak: none; }
+
+/* makes the font 33% larger relative to the icon container */
+.icon-large:before {
+  vertical-align: -10%;
+  font-size: 1.3333333333333333em; }
+
+/* makes sure icons active on rollover in links */
+a [class^="icon-"],
+a [class*=" icon-"] {
+  display: inline; }
+
+/* increased font size for icon-large */
+[class^="icon-"].icon-fixed-width,
+[class*=" icon-"].icon-fixed-width {
+  display: inline-block;
+  width: 1.1428571428571428em;
+  text-align: right;
+  padding-right: 0.2857142857142857em; }
+
+[class^="icon-"].icon-fixed-width.icon-large,
+[class*=" icon-"].icon-fixed-width.icon-large {
+  width: 1.4285714285714286em; }
+
+.icons-ul {
+  margin-left: 2.142857142857143em;
+  list-style-type: none; }
+
+.icons-ul > li {
+  position: relative; }
+
+.icons-ul .icon-li {
+  position: absolute;
+  left: -2.142857142857143em;
+  width: 2.142857142857143em;
+  text-align: center;
+  line-height: inherit; }
+
+[class^="icon-"].hide,
+[class*=" icon-"].hide {
+  display: none; }
+
+.icon-muted {
+  color: #eeeeee; }
+
+.icon-light {
+  color: #ffffff; }
+
+.icon-dark {
+  color: #333333; }
+
+.icon-border {
+  border: solid 1px #eeeeee;
+  padding: .2em .25em .15em;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px; }
+
+.icon-2x {
+  font-size: 2em; }
+
+.icon-2x.icon-border {
+  border-width: 2px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px; }
+
+.icon-3x {
+  font-size: 3em; }
+
+.icon-3x.icon-border {
+  border-width: 3px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px; }
+
+.icon-4x {
+  font-size: 4em; }
+
+.icon-4x.icon-border {
+  border-width: 4px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px; }
+
+.icon-5x {
+  font-size: 5em; }
+
+.icon-5x.icon-border {
+  border-width: 5px;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  border-radius: 7px; }
+
+
+[class^="icon-"].pull-left,
+[class*=" icon-"].pull-left {
+  margin-right: .3em; }
+
+[class^="icon-"].pull-right,
+[class*=" icon-"].pull-right {
+  margin-left: .3em; }
+
+
+.rightCont {
+/*    border:red 1px solid;*/
+    height: 100%;
+    z-index: 1;
+    /*margin-left: 252px;*/
+/*    margin:100px 0 0 0;*/
+    /*padding:0 -15px!important;*/
+    overflow: hidden;
+}
+.rightCont >.container {
+    padding:0;
+    overflow: hidden;
+}
+/*boot fix*/
+#mnuMain {font-size:14px;/*margin-top:-25px;*/}
+.mainBox {height: 100%;}
+
+.row {
+    padding:0;
+    margin:0;
+}
+
+/*easyui treefix*/
+.tree-node {
+    height: 40px;
+    line-height: 40px;
+    padding-right: 15px;
+}
+
+.tree-expanded, .tree-collapsed, .tree-folder, .tree-file, .tree-checkbox, .tree-indent {
+vertical-align: middle;
+overflow: hidden;
+}
+.tree-title {
+font-size: 14px;
+padding: 0 2px;
+height: 40px;
+line-height: 40px;
+color:#fff;
+}
+.tree-node-proxy {
+  background-color: #fff;
+  color: #444;
+  border-color: #ddd;
+}
+.tree-node-hover {
+   color: #222;
+    /*padding: 0 2px;*/
+    background: #116d93;
+}
+.tree-node-selected {
+    background: #116d93;
+  color: #000;
+}
+
+
+/*new nav menu
+            */
+
+.sf-menu, .sf-menu * {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.sf-menu li {
+	position: relative;
+}
+.sf-menu ul {
+	position: absolute;
+	display: none;
+	top: 100%;
+	left: 0;
+	z-index: 99;
+}
+.sf-menu > li {
+	float: left;
+}
+.sf-menu li:hover > ul,
+.sf-menu li.sfHover > ul {
+	display: block;
+}
+
+.sf-menu a {
+	display: block;
+	position: relative;
+}
+.sf-menu ul ul {
+	top: 0;
+	left: 100%;
+
+}
+
+
+/*** MENU SKIN ***/
+.sf-menu {
+/*	float: left;*/
+/*	margin-bottom: 1em;*/
+     text-align: center;
+     background: rgba(28,127,168,0.9); 
+}
+.sf-menu ul {
+	box-shadow: 2px 2px 6px rgba(0,0,0,.2);
+	min-width: 12em; /* allow long menu items to determine submenu width */
+	*width: 12em; /* no auto sub width for IE7, see white-space comment below */
+}
+.sf-menu li ul a {
+/*	border-left: 1px solid #fff;*/
+	/* border-top: 1px solid #dFeEFF; fallback colour must use full shorthand */
+	border-top: 1px solid rgba(255,255,255,.5);
+	padding: .55em 1em;
+	text-decoration: none;
+	zoom: 1; /* IE7 */
+             text-align: left;
+}
+.sf-menu a {
+	color:#fff;
+}
+.sf-menu li {
+/*	background: rgb(28,127,168);*/
+    
+	white-space: nowrap; /* no need for Supersubs plugin */
+	*white-space: normal; /* ...unless you support IE7 (let it wrap) */
+	-webkit-transition: background .2s;
+	transition: background .2s;
+}
+.sf-menu ul li {
+
+     background: rgba(28,127,168,0.8); 
+}
+.sf-menu ul ul li {
+     background: rgba(28,127,168,0.8); 
+}
+.sf-menu li:hover,
+.sf-menu li.sfHover {
+
+     background: #116d93;
+	/* only transition out, not in */
+	-webkit-transition: none;
+	transition: none;
+}
+
+/*** arrows (for all except IE7) **/
+.sf-arrows .sf-with-ul {
+	padding-right: 2.5em;
+	*padding-right: 1em; /* no CSS arrows for IE7 (lack pseudo-elements) */
+}
+/* styling for both css and generated arrows */
+.sf-arrows .sf-with-ul:after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	right: 1em;
+	margin-top: -3px;
+	height: 0;
+	width: 0;
+	/* order of following 3 rules important for fallbacks to work */
+/*	border: 5px solid transparent;*/
+	 /*border-top-color: #dFeEFF; edit this to suit design (no rgba in IE8) */
+/*	border-top-color: rgba(255,255,255,.5);*/
+}
+.sf-arrows > li > .sf-with-ul:focus:after,
+.sf-arrows > li:hover > .sf-with-ul:after,
+.sf-arrows > .sfHover > .sf-with-ul:after {
+	/*border-top-color: white;  IE8 fallback colour */
+}
+/* styling for right-facing arrows */
+.sf-arrows ul .sf-with-ul:after {
+	margin-top: -5px;
+	margin-right: -3px;
+	border-color: transparent;
+	/*border-left-color: #dFeEFF;  edit this to suit design (no rgba in IE8) */
+/*	border-left-color: rgba(255,255,255,.5);*/
+}
+.sf-arrows ul li > .sf-with-ul:focus:after,
+.sf-arrows ul li:hover > .sf-with-ul:after,
+.sf-arrows ul .sfHover > .sf-with-ul:after {
+/*	border-left-color: white;*/
+    text-decoration: none;
+    background-color: #1e6e8f;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+/*fix bootstrap nav focus style*/
+
+.nav > li > a:hover, .nav > li > a:focus {
+text-decoration: none;
+background-color: #1e6e8f;
+}
+
+/*edit easyui window bg color*/
+/*
+.window {
+background-color: rgba(28,127,168,0.2)!important;
+}
+*/
+
+
+/*
+.topNav {
+ text-align: center;
+ background: rgb(28,127,168);
+}
+
+.topNav>li>a {
+    color:#fff;
+}
+.topNav > li > a:hover, .topNav> li > a:focus {
+text-decoration: none;
+background-color: #1e6e8f;
+-webkit-border-radius: 0;
+-moz-border-radius: 0;
+border-radius: 0;
+}
+*/

@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_ywlb" desc="查询所有的业务">
+        select id, ywmc 
+        from gl_ywdy 
+        where id not in (select id from gl_ywdy where lower(ywbm) = 'beaitx')
+        order by ywmc
+    </sql>
+    <sql sqlid="get_beai" desc="查询BEAI通讯子流程">
+        select id, mc 
+        from gl_zlcdy
+        where lb = '1'  -- 通讯子流程
+            and ssywid in (select id from gl_ywdy where lower(ywbm) = 'beaitx')
+        order by mc
+    </sql>
+    <sql sqlid="get_ywtxzlc" desc="查询业务通讯子流程">
+        select id, mc, ssywid
+        from gl_zlcdy
+        where lb = '1'  -- 通讯子流程
+            and ssywid not in (select id from gl_ywdy where lower(ywbm) = 'beaitx')
+            %if paras.ywid:
+                and ssywid = %(ywid)s
+            %endif
+        order by ssywid, mc
+    </sql>
+    <sql sqlid="get_ywptzlc" desc="查询业务普通子流程">
+        select id, mc, ssywid
+        from gl_zlcdy
+        where lb = '2'  -- 普通子流程
+            and ssywid not in (select id from gl_ywdy where lower(ywbm) = 'beaitx')
+            %if paras.ywid:
+                and ssywid = %(ywid)s
+            %endif
+        order by ssywid, mc
+    </sql>
+    <sql sqlid="get_jd_jy" desc="查询交易流程布局用到的节点">
+        select distinct d.id, d.jdmc, a.id as ssywid, d.wym as wym1, e.wym as wym2
+        from gl_ywdy a, gl_jydy b, gl_lcbj c, gl_jddy d left join 
+        (
+            select c.ssid, d.wym from
+            (
+                select ssid, max(bbh) as bbh
+                from gl_bbkz
+                group by ssid
+            ) c, gl_bbkz d
+            where c.ssid = d.ssid
+                and c.bbh = d.bbh
+        ) e
+        on d.id = e.ssid
+        where a.id = b.ssywid
+            and b.id = c.ssjyid
+            and c.jddyid = d.id
+            and c.jdlx = '1'  -- 普通节点
+            %if paras.ywid:
+                and a.id = %(ywid)s
+            %endif
+    </sql>
+    <sql sqlid="get_jd_zlc" desc="查询子流程流程布局用到的节点">
+        select distinct b.id, b.jdmc, c.ssywid, b.wym as wym1, d.wym as wym2
+        from gl_lcbj a, gl_jddy b left join 
+        (
+            select c.ssid, d.wym from
+            (
+                select ssid, max(bbh) as bbh
+                from gl_bbkz
+                group by ssid
+            ) c, gl_bbkz d
+            where c.ssid = d.ssid
+                and c.bbh = d.bbh
+        ) d
+        on b.id = d.ssid
+            , gl_zlcdy c
+        where a.jddyid = b.id 
+            and a.sszlcid = c.id 
+            and c.lb = '2'  -- 普通子流程
+            and a.jdlx = '1'  -- 普通节点
+            %if paras.ywid:
+                and c.ssywid = %(ywid)s
+            %endif
+    </sql>
+    <sql sqlid="get_jdxx" desc="查询节点名称及代码内容">
+        select a.bm, a.jdmc, a.jdlx, b.nr
+        from gl_jddy a left join gl_blob b on a.dm_id = b.id
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="check_jdid" desc="检查节点ID是否存在">
+        select id, jdmc from gl_jddy where id = %(id)s
+    </sql>
+    <sql sqlid="check_jddm" desc="检查节点编码是否已存在">
+        select bm from gl_jddy 
+        where bm = %(bm)s
+    </sql>
+    <sql sqlid="update_jddy" desc="更新节点定义表">
+        update gl_jddy set jdmc = %(jdmc)s, czr = %(czr)s, czsj = %(czsj)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="update_blob_jd" desc="更新BLOB表">
+        update gl_blob set czr = %(czr)s, czsj = %(czsj)s, nr = %(nr)s
+        where id = (select dm_id from gl_jddy where id = %(nodeid)s)
+    </sql>
+    <sql sqlid="insert_jddy" desc="插入节点定义表">
+        insert into gl_jddy (id, bm, jdlx, jdmc, dm_id, czr, czsj)
+        values (%(id)s, %(bm)s, %(jdlx)s, %(jdmc)s, %(dm_id)s, %(czr)s, %(czsj)s)
+    </sql>
+    <sql sqlid="check_jdys" desc="查询节点要素">
+        select 1
+        from gl_jdys
+        where bm = %(bm)s
+            and lb = %(lb)s
+            and jddyid = %(jddyid)s
+        %if paras.id:
+            and id != %(id)s
+        %endif
+    </sql>
+    <sql sqlid="del_jdys" desc="删除节点要素">
+        delete from gl_jdys
+        where (${paras._or('id',paras.ids)})
+    </sql>
+    <sql sqlid="del_jdys_for_update" desc="删除节点要素（先删后插入）">
+        delete from gl_jdys
+        where ly = '1'
+            and jddyid = %(jddyid)s
+    </sql>
+    <sql sqlid="get_jdid" desc="查询节点ID">
+        select jddyid from gl_jdys where id = %(id)s
+    </sql>
+    <sql sqlid="update_jdys" desc="更新节点要素">
+        update gl_jdys set bm = %(bm)s, ysmc = %(ysmc)s, mrz = %(mrz)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="update_jdys_fhzbz" desc="更新节点要素返回值备注">
+        update gl_jdys set ysmc = %(ysmc)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="count_jdyycs" desc="查询节点引用次数">
+        select a.jddyid, e.jdmc, coalesce(b.jymc, c.mc) as mc, count(1) as count
+        from gl_lcbj a left join gl_jydy b on a.ssjyid = b.id
+            left join gl_zlcdy c on a.sszlcid = c.id
+            , gl_jddy e
+        where a.jddyid = e.id
+            and a.jdlx = '1'  --普通节点
+            and a.jddyid = %(jddyid)s
+        group by a.jddyid, e.jdmc, coalesce(b.jymc, c.mc)
+        order by coalesce(b.jymc, c.mc)
+    </sql>
+    <sql sqlid="get_lcbj_nodeid" desc="查询流程布局表中的节点ID">
+        select id
+        from gl_lcbj
+        where ${paras._tb(paras.zd)} = %(id)s
+    </sql>
+    <sql sqlid="update_lcbj_wz" desc="更新已在流程布局表中的节点坐标位置">
+        update gl_lcbj set x = %(x)s, y = %(y)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="insert_lcbj" desc="插入流程布局表">
+        insert into gl_lcbj (id, jdlx, x, y, jddyid, ${paras._tb(paras.zd)})
+        values (%(id)s, %(jdlx)s, %(x)s, %(y)s, %(jddyid)s, %(ssid)s)
+    </sql>
+    <sql sqlid="delete_lcbj" desc="删除流程布局表中的记录">
+        delete from gl_lcbj
+        where id = %(id)s
+    </sql>
+    <sql sqlid="delete_lczx" desc="删除流程走向">
+        delete from gl_lczx
+        where ssid = %(ssid)s
+    </sql>
+    <sql sqlid="insert_lczx" desc="插入流程走向">
+        insert into gl_lczx (id, fhz, qzjdlcbjid, hzjdlcbjid, sslb, ssid)
+        values (%(id)s, %(fhz)s, %(qzjdlcbjid)s, %(hzjdlcbjid)s, %(sslb)s, %(ssid)s)
+    </sql>
+    <sql sqlid="insert_jdys" desc="插入要素定义表">
+        insert into gl_jdys (id, lb, bm, ysmc, jddyid, mrz, ly, jkjy, ssgzmc, zjcs)
+        values (%(id)s, %(lb)s, %(bm)s, %(ysmc)s, %(jddyid)s, %(mrz)s, %(ly)s, %(jkjy)s, %(ssgzmc)s, %(zjcs)s)
+    </sql>
+    <sql sqlid="get_jy_wym" desc="查询交易唯一码">
+        select a.id, a.wym as wym1, b.wym as wym2
+        from gl_jydy a left join 
+        (
+            select c.ssid, d.wym from
+            (
+                select ssid, max(bbh) as bbh
+                from gl_bbkz
+                group by ssid
+            ) c, gl_bbkz d
+            where c.ssid = d.ssid
+                and c.bbh = d.bbh
+        ) b
+        on a.id = b.ssid
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_zlc_wym" desc="查询子流程唯一码">
+        select a.id, a.wym as wym1, b.wym as wym2
+        from gl_zlcdy a left join 
+        (
+            select c.ssid, d.wym from
+            (
+                select ssid, max(bbh) as bbh
+                from gl_bbkz
+                group by ssid
+            ) c, gl_bbkz d
+            where c.ssid = d.ssid
+                and c.bbh = d.bbh
+        ) b
+        on a.id = b.ssid
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_jd_wym" desc="查询节点唯一码">
+        select a.id, a.wym as wym1, b.wym as wym2
+        from gl_jddy a left join 
+        (
+            select c.ssid, d.wym from
+            (
+                select ssid, max(bbh) as bbh
+                from gl_bbkz
+                group by ssid
+            ) c, gl_bbkz d
+            where c.ssid = d.ssid
+                and c.bbh = d.bbh
+        ) b
+        on a.id = b.ssid
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_bz_ys" desc="获取其他步骤和要素">
+        select a.id as bzid, a.mc, b.id as ysid, b.lx, b.ysdm, b.ysz
+        from gl_jdcsalzxbz a left join gl_jdcsalys b on a.id = b.jdcsalzxbz
+        where a.ssdyid = %(id)s
+            and b.lx = %(lx)s  -- '1'输入要素，'2'输出要素
+            and a.sftg = '0' -- 是否跳过（否)
+    </sql>
+    <sql sqlid="get_demo_jbxx" desc="获取Demo基本信息">
+        select id, mc, sjms, ssywid , rn from (
+            select id, mc, sjms, ssywid, rownum rn
+            from gl_demo_jbxx
+            where ssywid = %(ywid)s
+            %if paras.mc:
+            and mc like '%'||%(mc)s||'%'
+            %endif
+            %if paras.ms:
+            and sjms like '%'||%(ms)s||'%'
+            %endif
+            order by mc
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid="get_demo_jbxx_count" desc="获取Demo基本信息的总条数">
+            select count(1) as count
+            from gl_demo_jbxx
+            where ssywid = %(ywid)s
+            %if paras.mc:
+            and mc like '%'||%(mc)s||'%'
+            %endif
+            %if paras.ms:
+            and sjms like '%'||%(ms)s||'%'
+            %endif
+    </sql>
+    <sql sqlid="get_ywsjb" desc="查询业务数据表">
+        select distinct a.sjbmc as sjbjc, nvl(a.sjbmcms, '未知数据表') as sjbmc, a.id as sjkmxdyid
+        from gl_sjkmxdy a left join gl_demo_sj b on a.sjbmc = b.sjbjc and b.sjjb = '1'
+        where a.ssyw_id = %(ywid)s
+        order by a.sjbmc
+    </sql>
+    <sql sqlid="check_demo_jbxx_mc" desc="校验Demo基本信息名称是否已存在">
+        select 1
+        from gl_demo_jbxx
+        where mc = %(mc)s
+            and ssywid = %(ssywid)s
+            %if paras.id:
+                and id != %(id)s
+            %endif
+    </sql>
+    <sql sqlid="update_demo_jbxx" desc="更新Demo基本信息">
+        update gl_demo_jbxx set mc = %(mc)s, sjms = %(sjms)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="insert_demo_jbxx" desc="新增Demo基本信息">
+        insert into gl_demo_jbxx (id, mc, sjms, ssywid)
+        values (%(id)s, %(mc)s, %(sjms)s, %(ssywid)s)
+    </sql>
+    <sql sqlid="delete_demo_jbxx" desc="删除Demo基本信息">
+        delete from gl_demo_jbxx
+        where id = %(id)s
+    </sql>
+    <sql sqlid="delete_demo_sj" desc="删除Demo数据">
+        delete from gl_demo_sj
+        where demojbxxid = %(id)s
+        %if paras.sjbjc:
+        and sjbjc = %(sjbjc)s
+        %endif
+    </sql>
+    <sql sqlid="check_demo_sj" desc="是否已存在记录">
+        select id from gl_demo_sj
+        where demojbxxid = %(demojbxxid)s 
+            and sjbjc = %(sjbjc)s
+            and sjjb = '1'
+    </sql>
+    <sql sqlid="insert_demo_sj_1" desc="插入Demo数据（级别1）">
+        insert into gl_demo_sj (id, demojbxxid, sjbjc, sjbmc, sjjb, xssx)
+        values (%(id)s, %(demojbxxid)s, %(sjbjc)s, %(sjbms)s, '1', 0)
+    </sql>
+    <sql sqlid="insert_demo_sj_2" desc="插入Demo数据（级别2）">
+        insert into gl_demo_sj (id, demojbxxid, sjbjc, sjbmc, sjjb, sjid, xssx, zdm, zdz)
+        values (%(id)s, %(demojbxxid)s, %(sjbjc)s, %(sjbms)s, '2', %(sjid)s, %(xssx)s, %(zdm)s, %(zdz)s)
+    </sql>
+    <sql sqlid="del_demo_sj_2" desc="删除Demo数据（级别2）">
+        delete from gl_demo_sj
+        where sjid = %(sjid)s
+            and xssx = %(xssx)s
+    </sql>
+    <sql sqlid="updaet_demo_sj_2" desc="编辑Demo数据（级别2）">
+        update gl_demo_sj set zdz = %(zdz)s
+        where sjid = %(sjid)s
+            and xssx = %(xssx)s
+            and zdm = %(zdm)s
+    </sql>
+    <sql sqlid="check_demo_jbxx" desc="检查Demo是否被引用">
+        select count(1) as count
+        from gl_jdcsalzxbz
+        where demoid = %(id)s
+    </sql>
+    <sql sqlid="get_demo_sj_max_xh" desc="获取Demo数据最大显示顺序号">
+        select max(xssx) as xssx
+        from gl_demo_sj
+        where demojbxxid = %(demojbxxid)s
+            and sjid = %(sjid)s
+    </sql>
+    <sql sqlid="get_demo_sj_fields" desc="查询数据库模型表头">
+        select b.zdmc
+        from gl_sjkmxdy a, gl_sjkzdb b
+        where a.id = b.sjb_id
+            and a.sjbmc = %(sjbmc)s
+        order by iskey desc, b.zdmc
+    </sql>
+    <sql sqlid="get_demo_sj" desc="查询Demo数据">
+        select a.sjid, a.sjbjc, a.xssx, a.zdm, to_char(wm_concat(a.zdz)) as zdz, c.iskey
+        from gl_demo_sj a, gl_sjkmxdy b, gl_sjkzdb c
+        where a.sjbjc = b.sjbmc
+            and b.id = c.sjb_id
+            and a.zdm = c.zdmc
+            and a.sjbjc = %(sjbjc)s 
+            and a.demojbxxid = %(demojbxxid)s
+            and a.sjjb = '2' 
+        group by a.sjid, a.sjbjc, a.xssx, a.zdm, c.iskey
+        order by a.xssx,a.zdm
+    </sql>
+    <sql sqlid="get_demo_sj_2" desc="查询Demo数据（级别2）">
+        select a.id, a.sjbjc, a.sjid, a.xssx, a.zdm, c.iskey, to_char(wm_concat(a.zdz)) as zdz
+        from gl_demo_sj a, gl_sjkmxdy b, gl_sjkzdb c
+        where a.sjbjc = b.sjbmc
+            and b.id = c.sjb_id
+            and a.zdm = c.zdmc
+            and sjjb = '2'  -- 表字段
+            and (${paras._or('a.demojbxxid', paras.demojbxxids)})
+        group by a.id, a.sjbjc, a.sjid, a.xssx, a.zdm, c.iskey
+    </sql>
+    <sql sqlid="get_djbjd" desc="查询所有打解包节点">
+        select id, jdmc
+        from gl_jddy
+        where jdlx = %(jdlx)s
+    </sql>
+    <sql sqlid="get_jyjbjd" desc="查询交易打解包节点">
+        select dbjdid, jbjdid
+        from gl_jydy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="set_djbjd" desc="设置交易打解包节点">
+        update gl_jydy set ${paras._tb(paras.zd)} = %(jdid)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="insert_jdcsalzxbz" desc="插入节点测试案例执行步骤">
+        insert into gl_jdcsalzxbz (id, lx, ssdyid, fhz, mc, ms, sftg, demoid, rzlsh)
+        values (%(id)s, %(lx)s, %(ssdyid)s, %(fhz)s, %(mc)s, %(ms)s, %(sftg)s, %(demoid)s, %(rzlsh)s)
+    </sql>
+    <sql sqlid="insert_jdcsalys" desc="插入节点测试案例要素">
+        insert into gl_jdcsalys (id, jdcsalzxbz, lx, ysdm, ysz)
+        values (%(id)s, %(bzid)s, %(lx)s, %(ysdm)s, %(ysz)s)
+    </sql>
+    <sql sqlid="check_jdcsalzxbz" desc="检查节点测试案例执行步骤是否被引用">
+        select 1
+        from gl_csaldy
+        where jdcsalzxbzlb like %(bzid)s
+    </sql>
+    <sql sqlid="del_jdcsalzxbz" desc="删除节点测试案例执行步骤">
+        delete from gl_jdcsalzxbz
+        where id = %(id)s
+    </sql>
+    <sql sqlid="del_jdcsalys" desc="删除节点测试案例要素">
+        delete from gl_jdcsalys
+        where jdcsalzxbz = %(bzid)s
+    </sql>
+    <sql sqlid="get_jdcsalzxbz" desc="查询节点测试案例执行步骤">
+        select a.lx, a.id as bzid, a.demoid, a.fhz, a.sftg, a.rzlsh, coalesce(b.id, c.id) as id, coalesce(b.jdmc, c.mc) as mc
+        from gl_jdcsalzxbz a left join gl_jddy b on a.ssdyid = b.id
+            left join gl_zlcdy c on a.ssdyid = c.id
+        where (${paras._or('a.id', paras.id_lst)})
+    </sql>
+    <sql sqlid="get_qzjd" desc="查询前置节点">
+        select c.id, c.bm, c.jdlx, c.jdmc, c.jdms, c.dm_id, c.wym, c.filename, c.functionname, c.type, c.czr, c.czsj
+        from gl_lczx a, gl_lcbj b, gl_jddy c, gl_lcbj d
+        where a.qzjdlcbjid = b.id
+            and b.jddyid = c.id
+            and a.hzjdlcbjid = d.id
+            and coalesce(b.ssjyid, b.sszlcid) = %(lcid)s
+            and d.jddyid = %(jdid)s
+    </sql>
+    <sql sqlid="get_hzjd" desc="查询后置节点">
+        select c.id, c.bm, c.jdlx, c.jdmc, c.jdms, c.dm_id, c.wym, c.filename, c.functionname, c.type, c.czr, c.czsj
+        from gl_lczx a, gl_lcbj b, gl_jddy c, gl_lcbj d
+        where a.hzjdlcbjid = b.id
+            and b.jddyid = c.id
+            and a.qzjdlcbjid = d.id
+            and coalesce(b.ssjyid, b.sszlcid) = %(lcid)s
+            and d.jddyid = %(jdid)s
+            and a.fhz = %(fhz)s
+    </sql>
+    <sql sqlid="get_xtrq" desc="查询系统日期">
+        select value
+        from gl_csdy
+        where csdm = 'XTRQ'
+    </sql>
+    <sql sqlid="del_jdcsalys_unuse" desc="删除节点测试案例要素">
+        delete from gl_jdcsalys
+        where jdcsalzxbz in (
+                select id 
+                from gl_jdcsalzxbz
+                where (csaldyid = '' or csaldyid is null)
+                    and (jdcsaldyid = '' or jdcsaldyid is null)
+                    and (${paras._or('id', paras.bzids)})
+            )
+    </sql>
+    <sql sqlid="del_jdcsalzxbz_unuse" desc="删除节点测试案例执行步骤">
+        delete from gl_jdcsalzxbz
+        where (csaldyid = '' or csaldyid is null)
+            and (jdcsaldyid = '' or jdcsaldyid is null)
+            and (${paras._or('id', paras.bzids)})
+    </sql>
+    <sql sqlid="insert_csaldy" desc="插入测试案例定义">
+        insert into gl_csaldy (id, lb, mc, ms, jdcsalzxbzlb, ssywid, sslb, ssid, demoid, rzlsh, zjzxsj, zjzxr, ssjy_id)
+        values (%(id)s, %(lb)s, %(mc)s, %(ms)s, %(jdcsalzxbzlb)s, %(ssywid)s, %(sslb)s, %(ssid)s, %(demoid)s, %(rzlsh)s, %(zjzxsj)s, %(zjzxr)s, %(ssjy_id)s)
+    </sql>
+    <sql sqlid="update_jdcsalzxbz_csaldyid" desc="更新测试案例定义csaldyid">
+        update gl_jdcsalzxbz set csaldyid = %(csaldyid)s
+        where id = %(bzid)s
+    </sql>
+    <sql sqlid="update_jdcsalzxbz_jdcsaldyid" desc="更新测试案例定义jdcsaldyid">
+        update gl_jdcsalzxbz set jdcsaldyid = %(jdcsaldyid)s
+        where id = %(bzid)s
+    </sql>
+    <sql sqlid="get_czpz_lst_jd" desc="获取冲正配置列表(节点)">
+        select id, bm, jdmc as mc from gl_jddy
+        order by bm, jdmc
+    </sql>
+    <sql sqlid="get_czpz_lst_zlc" desc="获取冲正配置列表(子流程)">
+        select id, bm, mc from gl_zlcdy
+        order by bm, mc
+    </sql>
+    <sql sqlid="upd_czpz" desc="获取冲正配置列表(子流程)">
+        update gl_lcbj set czpzid = %(czpzid)s where id = %(bzid)s
+    </sql>
+    
+</sqllist>

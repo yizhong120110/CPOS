@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!-- 查询终端信息 -->
+    <sql sqlid="get_zdxx" desc="查询终端信息">
+        select terminal_id, jgmc, cip, gzqssj, gzjssj, state, usest, sign_person, load_time, jgh, jgmc2, vgyh
+        from(
+            select terminal_id, jgmc, cip, gzqssj, gzjssj, state,
+                   usest, sign_person, load_time, jgh, jgmc2, vgyh,rownum rn
+            from(
+                    select terminal_id, jgmc, cip, gzqssj, gzjssj, activation_state as state,
+                           use_state as usest, sign_person, load_time, jgh, jgmc2, vgyh
+                    from tcr_zdxx
+                    where 1 = 1
+                    %if paras.jgmc:
+                        and jgmc2 like '%' || %(jgmc)s || '%'
+                    %endif
+                    %if paras.tcrmc:
+                        and jgmc like '%' || %(tcrmc)s || '%'
+                    %endif
+                    %if paras.tcrip:
+                        and cip like '%' || %(tcrip)s || '%'
+                    %endif
+                    %if paras.tcrst:
+                        and activation_state = %(tcrst)s
+                    %endif
+                    order by terminal_id
+            )
+        )
+        <!-- 对查询的数据进行分页 -->
+        %if paras.rn_start and paras.rn_end:
+          where rn >= %(rn_start)s and %(rn_end)s >= rn
+        %endif
+    </sql>
+    <!-- 查询终端信息条数 -->
+    <sql sqlid="get_zdxx_cnt" desc="查询终端信息条数">
+        select
+            count(1) as cnt
+        from tcr_zdxx
+        where 1 = 1
+        %if paras.jgmc:
+            and jgmc2 like '%' || %(jgmc)s || '%'
+        %endif
+        %if paras.tcrmc:
+            and jgmc like '%' || %(tcrmc)s || '%'
+        %endif
+        %if paras.tcrip:
+            and cip like '%' || %(tcrip)s || '%'
+        %endif
+        %if paras.tcrst:
+            and activation_state = %(tcrst)s
+        %endif
+    </sql>
+
+    <!-- 强制签退 -->
+    <sql sqlid="force_exit" desc="强制签退">
+        update
+            tcr_zdxx
+        set
+             use_state = '2'
+            ,load_time = ''
+            ,serial_num = ''
+            ,sign_person = ''
+            ,jgdm = ''
+        where
+            terminal_id = %(tcrid)s
+    </sql>
+</sqllist>

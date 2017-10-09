@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+    <!--查询对象类型列表-->
+    <sql sqlid = 'get_lb' desc = "获取采集类型列表内容">
+        select lbbm,lbmc from gl_jklb order by lbbm
+    </sql>
+    <!--获取是否可并发列表内容-->
+    <sql sqlid = 'get_bmwh' desc = "获取是否可并发列表内容">
+        select bm,mc from gl_bmwh where lx  = %(lx)s  --状态字典
+        order by bm
+    </sql>
+    <!--获取采集指标-->
+    <sql sqlid = 'get_cjzb' desc = "获取采集指标">
+        select id, zbmc from gl_jkzb where sslbbm = %(cjlb)s
+        order by zbmc
+    </sql>
+    <!--获取采集配置数据-->
+    <sql sqlid = 'get_cjpz' desc = "获取采集配置数据">
+        select id,lbmc,zbmc,mc,zdfqpzsm,sfkbf,czr,czsj from(
+          select id,lbmc,zbmc,mc,zdfqpzsm,sfkbf,czr,czsj,rownum rn from(
+            select a.id,b.lbmc,c.zbmc,a.mc,a.zdfqpzsm,a.sfkbf,d.xm as czr,a.czsj
+              from gl_cjpzb a
+              left join gl_hydy d on d.hydm = a.czr
+              ,gl_jklb b,gl_jkzb c
+              where a.sslbbm = b.lbbm
+              and a.zbid = c.id
+              and a.scbz != '1'
+              %if paras.cjlb:
+                  and b.lbbm = %(cjlb)s
+              %endif
+              %if paras.cjzb:
+                  and c.zbmc  like '%'||%(cjzb)s||'%'
+              %endif
+              %if paras.cjmc:
+                  and a.mc like '%'||%(cjmc)s||'%'
+              %endif
+              %if paras.sfbf:
+                  and a.sfkbf = %(sfbf)s
+              %endif
+              %if paras.lx:
+                  and a.lx = %(lx)s
+              %endif
+              order by b.lbmc,c.zbmc,a.mc
+          )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取采集配置数据总条数-->
+    <sql sqlid = 'get_cjpz_count' desc = "获取采集配置数据总条数">
+        select count(1) as count
+          from gl_cjpzb a
+          left join gl_hydy d on d.hydm = a.czr
+          ,gl_jklb b,gl_jkzb c
+          where a.sslbbm = b.lbbm
+          and a.zbid = c.id
+          and a.scbz != '1'
+          %if paras.cjlb:
+              and b.lbbm = %(cjlb)s
+          %endif
+          %if paras.cjzb:
+              and c.zbmc like '%'||%(cjzb)s||'%'
+          %endif
+          %if paras.cjmc:
+              and a.mc like '%'||%(cjmc)s||'%'
+          %endif
+          %if paras.sfbf:
+              and a.sfkbf = %(sfbf)s
+          %endif
+          %if paras.lx:
+              and a.lx = %(lx)s
+          %endif
+    </sql>
+    <!--校验采集名称是否唯一-->
+    <sql sqlid = 'check_cjmc' desc = "校验采集名称是否唯一">
+        select count(1) as count from gl_cjpzb where mc = %(mc)s
+        and scbz != '1'
+        %if paras.id:
+            and id != %(id)s
+        %endif
+    </sql>
+    <!--保存数据采集对象-->
+    <sql sqlid = 'add_cjpz' desc = "保存数据采集对象">
+        insert into gl_cjpzb(id,mc,ms,sslbbm,zbid,lx,zdfqpz,zdfqpzsm,sfkbf,czr,czsj,scbz)
+        values
+        (%(id)s,%(cjmc)s,%(cjms)s,%(cjlb)s,%(cjzb)s,%(sjcj_cjlx)s,%(zdfqjyzdfqpz)s,%(zdfqjyzdfqpzsm)s,%(sfbf)s,%(czr)s,%(czsj)s,'0')
+    </sql>
+    <!--查询采集配置对象，编辑使用-->
+    <sql sqlid = 'get_cjpz_update' desc = "查询采集配置对象，编辑使用">
+        select a.id,a.mc,a.sslbbm,b.lbbm,a.zbid,c.zbmc,c.zbmc,a.lx,a.zdfqpz,a.zdfqpzsm,a.sfkbf,a.ms
+        from gl_cjpzb a,gl_jklb b,gl_jkzb c
+        where a.sslbbm = b.lbbm
+        and a.zbid = c.id
+        and a.id = %(id)s
+    </sql>
+    <!--更新采集配置对象-->
+    <sql sqlid = 'update_cjpz' desc = "更新采集配置对象">
+        update gl_cjpzb 
+        set mc = %(cjmc)s,ms = %(cjms)s,lx = %(sjcj_cjlx)s,
+        zdfqpz = %(zdfqjyzdfqpz)s,
+        zdfqpzsm = %(zdfqjyzdfqpzsm)s,sfkbf = %(sfbf)s,
+        czr = %(czr)s,czsj = %(czsj)s
+        where id = %(id)s
+    </sql>
+    <!--更新对象采集配置对象-->
+    <sql sqlid = 'update_dxcjpz' desc = "更新对象采集配置对象">
+        update gl_dxcjpz set lx = %(sjcj_cjlx)s where sscjpzid = %(id)s
+    </sql>
+    <!--更新对象采集配置表中的类型-->
+    <sql sqlid = 'update_cjpzlx' desc = "更新对象采集配置表中的类型">
+        update gl_dxcjpz set lx = %(sjcj_cjlx)s where sscjpzid = %(id)s
+    </sql>
+    <!--查询未编辑前的数据-->
+    <sql sqlid = 'get_cjpz_old' desc = "查询未编辑前的数据">
+        select mc,sslbbm,zbid,lx,zdfqpz,zdfqpzsm,sfkbf,ms from gl_cjpzb where id = %(id)s
+    </sql>
+    <!--查询对象采集配置表的版本号-->
+    <sql sqlid = 'get_cjpz_bbh' desc = "查询对象采集配置表的版本号">
+        select bbh from gl_dxcjpz where sscjpzid = %(id)s and cjpzzt = '1' and dxzt = '1' and zdzjzt = '1'
+    </sql>
+    <!--更新对象采集配置表的版本号-->
+    <sql sqlid = 'update_cjpz_bbh' desc = "更新对象采集配置表的版本号">
+        update gl_dxcjpz set bbh = %(bbh)s where sscjpzid = %(id)s and cjpzzt = '1' and dxzt = '1' and zdzjzt = '1'
+    </sql>
+    <!--查询计划任务表id-->
+    <sql sqlid = 'get_jhrw' desc = "查询计划任务表id">
+        select id,zt from gl_jhrwb where ssid in (
+            select id from gl_dxcjpz where sscjpzid = %(id)s
+        )
+    </sql>
+    <!--根据采集配置id获取对象采集配置表信息-->
+    <sql sqlid = 'get_cjpzxx' desc = "根据采集配置id获取对象采集配置表信息">
+        select id,zdzjip,dxzt,cjpzzt,zdzjzt from gl_dxcjpz where sscjpzid = %(id)s and scbz = '0'
+    </sql>
+    <!--插入计划任务表信息-->
+    <sql sqlid = 'add_jhrw' desc = "插入计划任务表信息">
+        insert into gl_jhrwb(id,zdfqpz,zdfqpzsm,rwlx,ssid,ip,sfkbf,zt)
+        values
+        (%(id)s,%(zdfqjyzdfqpz)s,%(zdfqjyzdfqpzsm)s,%(rwlx)s,%(cjpzid)s,%(ip)s,%(sfkbf)s,%(zt)s)
+    </sql>
+    <!--删除计划任务表信息-->
+    <sql sqlid = 'del_jhrw' desc = "删除计划任务表信息">
+        delete from gl_jhrwb where ssid in (
+            select id from gl_dxcjpz where sscjpzid = %(id)s
+        )
+    </sql>
+    <!--更新计划任务表-->
+    <sql sqlid = 'update_jhrw' desc = "更新计划任务表">
+        update gl_jhrwb set sfkbf = %(sfkbf)s where ssid in (
+            select id from gl_dxcjpz where sscjpzid = %(id)s
+        )
+    </sql>
+    <!--更新计划任务表-->
+    <sql sqlid = 'update_jhrw_s' desc = "更新计划任务表">
+        update gl_jhrwb set zdfqpz = %(zdfqpz)s,zdfqpzsm = %(zdfqpzsm)s,sfkbf = %(sfkbf)s where ssid in (
+            select id from gl_dxcjpz where sscjpzid = %(id)s
+        )
+    </sql>
+    
+    
+    <!--获取对象采集配置id-->
+    <sql sqlid = 'get_cjpz_id' desc = "获取对象采集配置id">
+        select dxid from gl_dxcjpz where sscjpzid = %(cjpzid)s 
+        %if paras.sydxid:
+            and id = %(sydxid)s
+        %endif
+        and scbz != '1'
+    </sql>
+    <!--获取采集对象下拉框数据-->
+    <sql sqlid = 'get_cjdx_comb' desc = "获取采集对象下拉框数据">
+        select id,dxmc,dxbm from gl_dxdy where sslbbm = %(sslbbm)s
+        %if paras.dxid:
+            and (${paras._and_n(paras.dxid)})
+        %endif
+        %if paras.zt:
+            and zt = '1'
+        %endif
+        order by dxmc
+    </sql>
+    <!--获取采集对象下拉框数据-->
+    <sql sqlid = 'get_cjdx_comb_sydx' desc = "获取采集对象下拉框数据">
+        select id,dxmc,dxbm from gl_dxdy where sslbbm = %(sslbbm)s
+        %if paras.dxid:
+            and (${paras._and(paras.dxid)})
+        %endif
+        order by dxmc
+    </sql>
+    <!--获取指定主机下拉列表内容-->
+    <sql sqlid = 'get_zj_comb' desc = "获取指定主机下拉列表内容">
+        select ip,mc from gl_zjxx where 1=1
+        %if paras.zdzjip:
+            and ip = %(zdzjip)s
+        %endif
+        %if paras.zt:
+            and zt = '1'
+        %endif
+        order by mc
+    </sql>
+    <!--获取传入参数列表中参数信息的条数-->
+    <sql sqlid = 'get_crcs_count' desc = "获取传入参数列表中参数信息的条数">
+        select count(1) from gl_crcs
+        where ssid = %(zbid)s order by sxh
+    </sql>
+    <!--获取传入参数列表中参数信息-->
+    <sql sqlid = 'get_crcs' desc = "获取传入参数列表中参数信息">
+        select id,csdm,cssm,sfkk,mrz ,'' as csz from gl_crcs
+        where ssid = %(zbid)s order by sxh
+    </sql>
+    <!--获取传入参数列表中参数信息,编辑使用-->
+    <sql sqlid = 'get_crcs_for_edit' desc = "获取传入参数列表中参数信息,编辑使用">
+        select a.id,a.csdm,a.cssm,a.sfkk,a.mrz ,b.csz,b.id as cs_id from gl_crcs a
+        left join gl_csdyb b on a.id = b.crcsid
+        where a.ssid = %(zbid)s and b.ssid = %(sydxid)s order by a.sxh
+    </sql>
+    <!--更新参数值-->
+    <sql sqlid = 'edit_csdyb' desc = "更新参数值">
+        update gl_csdyb set csz = %(csz)s where id = %(id)s
+    </sql>
+    <!--获取采集配置表中需同步到对象采集配置表及计划任务表中的信息-->
+    <sql sqlid = 'get_cjpz_tb_cj' desc = "获取采集配置表中需同步到对象采集配置表及计划任务表中的信息">
+        select mc,lx,sfkbf,zdfqpz,zdfqpzsm
+        from gl_cjpzb
+        where id = %(cjpzid)s
+    </sql>
+    <!--获取对象信息-->
+    <sql sqlid = 'get_dxdy' desc = "获取对象信息">
+        select zt,id,dxbm,dxmc from gl_dxdy where id = %(cjdxid)s
+    </sql>
+    <!--获取适用对象对应的主机信息的状态-->
+    <sql sqlid = 'get_zjxxzt' desc = "获取适用对象对应的主机信息的状态">
+        select zt from gl_zjxx where ip = %(zdzjip)s
+    </sql>
+    <!--向对象采集配置表中插入数据-->
+    <sql sqlid = 'add_dxcjpz' desc = "向对象采集配置表中插入数据">
+        insert into gl_dxcjpz(id,dxid,zdzjip,sscjpzid,lx,cjpzzt,dxzt,bbh,czr,czsj,pid,zzzxbbh,scbz,zdzjzt) 
+        values (%(id)s,%(cjdxid)s,%(zdzjip)s,%(cjpzid)s,%(lx)s,%(cjpzzt)s,%(dxzt)s,%(bbh)s,%(czr)s,%(czsj)s,' ',%(bbh)s,'0',%(zdzjzt)s)
+    </sql>
+    <!--获取适用对象的信息-->
+    <sql sqlid = 'get_sydxxx' desc = "获取适用对象的信息">
+        select id,dxid,zdzjip from gl_dxcjpz where id = %(sydxid)s and scbz != '1'
+    </sql>
+    <!--将前台传入的各项传入参数id对应参数值循环插入到参数对应表中-->
+    <sql sqlid = 'add_csdyb' desc = "将前台传入的各项传入参数id对应参数值循环插入到参数对应表中">
+        insert into gl_csdyb(id,crcsid,csz,lx,ssid) values (%(id)s,%(crcsid)s,%(csz)s,%(lx)s,%(ssid)s)
+    </sql>
+    <!--查询参数值-->
+    <sql sqlid = 'get_csdyb' desc = "查询参数值">
+        select a.csdm,a.mrz, b.csz from gl_crcs a
+        left join gl_csdyb b
+        on a.id = b.crcsid
+        where b.ssid = %(ssid)s
+    </sql>
+    
+    <!--获取对象采集配置信息-->
+    <sql sqlid = 'get_dxcjpzxx' desc = "获取对象采集配置信息">
+        select a.id,b.dxmc,c.mc,a.zdzjip,lx
+        from gl_dxcjpz a,gl_dxdy b,gl_zjxx c
+        where a.dxid = b.id
+        and a.zdzjip = c.ip
+        and a.sscjpzid = %(cjpzid)s 
+        and a.scbz != '1'
+        and (${paras._or('a.id',paras.ids_lst)})
+    </sql>
+    <!--删除的对象采集配置中信息-->
+    <sql sqlid = 'del_dxcjpzxx' desc = "删除的对象采集配置中信息">
+        delete from gl_dxcjpz where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <!--查询计划任务表中信息-->
+    <sql sqlid = 'get_jhrwxx' desc = "查询计划任务表中信息">
+        select id from gl_jhrwb 
+        where (${paras._or('ssid',paras.ids_lst)})
+        and (${paras._or('ip',paras.ip_lst)})
+    </sql>
+    <!--删除计划任务表中信息-->
+    <sql sqlid = 'del_jhrwxx' desc = "删除计划任务表中信息">
+        delete from gl_jhrwb
+        where (${paras._or('ssid',paras.ids_lst)})
+        and (${paras._or('ip',paras.ip_lst)})
+    </sql>
+    <!--获取参数代码，参数说明-->
+    <sql sqlid = 'get_csxx' desc = "获取参数代码，参数说明">
+        select csdm,cssm from gl_crcs
+        where ssid = %(zbid)s
+        order by sxh
+    </sql>
+    <!--获取适用对象列表-->
+    <sql sqlid = 'get_sydxs' desc = "获取适用对象列表">
+        select id,dxmc,zdzj,rn,dxid,dxzt from(
+            select id,dxmc,zdzj,dxzt,dxid,rownum rn from(
+                select a.id,b.dxmc,c.mc as zdzj,case a.cjpzzt when '1' then '启用' else '禁用' end  as dxzt,a.dxid
+                from gl_dxcjpz a,gl_dxdy b,gl_zjxx c
+                where a.dxid = b.id
+                and a.zdzjip = c.ip
+                and a.scbz != '1'
+                and a.sscjpzid = %(cjpzid)s
+                order by b.dxmc,a.zdzjip
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取适用对象列表-->
+    <sql sqlid = 'get_sydxs_count' desc = "获取适用对象列表">
+        select count(1) as count
+        from gl_dxcjpz a,gl_dxdy b,gl_zjxx c
+        where a.dxid = b.id
+        and a.zdzjip = c.ip
+        and a.sscjpzid = %(cjpzid)s
+        order by b.dxmc,a.zdzjip
+    </sql>
+    <!--获取需删除的采集配置信息-->
+    <sql sqlid = 'get_del_cjpzxx' desc = "获取需删除的采集配置信息">
+        select mc,lx from gl_cjpzb where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <!--查询计划任务表id-->
+    <sql sqlid = 'get_jhrwid' desc = "查询计划任务表id">
+        select id from gl_jhrwb where ssid in (
+            select id from gl_dxcjpz where (${paras._or('sscjpzid',paras.ids_lst)})
+        )
+    </sql>
+    <!--删除采集配置表信息-->
+    <sql sqlid = 'del_cjpz' desc = "删除采集配置表信息">
+        delete from gl_cjpzb where (${paras._or('id',paras.ids_lst)}) and lx = '2'
+    </sql>
+    <!--逻辑删除采集配置表信息-->
+    <sql sqlid = 'update_del_cjpz' desc = "逻辑删除采集配置表信息">
+        update gl_cjpzb set scbz = '1'
+        where lx = '1'
+        and (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <!--删除对象采集配置表信息-->
+    <sql sqlid = 'del_dxcjpz' desc = "删除对象采集配置表信息">
+        delete from gl_dxcjpz where (${paras._or('sscjpzid',paras.ids_lst)}) and lx = '2'
+    </sql>
+    <!--逻辑删除删除对象采集配置表信息-->
+    <sql sqlid = 'update_del_dxcjpz' desc = "删除对象采集配置表信息">
+        update gl_dxcjpz set scbz = '1',dxzt = '0' 
+        where lx = '1'
+        and (${paras._or('sscjpzid',paras.ids_lst)})
+    </sql>
+    <!--删除计划任务表-->
+    <sql sqlid = 'del_jhrw_for_id' desc = "删除对象采集配置表信息">
+        delete from gl_jhrwb where (${paras._or('id',paras.jhrw)})
+    </sql>
+    
+    <!--查询采集配置ID列表对应的采集配置信息-->
+    <sql sqlid = 'get_cjpzxx_log' desc = "查询采集配置ID列表对应的采集配置信息">
+        select id,mc,lx from gl_cjpzb where (${paras._or('id',paras.cjpzid_lst)})
+    </sql>
+    <!--获取采集配置表id-->
+    <sql sqlid = 'get_cjpzxx_id' desc = "获取适用对象表id">
+        select id,dxid,zdzjip,sscjpzid,lx,cjpzzt,dxzt,bbh,czr,czsj,pid,zzzxbbh,scbz from gl_dxcjpz where (${paras._or('id',paras.dxcjpz_ids)}) and cjpzzt = %(wizt)s
+    </sql>
+    <!--获取采集配置为禁用、对象状态为启用、类型为计划任务的数据-->
+    <sql sqlid = 'get_dxcjpzxx_foru' desc = "获取采集配置为禁用、对象状态为启用、类型为发频率的数据">
+        select id,sscjpzid,zdzjip,zdzjzt,dxzt,bbh,cjpzzt from gl_dxcjpz
+        where (${paras._or('id',paras.dxcjpz_ids)}) and cjpzzt = %(wizt)s and lx =%(lx)s
+    </sql>
+    <!--更新对象采集配置表-->
+    <sql sqlid = 'upate_dxcjpzxx' desc = "更新对象采集配置表">
+        update gl_dxcjpz
+        set cjpzzt = %(zt)s,czr = %(czr)s,czsj = %(czsj)s
+        where (${paras._or('id',paras.dxcjpz_ids)})
+    </sql>
+    <!--查询对象采集配置表版本号-->
+    <sql sqlid = 'get_dxcjpz_bbh' desc = "查询对象采集配置表版本号">
+        select bbh from gl_dxcjpz
+        where (${paras._or('id',paras.dxcjpz_ids)})
+        and lx = %(lx)s
+        and dxzt = %(zt)s
+    </sql>
+    <!--查询对象采集配置表版本号-->
+    <sql sqlid = 'get_dxcjpz_bbh_for_edit' desc = "查询对象采集配置表版本号">
+        select zdzjzt,dxzt,bbh,cjpzzt from gl_dxcjpz
+        where id = %(id)s
+    </sql>
+    <!--更新对象采集配置表版本号-->
+    <sql sqlid = 'upate_dxcjpz_bbh' desc = "更新对象采集配置表版本号">
+        update gl_dxcjpz
+        set bbh = %(bbh)s
+        where id = %(id)s
+    </sql>
+    <!--查询计划任务表id-->
+    <sql sqlid = 'get_jhrw_id' desc = "查询计划任务表id">
+        select id 
+        from gl_jhrwb
+        where ssid = %(dx_lst_id)s
+        and ip = %(dx_lst_ip)s
+    </sql>
+    <!--更新计划任务表状态-->
+    <sql sqlid = 'update_jhrw_zt' desc = "更新计划任务表状态">
+        update gl_jhrwb
+        set zt = %(zt)s
+        where ssid = %(dx_lst_id)s
+        and ip = %(dx_lst_ip)s
+    </sql>
+    <!--获取计划任务id-->
+    <sql sqlid = 'get_jhrw_id_from_zt' desc = "获取计划任务id">
+        select id 
+        from gl_jhrwb
+        where (${paras._or('ssid',paras.dx_lst_id)})
+        and (${paras._or('ip',paras.dx_lst_ip)})
+        and zt = %(wizt)s
+    </sql>
+    <!--更新对象采集配置表状态以及版本号-->
+    <sql sqlid = 'upate_dxcjpzxx_bbh' desc = "更新对象采集配置表状态以及版本号">
+        update gl_dxcjpz
+        set bbh = '-1',cjpzzt = %(zt)s,czr = %(czr)s,czsj = %(czsj)s
+        where (${paras._or('id',paras.dxcjpz_ids)})
+    </sql>
+    <!--更新计划任务表状态-->
+    <sql sqlid = 'update_jhrw_zts' desc = "更新计划任务表状态">
+        update gl_jhrwb
+        set zt = %(zt)s
+        where (${paras._or('id',paras.jhrw_lst)})
+    </sql>
+    <!--查询类型为发起频率的对象采集配置-->
+    <sql sqlid = 'get_fqpl' desc = "查询类型为发起频率的对象采集配置">
+        select id 
+        from gl_dxcjpz 
+        where lx = %(lx)s
+        and (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <!--删除类型为发起频率的对象采集配置-->
+    <sql sqlid = 'del_fqpl' desc = "删除类型为发起频率的对象采集配置">
+        update gl_dxcjpz 
+        set scbz = '1',
+        cjpzzt = '0'
+        where (${paras._or('id',paras.ids_lst)}) 
+    </sql>
+    <!--删除使用对象对应的参数对应表内容-->
+    <sql sqlid = 'del_sydx_dxdyb' desc = "删除使用对象对应的参数对应表内容">
+        delete from gl_csdyb where (${paras._or('ssid',paras.ids_lst)}) 
+    </sql>
+    <!--获取采集配置下所有的使用对象-->
+    <sql sqlid = 'get_sydx' desc = "获取采集配置下所有的使用对象">
+        select id from gl_dxcjpz where (${paras._or('sscjpzid',paras.ids_lst)})
+    </sql>
+</sqllist>

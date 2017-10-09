@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--
+    行员流水：编码维护表查询
+    -->
+    <sql sqlid = 'data_bm' desc = "行员流水：编码维护表查询">
+        select bm as value, mc as text
+        from gl_bmwh
+        where lx = '10005'
+    </sql>
+    <!--
+    初始化页面查询sql:
+    -->
+    <sql sqlid = 'data_cx' desc = "行员日常运维流水：后台查询">
+        select xm, czpt, czsj, gnmc, szcz
+        from (
+            select xm, czpt, czsj, gnmc, szcz, rownum rn
+            from (
+                select c.xm, b.mc as czpt, a.czsj, gnmc, szcz
+                from gl_hyrcywls a 
+                    left join gl_hydy c on c.hydm = a.czhydm
+                    left join gl_bmwh b on b.bm = a.czpt and b.lx = '10005'
+                where 1=1
+                %if paras.czsj:
+                    and substr(a.czsj,1,10) = %(czsj)s
+                %endif
+                %if paras.xm:
+                    and c.xm like '%'|| %(xm)s ||'%'
+                %endif
+                %if paras.czpt:
+                    and a.czpt = %(czpt)s
+                %endif
+                order by a.czsj desc
+                )
+            )
+        where rn &gt;= %(rn_start)s
+        and rn &lt;= %(rn_end)s
+    </sql>
+    <!--
+    业务总数据条数查询
+    -->
+    <sql sqlid = 'data_count' desc = "行员日常运维流水总条数查询">
+        select count(0) as total
+        from (
+            select xm, czpt, czsj, gnmc, szcz, rownum rn
+            from (
+                select c.xm, b.mc as czpt, a.czsj, gnmc, szcz
+                from gl_hyrcywls a 
+                    left join gl_hydy c on c.hydm = a.czhydm
+                    left join gl_bmwh b on b.bm = a.czpt and b.lx = '10005'
+                where 1=1
+                %if paras.czsj:
+                    and substr(a.czsj,1,10) = %(czsj)s
+                %endif
+                %if paras.xm:
+                    and c.xm like '%'|| %(xm)s ||'%'
+                %endif
+                %if paras.czpt:
+                    and a.czpt = %(czpt)s
+                %endif
+                )
+            )
+    </sql>
+
+</sqllist>

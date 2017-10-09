@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_jddyid" desc="自动化测试案例的执行列表">
+        select id,jddyid
+        from gl_lcbj
+        where jdlx='2'
+        and ssjyid=(select ssid from gl_csaldy where id=%(csalids)s)
+    </sql>
+    <sql  sqlid="get_zlcid" desc="查询子流程id">
+        select sszlcid,jdlx,jddyid
+        from gl_lcbj
+        where sszlcid=%(sszlcid)s
+    </sql>
+    <sql sqlid="get_zxjg" desc="获取测试案例id">
+        select zxjg,jgsm
+        from gl_zdhcslsb
+        where csal_id=%(id)s
+            and lx='3'
+            and pc=%(pc)s
+            order by zxjg
+    </sql>
+    <sql sqlid="get_rzlb" desc="获取日志列表">
+        select lb,rzlb,jdcsalzxbz,zxjg from gl_zdhcslsb
+        where csal_id=%(id)s and lx='2' and pc=%(pc)s
+        %if paras.jdcsalzxbzid:
+            and jdcsalzxbz = %(jdcsalzxbzid)s
+        %endif
+    </sql>
+    <sql sqlid="get_csalbz" desc="获取节点测试案例执行步骤列表">
+        select jdcsalzxbzlb
+        from gl_csaldy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_csalxx" desc="获取节点测试案例执行步骤表中的类型返回值">
+        select id,lx,ssdyid,fhz,sftg,rzlsh
+        from gl_jdcsalzxbz
+        where ${paras._or('id',paras.idlst)}
+    </sql>
+    <sql sqlid="get_bjid_zlc" desc="获取布局id">
+        select id,jddyid
+        from gl_lcbj
+        where sszlcid = %(value)s
+    </sql>
+    <sql sqlid="get_bjid_jy" desc="获取布局id">
+        select id,jddyid
+        from gl_lcbj
+        where ssjyid = %(value)s
+    </sql>
+    <sql sqlid="get_rzlsh" desc="根据测试案例执行步骤id获取日志流水号">
+        select rzlsh,sftg from gl_jdcsalzxbz where id = %(jdcsalzxbzid)s
+    </sql>
+    <sql sqlid="get_xtrq" desc="获取系统日期">
+        select value from gl_csdy where lx = '1' and csdm = 'XTRQ'
+    </sql>
+    <sql sqlid="get_csal_jdxx_yslb_sjscz" desc="自动化测试案例执行步骤要素列表，实际输出值">
+        select ysz as sjscz,jdcsalzxbz
+                from gl_zdhcslsb
+                where csal_id=%(jdcsalid)s
+                    and pc=%(pc)s
+                    and lx='1' --输出要素
+                    and ysdm = 'SYS_JYJDZXJG'
+    </sql>
+</sqllist>

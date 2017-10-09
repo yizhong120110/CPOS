@@ -1,0 +1,96 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/login.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/component1.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/bootstrap.js"></script>
+
+    <title></title>
+    <script>
+        if (window != top) {
+            top.location.href = location.href;
+        }
+        var url =window.location.href;
+        var len=url.length;
+        var offset = url.indexOf("?")
+        var newUrl=url.substr(offset+1,len)
+        if (newUrl == 'kf'){
+            document.title='开发系统';
+            flag = '开发系统';
+        }else if(newUrl == 'yx'){
+            document.title='运行系统';
+             flag = '运行系统';
+        }else if(newUrl == 'wh'){
+            document.title='维护系统';
+             flag = '维护系统';
+        }else if(newUrl == 'gl'){
+            document.title='管理系统';
+             flag = '管理系统';
+        }
+        $(document).ready(function() {
+            $('.login-title').text("泰安银行快柜业务"+ document.title);
+            $("#hidXt").val(flag);
+            
+            $("#login").click(function(){
+                $('#myModal').modal({});
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="single-widget-container">
+        <section class="widget login-widget">
+            <header class="text-align-center">
+                <span id="bt">
+                    <h4 class="login-title"></h4>
+                </span>
+            </header>
+            <div class="body " style="position:relative;">
+                <form class="no-margin" action="login_submit" method="post">
+                    <fieldset>
+                        <div class="form-group no-margin">
+                            <label for="username">用户名</label>
+
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon"> <i class="icon-user"></i>
+                                </span>
+                                <input id="username" name="username" type="text" class="form-control input-lg" placeholder="用户名">
+                                <input id="hidXt" name="hidxt" type="hidden">
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pwd">密码</label>
+
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon"> <i class="fa icon-lock"></i>
+                                </span>
+                                <input id="pwd" name="pwd" type="password" class="form-control input-lg" placeholder="密码">
+                            </div>
+
+                        </div>
+                    </fieldset>
+                    <div class="form-actions " style="margin-bottom:-10px; ">
+                        <button id="login" type="submit" class=" btn btn-block btn-lg btn-danger  ">
+                            <i class=" icon-ok-sign"></i>
+                            <small>登录</small>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+    <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+/**
+ * Created by bianl on 2015/2/6.
+ */
+
+@charset "UTF-8";
+
+/* 基于bug #1634 $.messager.alert 换行msg不能左侧对齐 */
+.messager-window > .messager-body > div:nth-child(2) {
+	float: left;
+	width: 224px;
+}
+
+/* add by 卞林 2015-02-07 从css/style.css转到此处
+ * 气泡内的字体特殊颜色及对外壳的width及高度都设定auto，且都设置最大值
+ * 增加tooltip圆角边框
+ * 对tooptip内的<p>段落外边距进行修改
+ */
+.tooltip {
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+.tooltip .ttip {
+	width: auto;
+	max-width: 200px;
+	height: auto;
+	max-height: 100px;
+	overflow: auto;
+}
+.tooltip .ttip > p {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+.ttip > p > .cb {
+	color: #09c;
+}
+.ttip > p > .cg {
+	color: #3c6;
+}
+.ttip > p > .cr {
+	color: #f33;
+}

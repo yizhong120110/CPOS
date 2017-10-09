@@ -1,0 +1,262 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>子账户信息维护</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/fileupload/jquery.fileupload.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/jn_ywgl/jn_ywgl_004/jn_ywgl_004.js"></script>
+    <script>
+        // 账号类型
+        var zhlx = ${zhlx};
+        // 状态
+        var zt = ${zt};
+        // 若是分行人员登录，根据机构编码限制，分行的机构编码，新增，删除，销户，编辑，导入按钮置灰，不可操作
+        var disable = '${disable}'
+    </script>
+
+</head>
+<body>
+<!--搜索的div-->
+<div class="easyui-layout" data-options="fit:true, border:false">
+    <!--搜索的layout-->
+    <div id="divJbxx" class="easyui-layout" style="width:100%;height:100%;">
+        <!--搜索的上方布局-->
+        <div data-options="region:'north'" style="height:90px">
+            <!--搜索的form-->
+            <form method="post" id="jbxxForm">
+                <!--搜索的table-->
+                <table style="width:100%;text-align:center;" cellspacing="10px" border='0'>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right">
+                            申请日期：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;">
+                            <!--申请日期-->
+                            <input id='txtSearchSqrq' name='search_sqrq' value="" class="easyui-datebox"
+                                   style="width:200px;height:25px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            开户日期：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;">
+                            <!--开户日期-->
+                            <input id='txtSearcKhrq' name='search_Khrq' value="" class="easyui-datebox"
+                                   style="width:200px;height:25px">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            销户日期：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;">
+                            <!--销户日期-->
+                            <input id='txtSearchXhrq' name='search_xhrq' value="" class="easyui-datebox"
+                                   style="width:200px;height:25px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;width:50px;">
+                            账号类型：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;">
+                            <!--账号类型-->
+                            <input id='txtSearchZhlx' name='search_zhlx' value="" class="easyui-combobox"
+                                   style="width:200px;height:25px" data-options="editable:false"/>
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:50px;">
+                            状态：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;" valign='top'>
+                            <!--状态-->
+                            <input id='txtSearchZt' name='search_zt' class="easyui-combobox" value=""
+                                   style="width:200px;height:25px" data-options="editable:false">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:50px;">
+                            
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:200px;" colspan="2" valign='top'>
+                            <!--查询的按钮-->
+                            <button href="#" id='lbtnSearch' class="easyui-linkbutton" iconCls="icon-save"
+                               style="width:70px;height:25px">查询</button>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </form>
+        </div>
+        <!--子账户的grid的div-->
+        <div data-options="region:'center'">
+            <!--子账户的grid-->
+            <table id='dg_zzhxx'></table>
+        </div>
+    </div>
+</div>
+<!-- 新增/修改系统参数-->
+<div id="divZzhWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <!--子账户添加的form -->
+    <form method="post">
+        <!--隐藏的账号 -->
+        <input type="hidden" id="hidZhhid" name="id"/>
+        <div class="esayui-panel" style="margin-top:10px">
+            <!--子账户添加的table -->
+            <table style="font-size:14px;" align="center" cellspacing="10px">
+                <tr>
+                    <td style="text-align:right">账号：</td>
+                    <td>
+                        <!--隐藏的主账号 -->
+                        <input type="hidden" id="hidTxtZzh" name="hidZzh"/>
+                        <!--隐藏的开户行编码 -->
+                        <input id="hidKhh_h" name="khh_h" type="hidden"/>
+                        <!--隐藏的开户行名称 -->
+                        <input id="hidKhh_h_v" name="khh_h_v" type="hidden"/>
+                        <!--隐藏的账号类型 -->
+                        <input id="hidZhlx_h" name="zhlx_h" type="hidden"/>
+                        <!--账号 -->
+                        <input type="text" id="txtZzh" name="zzh" class="easyui-textbox" style="width:200px"/>
+                        <!-- 必填标识 -->
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:right">户名：</td>
+                    <td>
+                        <!--户名 -->
+                        <input type="text" id="txtZhmc" name="zhmc" class="easyui-textbox" style="width:200px"/>
+                        <!-- 必填标识 -->
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:right">开户行：</td>
+                    <td>
+                        <!--开户行 -->
+                        <input type="text" id="combKhh" name="khh" class="easyui-combobox" style="width:200px;" data-options="editable:false"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:right">开户日期：</td>
+                    <td>
+                        <!--开户日期 -->
+                        <input type="text" id="txtKhrq" name="khrq" class="easyui-datebox" style="width:200px;" data-options="editable:false"/>
+                        <!-- 必填标识 -->
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:right">账号类型：</td>
+                    <td>
+                        <!--账号类型 -->
+                        <input type="text" id="combZhlx" name="zhlx" class="easyui-combobox" style="width:200px;" data-options="editable:false"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <!--保存按钮 -->
+            <button id="lbtnZhhSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                保存
+            </button>
+            <!--取消按钮 -->
+            <button id="lbtnZhhCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+    </form>
+</div>
+<!-- 增加文件的弹出框 -->
+<div id="divWdqdWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false ,maximizable:false">
+    <!--导入文件的form -->
+    <form method="post" id = 'wdqdform' enctype="multipart/form-data">
+        <!-- 导入文件div -->
+        <div class="esayui-panel" style="margin-top:15px">
+            <!--导入文件的table -->
+            <table style="font-size:14px;" align="center" cellspacing="10px">
+                <tr>
+                    <td width="80px">文档类别：</td>
+                    <td>
+                        <!-- 文档类型 -->
+                        <input id="selWdlb" name="wdlb" class="easyui-combobox"
+                               data-options="required:true,editable:false,data:[{'value': '03', 'text': '03版excel(xls)'}, {'value': '07', 'text': '07版excel(xlsx)'}]"
+                               style="width:300px;height:22px">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="80px">上传文档：</td>
+                    <td>
+                        <!--上传文档 -->
+                        <input class="easyui-filebox" id="filScwd" name="scwd"
+                               data-options="prompt:'选择文件...',buttonText:'选择文件'" style="width:300px;">
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <!--备注 -->
+                    <td colspan="3"><div style="width:400px" class="colorRed">（备注：文档类别决定要上传的文档类型和下载模板的文档类型。）</div></td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <!--导入按钮 -->
+            <button id="lbtnWdqdSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                导入
+            </button>
+            <!--取消按钮 -->
+            <button id="lbtnWdqdCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+        <!-- 下载的div -->
+        <div style="text-align:right"><a href="#" id="downloadMB" style="margin-right:15px;margin-top:30px;">下载导入子账户模板</a></div>
+    </form>
+</div>
+
+<!-- 增加文件的弹出框 -->
+<div id="divDCWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false ,maximizable:false">
+    <!-- 导出的form  -->
+    <form method="post" id = 'dcform' enctype="multipart/form-data">
+        <!--导出的div -->
+        <div class="esayui-panel" style="margin-top:15px">
+            <!--导出的table -->
+            <table style="font-size:14px;" align="center" cellspacing="10px">
+                <tr>
+                    <td width="80px">文档类别：</td>
+                    <td>
+                        <!--导出的类别 -->
+                        <input id="selDclb" name="dclb" class="easyui-combobox"
+                               data-options="required:true,editable:false,data:[{'value': '03', 'text': '03版excel(xls)'}, {'value': '07', 'text': '07版excel(xlsx)'}]"
+                               style="width:300px;height:22px">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <!--导出的按钮 -->
+            <button id="lbtnDcSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                导出
+            </button>
+            <!--取消按钮-->
+            <button id="lbtnDcCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
+

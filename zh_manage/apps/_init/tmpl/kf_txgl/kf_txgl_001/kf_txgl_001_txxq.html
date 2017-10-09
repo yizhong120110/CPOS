@@ -1,0 +1,43 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>通讯详情-客户端</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_txgl/kf_txgl_001/kf_txgl_001_txxq.js"></script>
+</head>
+<body>
+<input type="hidden" id="txid" value="${txid}"/>
+<input type="hidden" id="fwfx" value="${fwfx}"/>
+<!-- 通讯详情 -->
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'center',border:false">
+        <!-- 通讯管理TAB -->
+        <div id="tbsTxxq" class="easyui-tabs"
+             data-options="fit:true,border:false,showOption:true,enableNewTabMenu:true,tabPosition:'left',headerWidth:110">
+            <div title="基本信息" style="overflow:hidden">
+                <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                        src="##"></iframe>
+            </div>
+            <div title="${ title_mc }" style="overflow:hidden">
+                <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                        src="##"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

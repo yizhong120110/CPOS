@@ -1,0 +1,69 @@
+/* easyui-垂直列表展示 */
+
+.easyui-list {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #95B8E7;
+    width: auto;
+    height: auto;
+    /*margin-bottom: 10px;*/
+}
+/* 垂直列表项目 */
+
+.easyui-list > .list-item {
+    padding: 5px;
+    position: relative;
+    border-bottom: 1px solid #95B8E7;
+    cursor: pointer;
+    background: #E0ECFF;
+    height: 16px;
+    width: 488px;
+}
+/* 垂直列表标题 */
+
+/*.easyui-list .list-title {
+    background: #ffe48d;
+}*/
+.easyui-list>.list-item:last-child {
+    border-bottom: 0;
+}
+/* 垂直列表项目名称 */
+
+.list-text {
+    background: url('images/blank.gif') no-repeat;
+    font-size: 12px;
+    font-weight: bold;
+    height: 16px;
+    line-height: 16px;
+    color: #000000;
+}
+/* 文章列表 */
+
+.wenzhang-list {
+    margin-bottom: 5px;
+}
+.wenzhang-list .easyui-panel {
+    padding: 10px;
+}
+.wenzhang-list .wenzhang-content-summary {
+    text-indent: 2em;
+}
+.wenzhang-zhengwen {
+    margin-bottom: 5px;
+}
+.wenzhang-zhengwen .easyui-panel {
+    padding: 10px;
+    height: 200px;
+}
+.pinglun {
+    text-indent: 1em;
+}
+.text-red {
+    color: red;
+}
+/* mergely 左侧 删除线去掉 add by bianl 2015/03/06 11:11 */
+.mergely.ch.d.lhs {
+    background-color: #edc0c0;
+    text-decoration: initial;
+    color: #888;
+}

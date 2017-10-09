@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid = 'data_count' desc = "通讯日志查看主页面：通讯：count">
+        select count(1) as count from gl_txrz
+    </sql>
+    <sql sqlid = 'data_rs' desc = "通讯日志查看页面：通讯：rs">
+        select bm, mc, txlx, fwfx, txwjmc
+        from (
+            select bm, mc, fwfx, txlx, txwjmc, rownum rn 
+            from (
+                select gl_txrz.bm, gl_txrz.mc, gl_txrz.fwfx, gl_txrz.txwjmc, gl_bmwh.mc as txlx
+                from gl_txrz left join gl_bmwh on gl_txrz.txlx = gl_bmwh.bm and gl_bmwh.lx = '4'
+                order by bm asc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid = 'get_ip' desc = "获取链接MONGODB的IP">
+        select value from gl_csdy where csdm = 'db_ftp_ip' 
+    </sql>
+</sqllist>

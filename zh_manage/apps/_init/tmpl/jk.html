@@ -1,0 +1,437 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>主页</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/servers.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/echarts-2.1.8/echarts-all.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.sortable.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/index.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/servers.js"></script>
+    <script>
+        $(document).ready(function () {
+            /* see if anything is previously checked and reflect that in the view*/
+            $(".checklist input:checked").parent().addClass("selected");
+            /* handle the user selections */
+            $(".checklist .checkbox-select").click(
+                    function (event) {
+                        event.preventDefault();
+                        $(this).parent().addClass("selected");
+                        $(this).parent().find(":checkbox").attr("checked", "checked");
+                    }
+            );
+            $(".checklist .checkbox-deselect").click(
+                    function (event) {
+                        event.preventDefault();
+                        $(this).parent().removeClass("selected");
+                        $(this).parent().find(":checkbox").removeAttr("checked");
+                        $(this).parent().find("span[class*='jk_home']").attr('class', 'jk_home');
+                    }
+            );
+
+            $("span[class*='jk_home']").click(function () {
+                var length = $("span[class*='jk_home_selected']").length
+                if ($(this).hasClass('jk_home_selected')) {
+                    $(this).attr('class', 'jk_home');
+                } else if (length < 3) {
+                    $(this).attr('class', 'jk_home jk_home_selected');
+                } else {
+                    $.messager.alert('提示', '首页展示数量不能超过3个', 'info');
+                }
+            });
+
+        });
+    </script>
+    <style type="text/css">
+        /*    body {
+                font: 12px/1.3 "Lucida Grande","Lucida","Arial",Sans-serif;
+            }*/
+        form {
+            margin: 0 0 30px 0;
+        }
+
+        .legend {
+            margin: 0 10px 0 5px;
+        }
+
+        .checklist {
+            width: 595px;
+            height: 280px;
+            list-style: none;
+            margin: 0;
+            padding: 9px 0 10px 0;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        .checklist li {
+            float: left;
+            text-align: center;
+            margin-right: 10px;
+            background: url(/static/${settings._T.APP_NAME}/images/checkboxbg.png) no-repeat 0 0;
+            width: 105px;
+            height: 130px;
+            margin-bottom: 10px;
+            position: relative;
+            /*        font: normal 11px/1.3 "Lucida Grande","Lucida","Arial",Sans-serif;*/
+        }
+
+        .checklist li.selected {
+            background-position: -105px 0;
+        }
+
+        .checklist li.selected .checkbox-select {
+            display: none;
+        }
+
+        .checkbox-select {
+            display: block;
+            float: left;
+            position: absolute;
+            top: 98px;
+            left: 10px;
+            width: 85px;
+            height: 23px;
+            background: url(/static/${settings._T.APP_NAME}/images/select.png) no-repeat 0 0;
+            /* text-indent: -9999px; */
+            font-size: 13px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            line-height: 23px;
+        }
+
+        .checklist li input {
+            display: none;
+        }
+
+        a.checkbox-deselect {
+            display: none;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            position: absolute;
+            top: 100px;
+            right: 10px;
+        }
+
+        .checklist li.selected a.checkbox-deselect {
+            display: block;
+        }
+
+        .checklist li label {
+            display: block;
+            text-align: center;
+            padding: 8px;
+        }
+
+        /*
+            .sendit {
+                display: block;
+                float: left;
+                top: 118px;
+                left: 10px;
+                width: 115px;
+                height: 34px;
+                border: 0;
+                cursor: pointer;
+                background: url(/static/${settings._T.APP_NAME}/images/sendit.gif) no-repeat 0 0;
+                text-indent: -9999px;
+                margin: 20px 0;
+            }*/
+        .jk_home {
+            width: 24px;
+            height: 24px;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            cursor: pointer;
+        }
+
+        .checklist .selected .jk_home_selected,
+        .checklist .selected:hover .jk_home_selected {
+            background: url(/static/${settings._T.APP_NAME}/images/checkboxbg.png) -24px -130px;
+        }
+
+        .selected:hover .jk_home,
+        .selected .jk_home:hover {
+            background: url(/static/${settings._T.APP_NAME}/images/checkboxbg.png) 0 -130px;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0 10px;
+        }
+
+        #xtjkItems li {
+            width: 99%;
+            height: 270px;
+            margin: 5px auto;
+            background: #fff;
+            box-shadow: #ccc 1px 2px 4px 0px;
+        }
+    </style>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true">
+    <div region="west" style="width:66%;padding:10px 0">
+        <div style="width: 100%;height: 20px;overflow: hidden;">
+            <h4 style="margin: 0 0 0 16px;float:left;font-size:14px">主机监控</h4>
+            <ul class="s-sample clearfix" style="float: right;">
+                <li><span class="c-box btn-success"></span><span class="legend">正常</span></li>
+                <li><span class="c-box btn-danger"></span><span class="legend">异常</span></li>
+                <li><span class="c-box btn-warning"></span><span class="legend">预警</span></li>
+                <li><span class="c-box btn-default"></span><span class="legend">未监控</span></li>
+            </ul>
+        </div>
+        <ul class="sList sortable grid clearfix">
+            <li class="sItem">
+                <a href="javascript:;" onclick="view_server('通讯前置',0,0);return false;">
+                    <h6>通讯前置</h6>
+                    <img src="/static/${settings._T.APP_NAME}/images/server3.jpg" class="serverImg">
+
+                    <div class="btn btn-success s-position">
+                        <i class="icon-random"></i>
+                    </div>
+                    <div id="commuCpu2" class="servCharBox"></div>
+                    <div id="commuMem2" class="servCharBox servCharBox2"></div>
+                    <div id="commuNum2" class="servCharBox servCharBox2"></div>
+                </a>
+            </li>
+            <!-- 管理主机 -->
+            <li class="sItem">
+                <a href="javascript:;" onclick="view_server('管理主机',0,0);return false;">
+                    <h6>管理主机</h6>
+                    <img src="/static/${settings._T.APP_NAME}/images/server3.jpg" class="serverImg">
+
+                    <div class="btn btn-success s-position">
+                        <i class="icon-group"></i>
+                    </div>
+                    <div id="manageCpu" class="servCharBox"></div>
+                    <div id="manageMem" class="servCharBox servCharBox2"></div>
+                    <div id="manageNum" class="servCharBox servCharBox2"></div>
+                </a>
+            </li>
+            <!-- 数据库主机 -->
+            <li class="sItem">
+                <a href="javascript:;" onclick="view_server('数据库主机',0,11);return false;">
+                    <h6>数据库主机 </h6>
+                    <img src="/static/${settings._T.APP_NAME}/images/server3.jpg" class="serverImg">
+
+                    <div class="btn btn-warning s-position">
+                        <i class="icon-hdd"></i>
+                        <span class="span-circle">11</span>
+                    </div>
+                    <div id="dataCpu" class="servCharBox"></div>
+                    <div id="dataMem" class="servCharBox servCharBox2"></div>
+                    <div id="dataNum" class="servCharBox servCharBox2"></div>
+                </a>
+            </li>
+            <!-- 业务主机 -->
+            <li class="sItem">
+                <a href="javascript:;" onclick="view_server('业务主机1',0,0);return false;">
+                    <h6> 业务主机</h6>
+                    <img src="/static/${settings._T.APP_NAME}/images/server3.jpg" class="serverImg">
+
+                    <div class="btn btn-success s-position">
+                        <i class="icon-building"></i>
+                    </div>
+                    <div id="serversCpu" class="servCharBox"></div>
+                    <div id="serversMem" class="servCharBox servCharBox2"></div>
+                    <div id="serversNum" class="servCharBox servCharBox2"></div>
+                </a>
+            </li>
+            <li class="sItem">
+                <a href="javascript:;" onclick="view_server('业务主机2',0,0);return false;">
+                    <h6> 业务主机2</h6>
+                    <img src="/static/${settings._T.APP_NAME}/images/server3.jpg" class="serverImg">
+
+                    <div class="btn btn-success s-position">
+                        <i class="icon-building"></i>
+                    </div>
+                    <div id="serversCpu1" class="servCharBox"></div>
+                    <div id="serversMem1" class="servCharBox servCharBox2"></div>
+                    <div id="serversNum1" class="servCharBox servCharBox2"></div>
+                </a>
+            </li>
+            <li class="sItem">
+                <a href="javascript:;" onclick="view_server('业务主机3',5,0);return false;">
+                    <h6> 业务主机3</h6>
+                    <img src="/static/${settings._T.APP_NAME}/images/server3.jpg" class="serverImg">
+
+                    <div class="btn btn-danger s-position">
+                        <i class="icon-building"></i>
+                        <span class="span-circle ">5</span>
+                    </div>
+                    <div id="serversCpu2" class="servCharBox">
+                    </div>
+                    <div id="serversMem2" class="servCharBox servCharBox2">
+                    </div>
+                    <div id="serversNum2" class="servCharBox servCharBox2">
+                    </div>
+                </a>
+            </li>
+            <li class="sItem addBg">
+                <a href="javascript:;" onclick="add_server();return false;" class="add-item">
+                    <h5><i class="icon-plus-sign"></i><br/>添<br/>加<br/>主<br/>机</h5>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div region="center">
+        <h4 style="margin: 10px 0 4px 8px;font-size:14px">系统监控</h4>
+        <ul id="xtjkItems" class="sList grid clearfix">
+            <!-- 交易笔数 -->
+            <li>
+                <div id="jy_chart" style="width:100%;height:100%;"></div>
+            </li>
+            <!-- 交易笔数明细 -->
+            <li>
+                <div id="jy_mx" style="width:100%;height:100%;"></div>
+            </li>
+            <!-- 数据库会话数 -->
+            <li>
+                <div id="session_chart" style="width:100%;height:100%;"></div>
+            </li>
+            <!-- 表空间使用 -->
+            <!--<li>
+                <div id="table_space_chart" style="width:100%;height:100%;"></div>
+            </li>-->
+        </ul>
+    </div>
+</div>
+
+<!-- add servers -->
+<div id="add_server_window" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+    <div class="esayui-panel">
+        <table align="center" cellspacing="10px" style="border-spacing:10px;border-collapse:initial;">
+            <tr>
+                <td>服务器名称：</td>
+                <td>
+                    <input id="servermc" name="servermc" class="easyui-text" style="width:200px"/>
+                </td>
+            </tr>
+            <tr>
+                <td>服务器地址：</td>
+                <td>
+                    <input id="serverip" name="serverip" class="easyui-text" style="width:200px"/>
+                </td>
+            </tr>
+            <!--<tr>
+                <td>是否监控：</td>
+                <td>
+                    <div class="onoffswitch" style="float:left">
+                        <input type="checkbox" name="sfjk" class="onoffswitch-checkbox" id="sfjk" checked>
+                        <label class="onoffswitch-label" for="sfjk">
+                            <span class="onoffswitch-inner">
+                                <span class="onoffswitch-active"><span class="onoffswitch-switch">是</span></span>
+                                <span class="onoffswitch-inactive"><span class="onoffswitch-switch">否</span></span>
+                            </span>
+                        </label>
+                    </div>
+                </td>
+            </tr>-->
+            <tr>
+                <td>选择监控项：</td>
+                <td>
+                    <ul class="checklist">
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value1" type="checkbox" id="choice_a">
+                            <label for="choice_a">CPU使用率</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/cpu_chart.png"
+                                 style="width:80%;height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value2" type="checkbox" id="choice_b">
+                            <label for="choice_b">内存使用率</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/memory_chart.png"
+                                 style="width:80%;height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value3" type="checkbox" id="choice_c">
+                            <label for="choice_c">磁盘使用率</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/disk_chart.png" style="width:50%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value4" type="checkbox" id="choice_d">
+                            <label for="choice_d">磁盘I/O繁忙率</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/cpu_chart.png"
+                                 style="width:80%;height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value1" type="checkbox" id="choice_a">
+                            <label for="choice_a">存储区域网络端口剩余容量</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/disk_chart.png" style="height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value2" type="checkbox" id="choice_b">
+                            <label for="choice_b">存储设备预留存储空间</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/disk_chart.png" style="height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value3" type="checkbox" id="choice_c">
+                            <label for="choice_c">数据备份时间</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/memory_chart.png"
+                                 style="width:80%;height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value4" type="checkbox" id="choice_d">
+                            <label for="choice_d">批处理时间</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/memory_chart.png"
+                                 style="width:80%;height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                        <li>
+                            <span class="easyui-tooltip jk_home" data-options="position:'left'" title="放置在首页"></span>
+                            <input name="jqdemo" value="value4" type="checkbox" id="choice_d">
+                            <label for="choice_d">磁带库剩余磁带容量</label>
+                            <img src="/static/${settings._T.APP_NAME}/images/disk_chart.png" style="height:30%;">
+                            <a class="checkbox-select" href="###">选 择</a>
+                            <a class="checkbox-deselect" href="###">取 消</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div data-options="region:'south',border:false" style="text-align:center;">
+        <a id="window_ok_add" class="easyui-linkbutton" style="width:80px">添加</a>
+        <a id="window_cancel" class="easyui-linkbutton" style="width:80px">取消</a>
+    </div>
+</div>
+
+</body>
+</html>

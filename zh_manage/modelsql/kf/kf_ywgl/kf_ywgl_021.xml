@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="create_ls_table" desc="创建临时表">
+        create table ${paras._tb(paras.lsbname)}  as select * from ${paras._tb(paras.bname)}  where 1=0
+    </sql>
+    <sql sqlid="insert_gl_blob_ls" desc="将版本内容导入到BLOB管理临时表">
+        insert into GL_BLOB_LS 
+        select a.* 
+        from gl_blob a,
+        (
+            select bbh,nr_id
+            from gl_bbkz
+            where ssid = %(ssid)s and bbh = %(bbh)s
+        ) b
+        where a.id = b.nr_id
+    </sql>
+    <sql sqlid="get_bb_nr" desc="查询版本库中的数据">
+        select nr
+        from gl_blob a,
+        (
+            select bbh,nr_id
+            from gl_bbkz
+            where ssid = %(ssid)s and bbh = %(bbh)s
+        ) b
+        where a.id = b.nr_id
+    </sql> 
+    <sql sqlid="insert_gl_jydy_ls" desc="将交易信息导出到交易定义临时表">
+        insert into gl_jydy_ls( id,ssywid,jym,jymc,jyms,timeout,czr,czsj,zt,zdfqpz,zdfqpzsm,wym,dbjdid,jbjdid)
+        values( %(id)s,%(ssywid)s,%(jym)s,%(jymc)s,%(jyms)s,%(timeout)s,%(czr)s,%(czsj)s,%(zt)s,%(zdfqpz)s,%(zdfqpzsm)s,%(wym)s,%(dbjdid)s,%(jbjdid)s )        
+    </sql>
+    <sql sqlid="insert_gl_lcbj_ls" desc="将版本库数据登记至流程布局临时表">
+        insert into gl_lcbj_ls( id, jdlx, x, y, jddyid, ssjyid, sszlcid, czpzid )
+        values( %(id)s, %(jdlx)s, %(x)s, %(y)s, %(jddyid)s, %(ssjyid)s, %(sszlcid)s, %(czpzid)s )
+    </sql>
+    <sql sqlid="insert_gl_lczx_ls" desc="将版本库数据登记至流程走向临时表">
+        insert into gl_lczx_ls( id,fhz,qzjdlcbjid,hzjdlcbjid,sslb,ssid )
+        values( %(id)s,%(fhz)s,%(qzjdlcbjid)s,%(hzjdlcbjid)s,%(sslb)s,%(ssid)s )
+    </sql>
+    <sql sqlid="create_ywdy_ls" desc="创建业务定义临时表">
+        create table gl_ywdy_ls as  select * from gl_ywdy where ${ paras._and( paras.cxtj ) }
+    </sql>
+    <sql sqlid="export_ywcs" desc="导出业务参数">
+        insert into GL_CSDY_LS 
+        select a.* from gl_csdy a,gl_ywdy_ls b
+        where a.lx = '2'
+        and a.ssid = b.id
+    </sql>
+    <sql sqlid="export_jycs" desc="导出交易参数">
+        insert into GL_CSDY_LS 
+        select a.* from gl_csdy a,gl_jydy_ls b
+        where a.lx = '3'
+        and a.ssid = b.id
+    </sql>
+    <sql sqlid="export_bmwh" desc="导出编码维护">
+        create table GL_BMWH_LS as 
+        select b.*
+        from gl_csdy_ls a,gl_bmwh b
+        where a.zone = b.id 
+    </sql>
+    <sql sqlid="insert_gl_zlcdy_ls" desc="将子流程信息导出到子流程定义临时表">
+        insert into gl_zlcdy_ls( id,lb,bm,ms,ssywid,czr,czsj,wym,mc )
+        values( %(id)s,%(lb)s,%(bm)s,%(ms)s,%(ssywid)s,%(czr)s,%(czsj)s,%(wym)s,%(mc)s )
+    </sql>
+    <sql sqlid="insert_gl_jddy_ls" desc="将节点信息导出到节点定义临时表">
+        insert into gl_jddy_ls( id,bm,jdlx,jdmc,jdms,dm_id,filename,functionname,type,czr,czsj,wym )
+        values( %(id)s,%(bm)s,%(jdlx)s,%(jdmc)s,%(jdms)s,%(dm_id)s,%(filename)s,%(functionname)s,%(type)s,%(czr)s,%(czsj)s,%(wym)s )
+    </sql>
+    <sql sqlid="insert_nr_blob" desc="将节点代码、公共函数代码导入至BLOB表">
+        insert into gl_blob_ls
+        select * from gl_blob where id = %(id)s
+    </sql>
+    <sql sqlid="insert_gl_jdys_ls" desc="将节点要素导出到节点要素临时表">
+        insert into gl_jdys_ls( id, lb, bm, ysmc, jddyid, mrz, ly, jkjy, ssgzmc, zjcs )
+        values( %(id)s, %(lb)s, %(bm)s, %(ysmc)s, %(jddyid)s, %(mrz)s, %(ly)s, %(jkjy)s, %(ssgzmc)s, %(zjcs)s)
+    </sql>
+    <sql sqlid="insert_gl_csaldy_ls" desc="将测试案例导出到测试案例临时表">
+        insert into gl_csaldy_ls 
+        %if paras.jylsbname:
+            select b.* from ${paras._tb(paras.lsbname)} a, gl_csaldy b, ${paras._tb(paras.jylsbname)} c, gl_zlcdy_ls d
+            where a.id = b.ssid
+            and (b.ssjy_id = c.id or b.ssjy_id = d.id)
+        %else:
+            select b.* from ${paras._tb(paras.lsbname)} a,gl_csaldy b
+            where a.id = b.ssid
+        %endif
+    </sql>
+    <sql sqlid="insert_jdcsalzxbz_ls" desc="将节点测试案例执行步骤导出到临时表">
+        insert into GL_JDCSALZXBZ_LS
+        select b.*
+        from gl_csaldy_ls a,gl_jdcsalzxbz b
+        where a.id = b.${paras._tb(paras.cloumnname)}
+        and b.id not in (
+            select id from GL_JDCSALZXBZ_LS
+        )
+    </sql>
+    <sql sqlid="insert_jdcsalys_ls" desc="将节点测试案例要素导出到临时表">
+        insert into GL_JDCSALYS_LS 
+        select b.*
+        from gl_jdcsalzxbz_ls a,gl_jdcsalys b
+        where a.id = b.jdcsalzxbz
+    </sql>
+    <sql sqlid="create_demo_jbxx_ls" desc="将demo基本信息导出到临时表">
+        create table GL_DEMO_JBXX_LS as 
+        select b.* from gl_demo_jbxx b
+        where b.id in (
+              select demoid from gl_jdcsalzxbz_ls
+        )
+    </sql>
+    <sql sqlid="create_demo_sj_ls" desc="将demo数据导出到临时表">
+        create table GL_DEMO_SJ_LS as
+        select b.*
+        from gl_demo_jbxx_ls a,gl_demo_sj b
+        where a.id = b.demojbxxid
+    </sql>
+    <sql sqlid="insert_gghs_ls" desc="将公共函数信息导出至公共函数临时表">
+        insert into gl_yw_gghs_ls( id,ssyw_id,czr,czsj,nr_id,mc,hsms,wym )
+        values( %(id)s,%(ssyw_id)s,%(czr)s,%(czsj)s,%(nr_id)s,%(mc)s,%(hsms)s,%(wym)s )
+    </sql>
+    <sql sqlid="create_dymbdy_ls" desc="创建打印模版临时表">
+        create table GL_DYMBDY_LS as 
+        select * from gl_dymbdy where ${ paras._and( paras.cxtj ) }
+    </sql>
+    <sql sqlid="export_dymbnr"  desc="导出打印模版内容到BLOB临时表">
+        insert into gl_blob_ls
+        select b.* from gl_dymbdy_ls a,gl_blob b
+        where a.nr_id = b.id
+    </sql>
+    <sql sqlid="insert_sjkmxdy_ls" desc="将数据表导出到数据库模型定义临时表">
+        insert into gl_sjkmxdy_ls( id,sjbmc,sjbmcms,ssyw_id,wym,czr,czsj )
+        values( %(id)s,%(sjbmc)s,%(sjbmcms)s,%(ssyw_id)s,%(wym)s,%(czr)s,%(czsj)s )
+    </sql>
+    <sql sqlid="insert_sjkzdb_ls" desc="将数据表字段导出到数据库字段临时表">
+        insert into gl_sjkzdb_ls( id,sjb_id,zdmc,zdms,zdlx,zdcd,xscd,sfkk,iskey,mrz)
+        values( %(id)s,%(sjb_id)s,%(zdmc)s,%(zdms)s,%(zdlx)s,%(zdcd)s,%(xscd)s,%(sfkk)s,%(iskey)s,%(mrz)s )
+    </sql>
+    <sql sqlid="insert_sjksy_ls" desc="将数据表索引导出到数据库索引临时表">
+        insert into gl_sjksy_ls( id,sssjb_id,symc,syzd,sylx,sfwysy )
+        values( %(id)s,%(sssjb_id)s,%(symc)s,%(syzd)s,%(sylx)s,%(sfwysy)s )
+    </sql>
+    <sql sqlid="insert_sjkys_ls" desc="将数据表约束导出到数据库约束临时表">
+        insert into gl_sjkys_ls( id,sssjb_id,ysmc,yszd )
+        values( %(id)s,%(sssjb_id)s,%(ysmc)s,%(yszd)s )
+    </sql>
+    <sql sqlid="export_txcs" desc="导出通讯参数">
+        create table GL_CSDY_LS as 
+        select * from gl_csdy
+        where lx = '4' --通讯参数
+        and ( ${paras._or('ssid',paras.txidlst)} )
+    </sql>
+    <sql sqlid="export_txgl" desc="导出通讯管理信息">
+        create table GL_TXGL_LS as
+        select * from gl_txgl where ${paras._or('id',paras.txidlst)}
+    </sql>
+    <sql sqlid="export_txlx" desc="导出通讯类型">
+        create table gl_bmwh_ls as
+        select * from gl_bmwh
+        where bm in ( select distinct txlx from gl_txgl_ls ) and lx = '4'
+    </sql>
+    <sql sqlid="export_cdtx" desc="导出C端通讯">
+        create table GL_CDTX_LS as 
+        select * from gl_cdtx
+        where ${paras._or('txglid',paras.txidlst)}
+    </sql>
+    <sql sqlid="export_zlc" desc="导出通讯子流程">
+        create table GL_ZLCDY_LS as 
+        select b.*
+        from gl_cdtx_ls a,gl_zlcdy b
+        where a.zlcdyid = b.id
+        and b.lb = '1' -- 通讯子流程
+    </sql>
+    <sql sqlid="export_dbdy" desc="导出挡板">
+        create table GL_DBDY_LS as 
+        select b.*
+        from gl_cdtx_ls a,gl_dbdy b
+        where b.cdtxid = a.id
+        and a.dblx = '1'
+    </sql>
+    <sql sqlid="export_dbdyys" desc="导出挡板要素">
+        create table GL_DBYS_LS as 
+        select b.*
+        from gl_dbdy_ls a ,gl_dbys b
+        where a.id = b.dbdyid
+    </sql>
+    <sql sqlid="export_jymjchs" desc="导出交易码解出函数">
+        create table gl_blob_ls as 
+        select a.* from gl_blob a,gl_txgl_ls b
+        where a.id = b.jcjymhsid
+    </sql>
+    <sql sqlid="export_csalzxbz" desc="将C端通讯的测试案例执行步骤导出到临时表">
+        create table GL_JDCSALZXBZ_ls as
+        select b.*
+        from gl_cdtx_ls a,gl_jdcsalzxbz b
+        where a.dbssid = b.id
+        and a.dblx = '2'
+    </sql>
+    <sql sqlid="export_csalzxbz_ys" desc="将C端通讯的测试案例执行步骤要素信息导出到临时表">
+        create table GL_JDCSALYS_LS as 
+        select b.*
+        from gl_jdcsalzxbz_ls a, gl_jdcsalys b
+        where a.id = b.jdcsalzxbz 
+    </sql>
+    <sql sqlid="get_extend_zlcjy" desc="获取交易引用的子流程ID">
+        select distinct b.jddyid from gl_jydy a,gl_lcbj  b
+        where a.ssywid = %(ywid)s
+        and a.id = b.ssjyid 
+        and b.jdlx = '2'
+    </sql>
+    <sql sqlid="check_zlc" desc="检验交易引用的子流程是否存在">
+        select count(1) as count 
+        from gl_zlcdy
+        where ${paras._or('id',paras.zlcid_lst)}
+    </sql>
+    <sql sqlid="create_drdclx_tab_ls" desc = "创建导入导出临时表">
+        create table gl_drdclx_ls as  select * from gl_drdclx where 1 = 2
+    </sql>
+    <sql sqlid="insert_drdclx" desc = "向导入导出临时表插入导出类型">
+        insert into gl_drdclx_ls(lx) values(%(lx)s)
+    </sql>
+</sqllist>

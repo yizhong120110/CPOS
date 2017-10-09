@@ -1,0 +1,12 @@
+
+[
+ { "id": 2, "text": "运维系统","children": [
+        { "id": 21, "text": "交易监控", "pid": 2,"url": "html/jyjk/jyjk.html" },
+        { "id": 22, "text": "自动交易监控管理" , "pid": 2,"url" : "html/ywpt/jyjk/jyjk.html" },
+        { "id": 23, "text": "自动交易发起时间设置" , "pid": 2,"url" : "html/ywpt/zdfqjyjk/zdfqjyjk.html" },
+        { "id": 24, "text": "数据表信息查看" , "pid": 2,"url" : "html/ywpt/sjbxxck/sjbxxck.html" },
+        { "id": 25, "text": "参数设置" , "pid": 2,"url" : "html/ywpt/cssz/cssz.html" }
+        
+    ], "url":"" }
+]
+

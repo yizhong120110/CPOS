@@ -1,0 +1,102 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>知识库首页</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/locale/easyui-lang-zh_CN.js"></script>
+    <!-- 引入当前css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/yw_kbmn_001.css">
+    <!-- 引入当前js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_kbmn/yw_kbmn_001/yw_kbmn_001.js"></script>
+    
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit: true,border: false">
+        <div id="divWzxx" data-options="region:'north',split:true,border:0" style="height:60px;padding-left: 10px;">
+            <form method="post">
+                <table align="center" style="margin-top: 3px;">
+                    <tr>
+                        <td nowrap="nowrap" >
+                            <label for="name">知识库：</label>
+                        </td>
+                        <td>
+                            <input class="easyui-textbox" type="text" id="txtName" name="name" style="width: 500px;">
+                        </td>
+                        <td >
+                            <button id="lbtnSearch" class="easyui-linkbutton" data-options="iconCls:'icon-search'">找找看</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <a id="wdZsk" href="javascript:void(0);" onclick="my_zsk()">我的知识库</a>
+        </div>
+        <div data-options="region:'center',border:0">
+            <div class="easyui-layout" data-options="fit:true,border: false">
+                <div data-options="region:'west',border:0" style="width:180px;padding-left: 10px;">
+                    <div id="divLbxx" class="easyui-accordion" data-options="multiple:true" style="width:auto;height:auto;">
+                        <div title="知识库分类" style="padding:5px;max-height: 300px;">
+                            <div id="divFl" class="easyui-list">
+                                %for zskfl_dic in zskfl_lst:
+                                <%
+                                    zskfl_id = zskfl_dic.get('id')
+                                    zskfl_mc = zskfl_dic.get('mc')
+                                    zskfl_xx = zskfl_dic.get('xx')
+                                %>
+                                <div class="list-item">
+                                    <a href="javascript:void(0);" onclick="fl_zsk('${ zskfl_id }','${ zskfl_mc }')" class="list-text">${ zskfl_xx }</a>
+                                </div>
+                                %endfor
+                            </div>
+                        </div>
+                        <div title="推荐排行" style="padding:5px;max-height: 300px;">
+                            <div id="divAuthor" class="easyui-list">
+                                %for qsxx_dic in qsxx_lst:
+                                <%
+                                    sx = qsxx_dic.get('sx')
+                                    xm = qsxx_dic.get('xm')
+                                    dm = qsxx_dic.get('dm')
+                                %>
+                                <div class="list-item">
+                                    <a href="javascript:void(0);" onclick="tj_zsk('${ xm }','${ dm }')" class="list-text">${ sx }、${ xm }</a>
+                                </div>
+                                %endfor
+                            </div>
+                        </div>
+                        <div title="统计信息" style="padding:5px;max-height: 300px;">
+                            <div id="tj" class="easyui-list">
+                                %for tjxx in tjxx_lst:
+                                <div class="list-item">
+                                    <a href="javascript:void(0);" class="list-text">${ tjxx }</a>
+                                </div>
+                                %endfor
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div data-options="region:'center',border:0" style="padding: 0 10px;">
+                    <div class="easyui-layout" data-options="fit:true">
+                        <div data-options="region:'center',border:0">
+                            <table id="dgWzxx">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

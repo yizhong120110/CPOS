@@ -1,0 +1,141 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 日常巡检 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>日常巡检</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+    <!-- 日常巡检调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_rcxj/yw_rcxj_001/yw_rcxj_001.js"></script>
+    <style type="text/css">
+    input,textarea {
+      border: none;
+      background: #f9f9f9;
+    }
+    </style>
+
+</head>
+<body>
+    <!--
+        日常巡检主页面：
+        top：查询条件区域
+        main：巡检分类信息
+    -->
+    <div id="ss" class="easyui-layout" data-options="fit:true,border:false">
+        <div data-options="region:'center',border:false">
+            <!-- 特色业务系统主机巡检信息展示的div -->
+            <div style="width:80%;margin:auto;overflow:hidden;">
+                <h3 style="float:left;margin:10px auto 8px auto;width:auto;font-size:14px;">一、特色业务系统主机</h3>
+                <a id="lbtnExport"class="easyui-linkbutton" style="float:right;margin-top:3px;" data-options="plain:false,iconCls:'icon-redo'">导 出</a> 
+                <a id="lbtnRefresh"class="easyui-linkbutton" style="float:right;margin:3px 8px 0 0;" data-options="plain:false,iconCls:'icon-reload'">重新采集</a> 
+                <p style="margin:8px 5px 0 0;display:inline-block;float:right;font-size:14px;">数据采集时间：<span id = 'spSjcjsj'>${ datetime }</span></p>
+                <table id="dgZjxj" class="easyui-datagrid" style="width:400px;height:250px" ></table>
+            </div>
+            
+            <!-- Oracle数据库表空间检查巡检信息展示的div -->
+            <div style="width:80%;margin:auto;overflow:hidden;">
+                <h3 style="float:left;margin:10px auto 8px auto;width:auto;font-size:14px;">二、Oracle数据库表空间检查</h3>
+                <table id="dgSjkxj" class="easyui-datagrid" style="width:400px;height:250px" ></table>
+            </div>
+            
+            <!-- 特色业务系统主机巡检信息展示的div -->
+            <div style="width:80%;margin:auto;overflow:hidden;">
+                <h3 style="float:left;margin:10px auto 8px auto;width:auto;font-size:14px;">三、特色业务系统进程检查机</h3>
+                <table id="dgJcxj" class="easyui-datagrid" style="width:400px;height:250px" ></table>
+            </div>
+            
+            <!-- 关键进程巡检结果描述的div -->
+            <div style="width:80%;height:15%;margin:auto;overflow:hidden;">
+                <table  id="dgGjjcms" class="easyui-datagrid" style="width:100%;height:25%;" data-options="fit:true,singleSelect:true">
+                    <thead>
+                        <tr>
+                            <th style="width:100%;" align="left" data-options="field:'gjjcxj'" >关键进程巡检结果描述:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width=100%;height:15%;">
+                                <textarea id="jcxjjg" style="width:100%;height:100%;" rows="3"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Tong中间件日志检查巡检信息展示的div -->
+            <div style="width:80%;margin:auto;overflow:hidden;">
+                <h3 style="float:left;margin:10px auto 8px auto;width:auto;font-size:14px;">四、Tong中间件日志检查</h3>
+                <table id="dgTongxj" class="easyui-datagrid" style="width:400px;height:250px" ></table>
+            </div>
+            
+            <!-- 特色业务系统交易情况巡检信息展示的div -->
+            <!-- 特色业务系统主机巡检信息展示的div -->
+            <div style="width:80%;margin:auto;overflow:hidden;">
+                <h3 style="float:left;margin:10px auto 8px auto;width:auto;font-size:14px;">五、特色业务系统交易情况</h3>
+                <table class="easyui-datagrid" style="width:100%;" data-options="border: true">
+                    <thead>
+                        <tr>
+                            <th style="width:100%;" data-options="field:'jyqk'">分行特色业务平台系统交易情况</th>
+                        </tr>
+                        <tr>
+                            <th style="width:100%;" data-options="field:'gjjcxj'" align="right">
+                                上一日交易总笔数：
+                                <input id="txtJzbs" name="qr_jyzbs"  style="height:16px;width:825px;">
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="width:100%;" data-options="field:'gjjcxj'" align="right">
+                                异常（超时、冲正等）交易笔数：
+                                <input id="txtYcjyzbs" name="ycjy_zbs"  style="height:16px;width:825px;">
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            
+            <!-- 关键进程巡检结果描述的div -->
+            <div style="width:80%;height:20%;margin:auto;overflow:hidden;">
+                <table  id="dgTsjy" class="easyui-datagrid" style="width:100%;height:50%;" data-options="fit:true,singleSelect:true">
+                </table>
+            </div>
+
+            <!-- 巡检小结信息展示的div -->
+            <div style="width:80%;height:20%;margin:auto;overflow:hidden;border:true">
+                <div class="easyui-layout" data-options="fit: true">
+                    <div data-options="region:'center'"> 
+                        <h3 style="float:left;margin:10px auto 8px auto;width:auto;font-size:14px;">六、巡检小结</h3>
+                        <table  id="dgXjxj" class="easyui-datagrid" style="width:100%;height:20%;" data-options="fit:true,singleSelect:true,">
+                            <thead>
+                                <tr>
+                                    <th style="width:100%;" align="left" data-options="field:'xjxj'" >巡检小结:</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="width=100%;height:15%;">
+                                        <textarea id="xjxj" style="width:100%;height:100%;" rows="3"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

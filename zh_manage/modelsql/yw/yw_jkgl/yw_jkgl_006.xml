@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+    <!--查询监控配置总条数-->
+    <sql sqlid = 'data_count' desc = "获取监控配置总个数">
+        select count(1) as count
+        from gl_jkfxpz a, gl_hsxxb b
+        where a.gzid = b.id
+        %if paras.mc:
+            and a.mc like '%'||%(mc)s||'%'
+        %endif
+        %if paras.gzid:
+            and a.gzid = %(gzid)s
+        %endif
+        %if paras.yjjb:
+            and a.yjjb = %(yjjb)s
+        %endif
+        %if paras.zt:
+            and a.zt = %(zt)s
+        %endif
+    </sql>
+    <!--监控配置详细信息-->
+    <sql sqlid = 'data_rs' desc = "获取监控配置本页显示信息">
+        select e.id, e.mc, e.gzmc, e.hsmc, e.zt, e.fqpl, e.sfkbf, e.yjjb, e.czr , e.czsj
+        from (
+            select d.id, d.mc, d.gzmc, d.hsmc, d.zt, d.fqpl, d.sfkbf, d.yjjb, d.czr , d.czsj , rownum rn
+            from (
+                select a.id, a.mc, b.zwmc as gzmc, b.hsmc, a.zt, a.zdfqpzsm as fqpl, a.sfkbf, a.yjjb, c.xm as czr , a.czsj
+                from gl_jkfxpz a left join gl_hydy c on a.czr = c.hydm,
+                gl_hsxxb b
+                where a.gzid = b.id
+                %if paras.mc:
+                    and a.mc like '%'||%(mc)s||'%'
+                %endif
+                %if paras.gzid:
+                    and a.gzid = %(gzid)s
+                %endif
+                %if paras.yjjb:
+                    and a.yjjb = %(yjjb)s
+                %endif
+                %if paras.sfkbf:
+                    and a.sfkbf = %(sfkbf)s
+                %endif
+                %if paras.zt:
+                    and a.zt = %(zt)s
+                %endif
+                order by a.mc
+            ) d
+        ) e
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!-- 获取监控分析配置信息 -->
+    <sql sqlid = 'select_jkpz_byid' desc = "根据监控配置id获取监控配置详情">
+       select id ,mc,ms,gzid,zt,yjjb,sfkbf,zdfqpz,zdfqpzsm,zxzj from (
+        select a.id,a.mc,a.ms,a.gzid,a.zt,a.yjjb,a.sfkbf,a.zdfqpz,a.zdfqpzsm ,b.ip as zxzj from gl_jkfxpz a  
+        left join gl_jhrwb b on a.id=b.ssid     
+        where ${paras._or('a.id',paras.jkpzidlst)}   )
+    </sql>
+
+    
+    <!-- 获取函数信息表中存在但分析规则中未查询出的分析规则信息 -->
+    <sql sqlid = 'select_hsxx_fxgz' desc = "获取函数信息表中存在但分析规则中未查询出的分析规则信息">
+        select id,zwmc from gl_hsxxb where id = %(id)s
+    </sql>
+    <!-- 校验监控分析配置名称是否唯一 -->
+    <sql sqlid = 'select_check_jkfxpzmc' desc = "校验监控分析配置名称是否唯一">
+        select id from gl_jkfxpz 
+        where mc = %(mc)s
+        %if paras.jkpzid:
+            and id != %(jkpzid)s
+        %endif
+    </sql>
+    <!-- 新增监控分析配置 -->
+    <sql sqlid = 'add_jkfxpz' desc = "新增监控分析配置">
+        insert into gl_jkfxpz(id,mc,ms,gzid,zt,czr,czsj,yjjb,sfkbf,zdfqpz,zdfqpzsm)
+        values (%(jkpzid)s,%(mc)s,%(ms)s,%(gzid)s,%(zt)s,%(czr)s,%(czsj)s,%(yjjb)s,%(sfkbf)s,%(zdfqpz)s,%(zdfqpzsm)s)
+    </sql>
+    <!-- 编辑监控分析配置 -->
+    <sql sqlid = 'update_jkfxpz' desc = "编辑监控分析配置">
+        update gl_jkfxpz set mc = %(mc)s, ms = %(ms)s, gzid = %(gzid)s, 
+        yjjb = %(yjjb)s, sfkbf = %(sfkbf)s, zdfqpz = %(zdfqpz)s, 
+        zdfqpzsm = %(zdfqpzsm)s, czr = %(czr)s, czsj = %(czsj)s
+        where id = %(jkpzid)s
+    </sql>
+    <!-- 编辑执行主机配置 -->
+    <sql sqlid = 'update_jkzxzjpz' desc = "编辑执行主机配置">
+         update gl_jhrwb set ip = %(zxzj)s where  ssid = %(jkpzid)s
+    </sql>
+        
+    <!-- 根据所属id删除参数对应表 -->
+    <sql sqlid = 'delete_csdyb_byssid' desc = "根据所属id删除对应的规则参数信息">
+        delete from gl_csdyb where ssid = %(ssid)s
+    </sql>
+    <!-- 查询规则中文名称和描述 -->
+    <sql sqlid = 'select_gzxx' desc = "查询规则信息">
+        select zwmc,ms from gl_hsxxb where lb = 'gz'
+        %if paras.gzid:
+            and id = %(gzid)s
+        %endif
+    </sql>
+    <!-- 参数信息 -->
+    <sql sqlid = 'select_csxx' desc = "参数信息列表展示信息">
+        select a.id,a.csdm,a.cssm,a.sfkk,a.mrz,b.id as csdybid,b.csz
+        from gl_crcs a
+        left join gl_csdyb b on a.id = b.crcsid
+        and b.ssid = %(csdybssid)s
+        where a.sslb = %(sslb)s
+        and a.ssid = %(crcsssid)s
+        order by a.sxh
+    </sql>
+    <!-- 插入参数对应表 -->
+    <sql sqlid = 'add_csdyb' desc = "插入参数对应表">
+        insert into gl_csdyb values(  %(id)s, %(csid)s, %(csz)s, %(lx)s, %(ssid)s, '')
+    </sql>
+    <!--删除监控分析配置：删除响应动作对应的参数对应表信息-->
+    <sql sqlid = 'delete_csdyb_byjkpzidlst' desc = "删除响应动作配置-参数对应表">
+        delete from gl_csdyb where ssid in(
+            select id from gl_xydzpz
+            where ${paras._or('ssjkfxid',paras.jkpzidlst)}
+        )
+    </sql>
+    <!--删除监控分析配置：删除响应动作配置-动作执行主机 -->
+    <sql sqlid = 'delete_dzzxzj_byjkpzidlst' desc = "删除响应动作配置-动作执行主机">
+        delete from gl_dzzxzj where  ssid in(
+            select id from gl_xydzpz 
+            where ${paras._or('ssjkfxid',paras.jkpzidlst)}
+        )
+    </sql>
+    <!--删除监控分析配置：删除响应动作配置表 -->
+    <sql sqlid = 'delete_xydzpz_byjkpzidlst' desc = "删除响应动作配置表">
+        delete from gl_xydzpz
+        where ${paras._or('ssjkfxid',paras.jkpzidlst)}
+    </sql>
+    <!--删除监控分析配置：删除监控分析配置-参数对应表 -->
+    <sql sqlid = 'delete_csdyb_byssidlst' desc = "删除监控分析配置-参数对应表">
+        delete from gl_csdyb where  ${paras._or('ssid',paras.ssidlst)}
+    </sql>
+    <!--删除监控分析配置：根据所属id查询计划任务表ID -->
+    <sql sqlid = 'select_jhrwb_byssidlst' desc = "查询计划任务表ID">
+        select id from gl_jhrwb 
+        where rwlx = 'fx'
+        and ${paras._or('ssid',paras.jkpzidlst)}
+    </sql>
+    <!--删除监控分析配置：删除执行计划表 -->
+    <sql sqlid = 'delete_jhrwb_byssidlst' desc = "删除计划任务表">
+        delete from gl_jhrwb
+        where rwlx =  'fx'
+        and ${paras._or('ssid',paras.jkpzidlst)}
+    </sql>
+    <!--删除监控分析配置：删除监控分析配置表 -->
+    <sql sqlid = 'delete_jkfxpz_byjkpzidlst' desc = "删除监控分析配置表">
+        delete from gl_jkfxpz where ${paras._or('id',paras.jkpzidlst)}
+    </sql>
+    <!--监控配置启用禁用：编辑监控分析配置表：状态 -->
+    <sql sqlid = 'update_jkfxpz_byjkpzidlst' desc = "编辑监控分析配置">
+        update gl_jkfxpz set zt = %(zt)s, czr = %(czr)s, czsj = %(czsj)s
+        where ${paras._or('id',paras.jkpzidlst)}
+    </sql>
+    <!--响应动作总条数-->
+    <sql sqlid = 'data_xydz_count' desc = "获取监控配置下响应动作总个数">
+        select count(1) as count
+        from gl_xydzpz a, gl_hsxxb b
+        where a.ssjkfxid = %(jkpzid)s
+        and a.dzid = b.id
+        and b.lb = 'dz'
+    </sql>
+    <!--获取当页显示信息-->
+    <sql sqlid = 'data_xydz_rs' desc = "获取监控配置下响应动作本页显示详细信息">
+        select a.id, a.dzid, a.fxjgcf, b.zwmc, b.hsmc, d.mc as fqfs, a.jhsj
+        from gl_xydzpz a left join gl_bmwh d on a.fqfs = d.bm and d.lx = '10004',
+        gl_hsxxb b
+        where a.dzid = b.id
+        and a.ssjkfxid = %(jkpzid)s
+        and b.lb = 'dz'
+        order by a.fxjgcf, b.zwmc
+    </sql>
+    <sql sqlid = 'select_dzzxzj_byxydzidlst' desc = "获取对应执行主机根据响应动作id列表">
+        select a.id as xydzid, b.zjip, c.mc
+        from gl_xydzpz a, gl_dzzxzj b, gl_zjxx c
+        where a.id = b.ssid
+        and b.zjip = c.ip
+        and ( ${paras._or('a.id',paras.xydzidlst)} )
+    </sql>
+    <!-- 执行主机查询 -->
+    <sql sqlid = 'select_zxzj' desc = "执行主机查询">
+       select ip as id , mc as zwmc  from gl_zjxx 
+    </sql>    
+    <!-- 动作执行主机查询 -->
+    <sql sqlid = 'select_zjxx' desc = "动作执行主机查询">
+        select ip, mc||'('||ip||')' as mc from gl_zjxx 
+        where zt = '1'
+        order by ip
+    </sql>
+    <!--获取响应动作配置详情-->
+    <sql sqlid = 'select_xydz_byidlst' desc = "获取响应动作详情根据id列表">
+        select a.id, a.dzid, a.fxjgcf, a.fqfs, a.jhsj, a.ssjkfxid
+        from gl_xydzpz a 
+        where ( ${paras._or('a.id',paras.xydzidlst)} )
+    </sql>
+    <!-- 插入响应动作配置表 -->
+    <sql sqlid = 'add_xydzpz' desc = "数据插入响应动作配置表">
+        insert into gl_xydzpz( id, dzid, fxjgcf, fqfs, jhsj, ssjkfxid ) 
+        values ( %(xydzid)s, %(dzid)s, %(fxjgcf)s, %(fqfs)s, %(jhsj)s, %(ssjkfxid)s  )
+    </sql>
+    <!-- 插入动作执行主机表 -->
+    <sql sqlid = 'add_dzzxzj' desc = "插入到动作执行主机表">
+        insert into gl_dzzxzj values ( %(id)s, %(zjip)s, %(dzid)s )
+    </sql>
+    <!-- 插入参数对应表 -->
+    <sql sqlid = 'add_csdy' desc = "插入参数对应表">
+        insert into gl_csdyb values(  %(id)s, %(csid)s, %(csz)s, %(lx)s, %(ssid)s , '')
+    </sql>
+    <sql sqlid = 'update_xydzpz' desc = "更新响应动作配置表">
+        update gl_xydzpz set fxjgcf = %(fxjgcf)s,fqfs = %(fqfs)s,jhsj = %(jhsj)s
+        where id = %(xydzid)s
+    </sql>
+    <!-- 删除动作执行主机的信息 -->
+    <sql sqlid = 'delete_dzzxzj' desc = "删除动作执行主机的信息">
+        delete from gl_dzzxzj where ${paras._or('ssid',paras.ssidlst)}
+    </sql>
+    <!-- 删除响应动作根据id -->
+    <sql sqlid = 'delete_xydzpz_byxydzidlst' desc = "删除响应动作根据id">
+        delete from gl_xydzpz where ${paras._or('id',paras.xydzidlst)}
+    </sql>
+</sqllist>

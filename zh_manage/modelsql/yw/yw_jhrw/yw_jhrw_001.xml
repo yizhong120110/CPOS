@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--
+        查询自动发起配置存在的交易个数，如果有查询条件，则根据传入的信息进行限定，条件查询支持（精确查询）：
+        业务名称
+        交易码
+        交易名称
+        交易状态（交易状态是根据编码（0,1）进行查询的）
+    -->
+    <sql sqlid = 'data_count' desc = "交易列表：查询总条数">
+        select count(0) as count
+        from gl_jydy b, gl_ywdy a
+        where  b.ssywid = a.id
+        and b.zdfqpz is not null
+        %if paras.ywmc:
+            and a.ywmc like '%'|| %(ywmc)s ||'%'
+        %endif
+        %if paras.jym:
+            and b.jym like '%'|| %(jym)s ||'%'
+        %endif
+        %if paras.jymc:
+            and b.jymc like '%'|| %(jymc)s ||'%'
+        %endif
+        %if paras.jyzt:
+            and b.zt = %(jyzt)s
+        %endif
+    </sql>
+    <!--
+        查询自动发起配置存在的交易基本信息：业务名称，交易id，交易码，交易名称，自动发起配置，状态
+        如果有查询条件，则根据传入的信息进行限定，条件查询支持（精确查询）：
+        业务名称
+        交易码
+        交易名称
+        交易状态（交易状态是根据编码（0,1）进行查询的）
+        只查询当前限定页内数据
+    -->
+    <sql sqlid = 'data_rs' desc = "交易列表：获取详细信息">
+        select d.ywmc, d.jyid, d.jym, d.jymc, d.zdfqpz, decode( d.zt, 0,'禁用','启用' ) as jyzt  from (
+            select c.ywmc, c.jyid, c.jym, c.jymc, c.zdfqpz, c.zt, rownum rn
+            from (
+                select a.ywmc, b.id as jyid, b.jym, b.jymc, b.zdfqpz , b.zt
+                from gl_jydy b, gl_ywdy a
+                where  b.ssywid = a.id
+                and b.zdfqpz is not null
+                %if paras.ywmc:
+                    and a.ywmc like '%'|| %(ywmc)s ||'%'
+                %endif
+                %if paras.jym:
+                    and b.jym like '%'|| %(jym)s ||'%'
+                %endif
+                %if paras.jymc:
+                    and b.jymc like '%'|| %(jymc)s ||'%'
+                %endif
+                %if paras.jyzt:
+                    and b.zt = %(jyzt)s
+                %endif
+                order by a.ywmc,b.jym
+            ) c
+        ) d
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--
+        更新交易的自动化配置信息和状态，根据交易id
+        顺带需要更新操作人、操作时间
+    -->
+    <sql sqlid="update_jydy" desc="更新交易基本信息">
+        update gl_jydy set zdfqpz = %(zdfqpz)s, zdfqpzsm = %(zdfqpzsm)s, zt = %(zt)s, czsj = %(czsj)s, czr = %(czr)s
+        where id = %(id)s
+    </sql>
+</sqllist>

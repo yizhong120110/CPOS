@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+    <!--
+        获取需要监控的主机信息:
+        状态：
+            存在则回去对应状态主机信息
+            不存在则获取全部主机信息
+    -->
+    <sql sqlid = 'get_zjxx_lst' desc = "获取主机信息">
+        select ip, mc, zt, zjlx, id from gl_zjxx
+        %if paras.zt:
+        where zt = %(zt)s
+        %endif
+        order by zt desc, zjlx, mc
+    </sql>
+    <!--
+        获取各个主机的预警信息：
+        fxgzjg： 分析跟踪结果动态传入
+        yjjb：预警级别动态传入
+        rq：日期动态传入
+    -->
+    <sql sqlid = 'get_ip_yjxx' desc = "获取预警信息">
+        select a.ip, a.yjjb, count(1) as num from gl_drzxjhb a, gl_jhrwb b
+        where a.fxgzjg = %(fxgzjg)s
+        and a.ssid = b.id
+        and ( a.clzt != '1' or a.clzt is null or a.clzt = '' )
+        and ( a.ip is not null or a.ip != '' )
+        %if paras.yjjb:
+        and a.yjjb = %(yjjb)s
+        %endif
+        %if paras.rq:
+        and a.rq = %(rq)s
+        %endif
+        group by a.ip, a.yjjb
+    </sql>
+    <!--获取主机信息(一段时间内的采集信息)-->
+    <sql sqlid = 'get_cjjg' desc = "获取主机信息">
+        select ip,nr from gl_cjjgb
+        where cjmc = %(cjmc)s
+        and  to_date(jlsj,'yyyymmddhh24miss') >= ( sysdate-%(sxpl)s/(24*60*60) )
+        and sysdate >= to_date(jlsj,'yyyymmddhh24miss')
+        and (${paras._or('ip',paras.ip_lst)})
+        order by jlsj, ip
+    </sql>
+    <!--获取交易笔数-->
+    <sql sqlid = 'get_jybs' desc = "查询各个类型的交易笔数">
+        select count(1) as jybs from jy_ls 
+        where jyrq = %(jyrq)s
+        and %(jysj)s > jysj
+        %if paras.zt:
+        and zt = %(zt)s
+        %endif
+    </sql>
+    <!--获取到最新时间点交易信息-->
+    <sql sqlid = 'get_jyxx_byjysj' desc = "最新时间点交易信息">
+        select jysj, zt from jy_ls 
+        where jyrq = %(jyrq)s
+        and %(jysj)s >= jysj
+    </sql>
+    <!--获取本交易日期下各个业务对应的交易信息-->
+    <sql sqlid = 'get_yw_jybs' desc = "获取各个业务对应交易信息">
+        select b.id as ywid, b.ywmc, count(1) as jybs from jy_ls a,gl_ywdy b, gl_jydy c
+        where a.jym = c.jym
+        and c.ssywid = b.id
+        and a.jyrq = %(jyrq)s
+        %if paras.zt:
+        and a.zt = %(zt)s
+        %endif
+        group by b.id, b.ywmc
+    </sql>
+    <!--获取Oracle活动会话数定义信息-->
+    <sql sqlid = 'get_db_hhs_yz' desc = '获取数据库会话数的校验阈值（取参数的默认值）'>
+        select * from gl_hsxxb
+        where lb = 'gz'
+        and hsmc like 'get_conversation_use(%%'
+    </sql>
+    <!--获取采集信息(全天的采集信息)-->
+    <sql sqlid = 'get_cjjg_day' desc = "获取采集信息(天)">
+        select substr(jlsj,9,13) as jlsj,nr from gl_cjjgb
+        where cjmc = %(cjmc)s
+        and  substr( jlsj, 1, 8 ) = to_char(sysdate,'yyyymmdd')
+        order by jlsj
+    </sql>
+    <!--更新刷新频率-->
+    <sql sqlid = 'update_csdy' desc = "获取采集信息(天)">
+        select substr(jlsj,9,13) as jlsj,nr from gl_cjjgb
+        where cjmc = %(cjmc)s
+        and  substr( jlsj, 1, 8 ) = to_char(sysdate,'yyyymmdd')
+        order by jlsj
+    </sql>
+    <!--获取采集指标(4项)-->
+    <sql sqlid = 'get_cjzb_bysslbbm' desc = "获取采集指标">
+        select id, zbmc from gl_jkzb 
+        where sslbbm = %(sslbbm)s
+        and ( ${paras._or('zbbm',paras.zbbm_lst)} )
+        order by zbmc
+    </sql>
+    <!--
+        校验主机是否存在：
+            名称存在交易名称
+            ip存在交易ip
+    -->
+    <sql sqlid = 'check_zjxx' desc = "校验主机是否存在">
+        select count(1) as count from gl_zjxx
+        where 1 = 1
+        %if paras.ip:
+        and ip = %(ip)s
+        %endif
+        %if paras.mc:
+        and mc = %(mc)s
+        %endif
+    </sql>
+    <!--采集配置表新增-->
+    <sql sqlid = 'add_cjpzb' desc = "保存数据采集对象">
+        insert into gl_cjpzb(id,mc,ms,sslbbm,zbid,lx,zdfqpz,zdfqpzsm,sfkbf,czr,czsj,scbz)
+        values(%(id)s,%(mc)s,%(ms)s,%(sslbbm)s,%(zbid)s,%(lx)s,%(zdfqpz)s,%(zdfqpzsm)s,%(sfkbf)s,%(czr)s,%(czsj)s,'0')
+    </sql>
+    <!--对象采集配置新增-->
+    <sql sqlid = 'add_dxcjpz' desc = "保存对象采集配置对象">
+        insert into gl_dxcjpz(id,dxid,zdzjip,sscjpzid,pid,zzzxbbh,bbh,cjpzzt,dxzt,czr,czsj,lx,scbz,zdzjzt) 
+        values (%(id)s,%(dxid)s,%(zdzjip)s,%(sscjpzid)s,%(pid)s,%(zzzxbbh)s,%(bbh)s,%(cjpzzt)s,%(dxzt)s,%(czr)s,%(czsj)s,%(lx)s,'0','1')
+    </sql>
+</sqllist>

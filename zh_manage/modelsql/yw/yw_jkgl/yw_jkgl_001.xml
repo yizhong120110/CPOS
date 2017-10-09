@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+    <!--获取对象内容-->
+    <sql sqlid = 'get_dxnr' desc = "获取对象内容">
+        select a.id, a.dxbm, a.sslbbm, a.dxmc, a.dxms, a.zt, a.czr, a.czsj, b.sscjpzid
+        from gl_dxdy a, gl_dxcjpz b
+        where a.id = b.dxid
+        and b.id = %(dxcjpzid)s
+    </sql>
+    <!--登记采集结果信息-->
+    <sql sqlid = 'ins_cjjg' desc = "登记采集结果信息">
+        insert into gl_cjjgb(id,ssdxid,nr,jlsj,cjpzid,ip,cjmc,zbbm) 
+        values (%(id)s,%(ssdxid)s,%(nr)s,%(jlsj)s,%(cjpzid)s,%(ip)s,%(cjmc)s,%(zbbm)s)
+    </sql>
+    <!--模糊查询文件处理登记表中信息-->
+    <sql sqlid = 'get_wjcldjb1' desc = "模糊查询文件处理登记表中信息">
+        select wjm, wjdx, djrq, djsj, pch, wjlx, zbs, zje from jy_wjcldjb 
+        where wjm like %(wjm)s 
+        and zt = %(zt)s
+        and ywlx = %(ywlx)s
+        and djrq = %(djrq)s
+    </sql>
+    <!--精确查询文件处理登记表中信息-->
+    <sql sqlid = 'get_wjcldjb2' desc = "精确查询文件处理登记表中信息">
+        select wjm, wjdx, djrq, djsj, pch, wjlx, zbs, zje from jy_wjcldjb 
+        where wjm = %(wjm)s 
+        and zt = %(zt)s
+        and ywlx = %(ywlx)s
+        and djrq = %(djrq)s
+    </sql>
+    <!--获取进程信息-->
+    <sql sqlid = 'get_jcxx' desc = "获取进程信息">
+        select jcmc,ps_com 
+        from gl_jcxxpz 
+        where sszj_ip = %(zjip)s
+        and zt = '1' 
+    </sql>
+    <!--查询指定表空间使用率-->
+    <sql sqlid = 'get_bkjsyl' desc = "查询指定表空间使用率">
+        SELECT D.TABLESPACE_NAME, SPACE || 'M' "SUM_SPACE(M)", BLOCKS "SUM_BLOCKS",  
+               SPACE - NVL (FREE_SPACE, 0) || 'M' "USED_SPACE(M)", 
+               ROUND ( (1 - NVL (FREE_SPACE, 0) / SPACE) * 100, 2) || '%' "USED_RATE(%)", 
+               FREE_SPACE || 'M' "FREE_SPACE(M)"  
+        FROM 
+        (  
+            SELECT TABLESPACE_NAME, ROUND (SUM (BYTES) / (1024 * 1024), 2) SPACE,  
+                 SUM (BLOCKS) BLOCKS  
+            FROM DBA_DATA_FILES  
+            GROUP BY TABLESPACE_NAME) D,  
+        ( 
+            SELECT TABLESPACE_NAME, ROUND (SUM (BYTES) / (1024 * 1024), 2) FREE_SPACE  
+            FROM DBA_FREE_SPACE  
+            GROUP BY TABLESPACE_NAME) F  
+        WHERE D.TABLESPACE_NAME = F.TABLESPACE_NAME(+)  
+        and D.TABLESPACE_NAME = %(bkjmc)s
+        ORDER BY 1
+    </sql>
+    <!--获取数据库当前活动会话数-->
+    <sql sqlid = 'get_conversation' desc = "获取数据库当前活动会话数">
+        select username,count(0) as count
+        from v$session
+        where status = 'ACTIVE'
+        group by username
+    </sql>
+    <!--获取数据库SQL执行时间-->
+    <sql sqlid = 'get_zxsj' desc = "获取数据库SQL执行时间">
+        select sql_text, ELAPSED_TIME from 
+        (select sql_text,ELAPSED_TIME from v$sql 
+        where to_char(sysdate,'yyyy-mm-dd/hh:mi:ss') >= last_load_time
+        and last_load_time >= to_char(sysdate -5/(24*60),'yyyy-mm-dd/hh:mi:ss')
+        order BY ELAPSED_TIME DESC)
+        where 2 > rownum
+    </sql>
+    <!--查询交易流水表中当前时间往前推单位时间内指定交易码和响应码的交易失败笔数-->
+    <sql sqlid = 'get_jysbbs' desc = "查询交易流水表中的失败笔数">
+        select count(0) as count 
+        from jy_ls 
+        where (${paras._or('xym',paras.xym_str_lst)})
+        and (${paras._or('jym',paras.jym_str_lst)})
+        and %(dqrq)s >= jyrq
+        and jyrq >= %(qtrq)s
+        and %(dqsj)s >= jysj
+        and jysj >= %(qtsj)s
+    </sql>
+    <!--获取业务第一笔交易-->
+    <sql sqlid = 'get_dybjy' desc = "获取业务第一笔交易">
+        select count(0) as count 
+        from jy_ls 
+        where ${paras._or('jym',paras.jym_str_lst)}
+    </sql>
+</sqllist>

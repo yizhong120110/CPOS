@@ -1,0 +1,120 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>泰安银行快柜业务平台</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/choice2.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/font-awesome.min.css">
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/bootstrap.js"></script>
+    <style>
+        .widget {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        h4 {
+            color: #fff;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+        }
+        a:hover {
+            text-decoration: none;
+            display: block;
+        }
+        .choice-widget {
+        }
+        .contentBox ul {
+            height: 100%;
+        }
+        .contentBox ul > li {
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            text-align: center;
+            width: 280px;
+            height: 280px;
+            padding-top: 43px;
+            font-size: 2.8em;
+        }
+        .contentBox ul > li > a > i {
+            color: #fff;
+        }
+        .no-margin {
+            margin-left: 0;
+        }
+        .contentBox h3 {
+            font-size: 3em;
+            font-family: 'SimHei';
+            text-shadow: 1px 1px 6px #333;
+            margin-bottom: 2.6em;
+            letter-spacing: .4em;
+
+            text-align: center;
+        }
+        .choice-hx-logo {
+            background: url('/static/${settings._T.APP_NAME}/images/index/c-hx-logo.png') center center no-repeat;
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            vertical-align: bottom;
+            margin-right: .3em;
+        }
+    </style>
+</head>
+<body>
+<div style="position:relative; width:100%; height:100%;">
+    <div id="Javascript.Div1" class="wrapper-choice">
+        <div class="contentBox clearfix">
+            <h3><i class="choice-hx-logo "></i>泰安银行快柜业务平台</h3>
+            <!-- 111111 -->
+            <ul>
+                <li class="btn btn-danger no-margin">
+                    <!--<a href="login-manage.html">-->
+                    <a href="/oa_core/login?gl">
+                        <i class="icon-user  icon-4x"></i>
+                        <h4 class="choice-title">管理系统</h4>
+
+                    </a>
+                </li>
+                <!-- 2222222 -->
+                <li class="btn btn-warning">
+                    <a href="/oa_core/login?kf">
+                        <i class="icon-laptop  icon-4x"></i>
+                        <h4 class="choice-title">开发系统</h4>
+                    </a>
+                </li>
+                <!-- 33333333333 -->
+                <li class="btn btn-success ">
+                    <!--<a href="login-operation.html">-->
+                    <a href="/oa_core/login?yx">
+                        <i class=" icon-dashboard  icon-4x"></i>
+                        <h4 class="choice-title">运维系统</h4>
+                    </a>
+                </li>
+        </div>
+    </div>
+</div>
+<script language="JavaScript">
+    function sc1() {
+        document.getElementById("Javascript.Div1").style.top = (document.documentElement.scrollTop + (document.documentElement.clientHeight - document.getElementById("Javascript.Div1").offsetHeight) / 2) + "px";
+        document.getElementById("Javascript.Div1").style.left = (document.documentElement.scrollLeft + (document.documentElement.clientWidth - document.getElementById("Javascript.Div1").offsetWidth) / 2) + "px";
+    }
+</script>
+
+<script>
+    <!--
+    function scall() {
+        sc1();
+    }
+    window.onscroll = scall;
+    window.onresize = scall;
+    window.onload = scall;
+    //-->
+</script>
+
+</body>
+</html>

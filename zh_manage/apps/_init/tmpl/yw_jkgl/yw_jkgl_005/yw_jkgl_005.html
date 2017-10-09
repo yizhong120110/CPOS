@@ -1,0 +1,289 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>参数管理</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <style type="text/css">   .cursor_not_allowed {     cursor: not-allowed;   } </style>
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 参数管理调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jkgl/yw_jkgl_005/yw_jkgl_005.js"></script>
+    <!--获取后台的初始化对象-->
+    <script>
+        // 采集类型
+        var cjlb = ${cjlb};
+        // 是否可并发
+        var sfbf = ${sfbf};
+        // 状态
+        var zt = ${zt};
+        // 采集指标
+        var cjzb = ${cjzb};
+        // 采集类别和采集指标的对应关系
+        var lb_zb = ${lb_zb};
+    </script>
+</head>
+<body>
+    <!--查询div-->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <!--查询的布局div-->
+        <div data-options="region:'north',border:true" style="padding-top:1px;height:44px;">
+            <!--查询的form-->
+            <form id="dxForm">
+                <!--查询的table-->
+                <table id="datagrid_search" style="width:100%;margin:5px 0;" border="0">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;width:90px;">
+                            采集类型：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!--对象类型search_cjlb-->
+                            <input class="easyui-combobox" id="combSearch_cjlx" name="search_cjlx" style="width:150px;" data-options="editable:false" >
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            采集指标：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!--采集指标-->
+                            <input class="easyui-textbox" id="txtSearch_cjzb" name="search_cjzb" style="width:90%">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            采集名称：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!--采集名称-->
+                            <input class="easyui-textbox" name="search_cjmc" id="txtSearch_cjmc" style="width:150px;" />
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:90px;">
+                            是否可并发：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!--是否可并发-->
+                            <input class="easyui-combobox" name="search_sfbf" id="combSearch_sfbf" style="width:150px;" data-options="editable:false">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right;width:50px;">
+                            类型：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!--类型-->
+                            <input class="easyui-combobox" name="search_lx" id="combSearch_lx" style="width:150px;" data-options="editable:false">
+                        </td>
+                        <td style="text-align:left" rowspan="3">
+                            <!--查询按钮-->
+                             &nbsp;&nbsp;
+                            <button class="easyui-linkbutton" style="width:100px;" onclick="javascript:doSearch();return false;">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 监控对象的div -->
+        <div data-options="region:'center',border:false">
+            <!-- 监控对象的grid -->
+            <table id="dgSjcj"></table>
+        </div>
+    </div>
+    <!-- 新增与编辑数据采集 -->
+    <div id="sjcj_add2upd_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <!-- 新增与编辑数据采集tab -->
+        <div id="tt" class="easyui-tabs" data-options="fit:true,border:false">
+            <div title="基本信息">
+            <!-- 新增与编辑数据采集form -->
+            <form method="post">
+                <div class="esayui-panel" style="margin-top:20px">
+                    <!-- 新增与编辑数据采集table -->
+                    <table style="font-size:12px;width:100%" cellspacing="5px" border='0'>
+                        <tr>
+                            <td nowrap="nowrap" style="text-align:right" width="20%">
+                                名称：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left" width="30%">
+                                <!-- 名称 -->
+                                <input class="easyui-textbox" id="txtCjmc" name="cjmc" style="width:200px"> <span class="colorRed">*</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" style="text-align:right" width='20%'>
+                                描述：
+                            </td>
+                            <td style="text-align:left" colspan="3">
+                                <!-- 描述 -->
+                                <input class="easyui-textbox" id="txtCjms" name="cjms" data-options="multiline:true,height:52,width:'92%'">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" style="text-align:right" width="20%">
+                                采集类别：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left" width="30%">
+                                <!-- 采集类别 -->
+                                <input id="combCjlx" name="cjlb" class="easyui-combobox" style="width:200px;" data-options="editable:false"/> <span class="colorRed">*</span>
+                            </td>
+                            <td nowrap="nowrap" style="text-align:right" width='20%'>
+                                采集指标：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left" width='30%'>
+                                <!-- 采集指标 -->
+                                <input id="combCjzb" name="cjzb" class="easyui-combobox" style="width:80%" data-options="editable:false"/>
+                                </select> <span class="colorRed">*</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" style="text-align:right" width='20%'>
+                                类型：
+                            </td>
+                            <td style="text-align:left" width='30%'>
+                                <!-- 类型 -->
+                                <input type="radio" name="sjcj_cjlx" id="sjcj_cjlx_id" value="1"><label for="sjcj_cjlx_id">发起频率</label>
+                                <input type="radio" name="sjcj_cjlx" id="sjcj_cjlx_id2" value="2"><label for="sjcj_cjlx_id2">计划任务</label>
+                            </td>
+                            <td nowrap="nowrap" style="text-align:right" width='20%'>
+                                发起频率：
+                            </td>
+                            <td nowrap="nowrap" style="text-align:left" width='30%'>
+                                <!-- 发起频率 -->
+                                <input id="txtFqpl" name="fqpl" class="easyui-numberspinner" style="width:80%;" data-options="min:1,editable:true,max:60"> 秒
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" style="text-align:right" width='20%'>
+                                crontab配置：
+                            </td>
+                            <td style="text-align:left" width='30%'>
+                                <!-- 
+                                    回显，可编辑，
+                                    限定最大长度为100，
+                                    不可为空
+                                -->
+                                <input type="hidden" id="hidYzdfqpz" name = 'yzdfqpz'/>
+                                <!-- 自动发起配置 -->
+                                <input class="easyui-textbox" id="txtZdfqjyZdfqpz" name="zdfqjyzdfqpz" style="width:200px">
+                            </td>
+                            <td nowrap="nowrap" style="text-align:right" width='20%'>
+                                是否可并发：
+                            </td>
+                            <td style="text-align:left" width='30%'>
+                                <!-- 是否可并发 -->
+                                <input class="easyui-combobox" name="sfbf" id="combSfbf" style="width:80%;" panelHeight="20" data-options="editable:false">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" style="text-align:right; width:120px;">
+                                配置说明：
+                            </td>
+                            <td style="text-align:left;width:200px;" colspan="3">
+                                <!-- 回显，不可编辑， 当进行翻译操作时，将最新的说明更新到此文本域中 -->
+                                <input class="easyui-textbox" id="txtZdfqjyZdfqpzsm" name="zdfqjyzdfqpzsm" style="width:500px;" data-options="editable:false" >
+                                <!-- 隐藏域：采集配置id -->
+                                <input type = "hidden" name = "cjid" id = "hidCjid">
+                                <!-- 隐藏域：采集类别 -->
+                                <input type = "hidden" name = "cjlb_hid" id = "hidCjlb_hid">
+                                <!-- 隐藏域：采集指标 -->
+                                <input type = "hidden" name = "cjzb_hid" id = "hidCjzb_hid">
+                            </td>
+                            <td style="text-align:left;width:20px;" >
+                                <!-- 对输入的自动发起配置进行验证和翻译 -->
+                                <button style="margin-left: -90px;" id="lbtnFy" class="easyui-linkbutton">翻译</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- 提交按钮-->
+                <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+                    <!-- 保存按钮-->
+                    <button id="lbtnSjcj_ok_add" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                    <!-- 取消按钮-->
+                    <button id="lbtnSjcj_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+                </div>
+                </form>
+            </div>
+            <!-- 使用对象div-->
+            <div title="适用对象">
+                <!-- 使用对象table-->
+                <table id="dgSydx"></table>
+            </div>
+        </div>
+    </div>
+    <!-- 新增与编辑适用对象 -->
+    <div id="sydx_add_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <!-- 新增与编辑适用对象form -->
+        <form method="post">
+            <!-- 新增与编辑适用对象panel -->
+            <div class="esayui-panel" style="margin-top:20px">
+                <!-- 新增与编辑适用对象table -->
+                <table style="font-size:12px;width:100%" cellspacing="5px" border='0'>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right" width='10%'>
+                            对象名称：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left" width='40%'>
+                            <!-- 对象名称-->
+                            <input class="easyui-combobox" name="dxmc" id="combDxmc" style="width:90%;" data-options="editable:false">
+                            <span class="colorRed">*</span>
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" width='10%'>
+                            指定主机：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left" width='40%'>
+                            <!-- 隐藏域：指定主机-->
+                            <input class="easyui-combobox" name="zdzj" id="combZdzj" style="width:90%;" data-options="editable:false">
+                            <span class="colorRed">*</span>
+                            <!-- 隐藏域：传入参数-->
+                            <input type = "hidden" name="crcs" id="hidCrcs">
+                            <!-- 隐藏域：采集配置id -->
+                            <input type = "hidden" name = "cjid_hid" id = "hid_cjid">
+                            <!-- 隐藏域：适用对象id -->
+                            <input type = "hidden" name = "sydxid" id = "hid_sydxid">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right" width='20%'>
+                            状态：
+                        </td>
+                        <td style="text-align:left" width='30%' colspan="2">
+                            <a class="onoffswitch" style="float:left">
+                                <input type="checkbox" name="sy_state" id="sy_state" class="onoffswitch-checkbox" checked>
+                                <label class="onoffswitch-label" for="sy_state" id="state_link">
+                                    <span class="onoffswitch-inner">
+                                        <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                        <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                    </span>
+                                </label>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right" width='10%'>
+                            传入参数：
+                        </td>
+                        <td style="text-align:left" colspan="3" height="200px">
+                            <!-- 传入参数table-->
+                            <table id="dgCs"></table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- 提交按钮-->
+            <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+                <!-- 保存按钮-->
+                <button id="lbtnSydx_ok_add" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                <!-- 取消按钮-->
+                <button id="lbtnSydx_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
+

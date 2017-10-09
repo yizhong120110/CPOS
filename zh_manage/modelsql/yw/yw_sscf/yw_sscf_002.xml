@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+    <!--获取主机信息-->
+    <sql sqlid = 'get_zjxx' desc = "获取主机信息">
+        select mc,zt,sxpl from gl_zjxx where ip = %(ip)s
+    </sql>
+    <!--获取预警数量和异常数量-->
+    <sql sqlid = 'get_yj_yc_count' desc = "获取预警数量和异常数量">
+        select count(1) as count from gl_drzxjhb a, gl_jhrwb b
+        where a.fxgzjg = 'True' 
+        and a.ssid = b.id
+        and ( a.clzt != '1' or a.clzt is null or a.clzt = '' )
+        and ( a.ip is not null or a.ip != '' )
+        and a.ip = %(ip)s
+        %if paras.yjjb:
+        and a.yjjb = %(yjjb)s
+        %endif
+        %if paras.rq:
+        and a.rq = %(rq)s
+        %endif
+        group by a.ip, a.yjjb
+    </sql>
+    <!--查询cpu信息-->
+    <sql sqlid = 'get_cpu_info' desc = "查询cpu信息">
+        select jlsj,nr from gl_cjjgb
+        where zbbm = %(zbbm)s 
+        and jlsj >= %(jlsj_start)s
+        and %(jlsj_end)s >= jlsj
+        and ip = %(ip)s
+        order by jlsj
+    </sql>
+    <!--获取采集结果表中最新的进程信息-->
+    <sql sqlid = 'get_jc_info' desc = "获取采集结果表中最新的进程信息">
+        select jlsj,nr2 as nr from(
+            select jlsj,nr2,rownum rn from (
+                select jlsj,nr2 from gl_cjjgb
+                where zbbm = %(zbbm)s
+                <!--and substr(jlsj,1,8) = %(dqsj)s-->
+                and ip = %(ip)s
+                order by jlsj desc
+            )
+        )
+        where rn = 1
+    </sql>
+    <!--获取所属id-->
+    <sql sqlid = 'get_ssid' desc = "获取所属id">
+        select id,zdfqpz from gl_jhrwb where ssid = (
+              select id from gl_dxcjpz where zdzjip = %(ip)s and sscjpzid = (
+                    select id from gl_cjpzb where zbid =    (
+                          select id from gl_jkzb where zbbm = 'get_process()'
+                    )
+                    and rownum =1
+            )
+        )
+        and rownum =1
+    </sql>
+    <!--插入当日执行计划-->
+    <sql sqlid = 'add_drzxjh' desc = "插入当日执行计划">
+        insert into gl_drzxjhb(id,lsh,rwlx,ssid,zdfqpz,ip,rq,jhfqsj,zt,sfkbf,yjjb) 
+        values (%(id)s,%(lsh)s,%(rwlx)s,%(ssid)s,%(zdfqpz)s,%(ip)s,%(rq)s,%(jhfqsj)s,%(zt)s,%(sfkbf)s,%(yjjb)s)
+    </sql>
+    <!--获取文件系统使用率（多条）-->
+    <sql sqlid = 'get_xtxx' desc = "获取文件系统使用率（多条）">
+        select jlsj,nr,cjmc from gl_cjjgb
+        where ip = %(ip)s
+        and zbbm= %(cjmc)s
+        and jlsj >= %(jlsj_start)s
+        and %(jlsj_end)s >= jlsj
+        order by jlsj
+    </sql>
+    <!--更新刷新频率-->
+    <sql sqlid = 'update_sxpl' desc = "更新刷新频率">
+        update gl_zjxx set sxpl= %(sxpl)s where ip = %(ip)s
+    </sql>
+    <!--获取预警信息-->
+    <sql sqlid = 'get_yjxx' desc = "获取预警信息">
+        select zxjhid,lsh,jkmc,fxgzmc,jkfxpzid,sjfqsj,fxgzms,hsmc from(
+            select zxjhid,lsh,jkmc,fxgzmc,jkfxpzid,sjfqsj,fxgzms,hsmc,rownum rn from(
+                select a.id as zxjhid,a.lsh,c.mc as jkmc,d.zwmc as fxgzmc,d.ms as fxgzms,d.hsmc as hsmc ,c.id as jkfxpzid,a.sjfqsj
+                from gl_drzxjhb a,gl_jhrwb b,gl_jkfxpz c,gl_hsxxb d
+                where a.ip = %(ip)s
+                and a.yjjb = %(yjjb)s
+                and a.ssid = b.id
+                and b.ssid = c.id
+                and c.gzid = d.id
+                and a.fxgzjg = 'True'
+                and ( clzt != '1' or clzt is null or clzt = '' )
+                %if paras.rq:
+                    and a.rq = %(rq)s
+                %endif
+            order by a.sjfqsj desc)
+            )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取预警信息总条数-->
+    <sql sqlid = 'get_yjxx_count' desc = "获取预警信息总条数">
+        select count(1) as count
+        from gl_drzxjhb a,gl_jhrwb b,gl_jkfxpz c,gl_hsxxb d
+        where a.ip = %(ip)s
+        and a.yjjb = %(yjjb)s
+        and a.ssid = b.id
+        and b.ssid = c.id
+        and c.gzid = d.id
+        and a.fxgzjg = 'True'
+        and ( clzt != '1' or clzt is null or clzt = '' )
+        %if paras.rq:
+            and a.rq = %(rq)s
+        %endif
+    </sql>
+    <!--获取响应动作列表信息-->
+    <sql sqlid = 'get_xydzxx' desc = "获取响应动作列表信息">
+        select hsmc,zwmc,fxjgcf,fqfs,jhsj,dzzxsj,rn from(
+          select hsmc,zwmc,fxjgcf,fqfs,jhsj,dzzxsj,rownum rn from(
+            select c.hsmc,c.zwmc,b.fxjgcf,e.mc as fqfs,b.jhsj,d.sjfqsj as dzzxsj from gl_jkfxpz a,
+              gl_xydzpz b left join gl_bmwh e on (b.fqfs= e.bm and e.lx = '10004'),
+              gl_hsxxb c,
+              gl_drzxjhb d
+              where a.id = b.ssjkfxid
+              and b.dzid = c.id
+              and d.ssid = b.id
+              and d.bcflsh = %(lsh)s
+              order by b.jhsj desc
+              )
+           )
+           where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取响应动作列表信息总条数-->
+    <sql sqlid = 'get_xydzxx_count' desc = "获取响应动作列表信息总条数">
+         select count(1) as count from gl_jkfxpz a,
+              gl_xydzpz b left join gl_bmwh e on (b.fqfs= e.bm and e.lx = '10004'),
+              gl_hsxxb c,
+              gl_drzxjhb d
+              where a.id = b.ssjkfxid
+              and b.dzid = c.id
+              and d.ssid = b.id
+              and d.bcflsh = %(lsh)s
+    </sql>
+    <!--插入异常处理结果-->
+    <sql sqlid = 'add_yccljg' desc = "插入异常处理结果">
+        insert into gl_yccljgb(id,clgc,clr,clsj)
+        values (%(zxjhid)s,%(clgc)s,%(clr)s,%(clsj)s)
+    </sql>
+    <!--更新当日执行计划表-->
+    <sql sqlid = 'update_drzxjh' desc = "更新当日执行计划表">
+        update gl_drzxjhb set clzt = '1' where id = %(zxjhid)s
+    </sql>
+    <!--获取监控的对象列表-->
+    <sql sqlid = 'get_jkdx' desc = "获取监控的对象列表">
+        select id as dxid from gl_dxdy where sslbbm = 'Computer(zjip,dxcjpzid)' and dxbm = %(ip)s and zt = %(f_zt)s
+    </sql>
+    <!--获取监控配置信息-->
+    <sql sqlid = 'get_jkpz' desc = "获取监控配置信息">
+        select a.id,a.zbbm,a.zbmc,d.cjpzzt from gl_jkzb a
+        left join (
+        select b.zbid,c.cjpzzt 
+        from gl_cjpzb b, gl_dxcjpz c
+        where c.sscjpzid = b.id and c.zdzjip = %(ip)s) d 
+        on a.id = d.zbid
+        where (${paras._or('a.zbbm',paras.zbbm)})
+        group by a.id,a.zbbm,a.zbmc,d.cjpzzt
+    </sql>
+    <!--获取采集配置id-->
+    <sql sqlid = 'get_cjpzid' desc = "获取采集配置id">
+        select id from gl_cjpzb where (${paras._or('zbid',paras.jkzbbm)})
+    </sql>
+    <!--获取编码维护-->
+    <sql sqlid = 'get_bmwh' desc = "获取编码维护">
+        select bm, mc from gl_bmwh where lx = %(lx)s order by bm
+    </sql>
+    <!--获取进程配置信息-->
+    <sql sqlid = 'get_jcpzxx' desc = "获取进程配置信息">
+        select id,jclx,jcmc,jcsl,zt,txwjmc,ckml, czr,czsj,jclxmc,qdml,ly from (
+            select id,jclx,jcmc,jcsl,zt,txwjmc,ckml, czr,czsj,jclxmc,qdml,ly,rownum as rn from (
+                select a.id,a.jclx,a.jcmc,a.ckml,a.jcsl,a.zt,c.mc as jclxmc,txwjmc,a.qdml,a.ly,b.xm as czr,a.czsj
+                from gl_jcxxpz a left join gl_hydy b on b.hydm = a.czr
+                left join gl_bmwh c on a.jclx = c.bm and c.lx='10027'
+                where a.sszj_ip = %(ip)s
+                and a.scbz !='1'
+                %if paras.jcmc:
+                    and a.jcmc like '%'||%(jcmc)s||'%'
+                %endif
+                %if paras.jczt:
+                    and a.zt = %(jczt)s
+                %endif
+                order by jcmc asc,zt desc,jcsl desc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取进程配置信息总条数-->
+    <sql sqlid = 'get_jcpzxx_count' desc = "获取进程配置信息总条数">
+        select count(id) as count from(
+            select a.id,a.jclx,a.jcmc,a.ckml,a.jcsl,a.zt,c.mc as jclxmc,txwjmc,a.qdml,a.ly,b.xm as czr,a.czsj
+            from gl_jcxxpz a left join gl_hydy b on b.hydm = a.czr
+            left join gl_bmwh c on a.jclx = c.bm and c.lx='10027'
+            where a.sszj_ip = %(ip)s
+            and a.scbz !='1'
+            %if paras.jcmc:
+                and a.jcmc like '%'||%(jcmc)s||'%'
+            %endif
+            %if paras.jczt:
+                and a.zt = %(jczt)s
+            %endif
+        )
+    </sql>
+    <!--通讯文件名称获取-->
+    <sql sqlid = 'get_txwjmc' desc = "通讯文件名称获取">
+        select distinct txwjmc from gl_txgl
+        where fwfx = '2'  
+        order by txwjmc
+    </sql>
+    <!--获取主机名称-->
+    <sql sqlid = 'get_zjmc' desc = "获取主机名称">
+        select mc from gl_zjxx where ip = %(ip)s
+    </sql>
+    <!--获取进程类型数量-->
+    <sql sqlid = 'get_jclxcount' desc = "获取进程类型数量">
+        select count(0) as count from gl_jcxxpz
+        where sszj_ip = %(ip)s
+        and txwjmc = %(txwjmc)s
+        and scbz !='1'
+        %if paras.id:
+            and id != %(id)s
+        %endif
+    </sql>
+    <!--添加进程配置-->
+    <sql sqlid = 'add_jcpz' desc = "添加进程配置">
+        insert into gl_jcxxpz(id,sszj_ip,jcmc,jcsl,ckml,jclx,txwjmc,qdml,zt,czr,czsj,scbz)
+        values (%(id)s,%(ip)s,%(jcmc)s,%(jcsl)s,%(ckml)s,%(jclx)s,%(txwjmc)s,%(qdml)s,%(state)s,%(czr)s,%(czsj)s,'0')
+    </sql>
+    <!--获取要编辑的进程信息-->
+    <sql sqlid = 'get_jcxx_edit' desc = "获取要编辑的进程信息">
+        select id,jcmc,jcsl,ckml,jclx,txwjmc,zt,txjclx,qdml,ly
+        from gl_jcxxpz
+        where sszj_ip = %(ip)s
+        and id = %(id)s
+    </sql>
+    <!--更新进程信息-->
+    <sql sqlid = 'edit_jcpz' desc = "更新进程信息">
+        update gl_jcxxpz set jcmc = %(jcmc)s,jcsl =%(jcsl)s,ckml =%(ckml)s,zt =%(state)s,czr = %(czr)s,czsj = %(czsj)s,qdml = %(qdml)s,txwjmc = %(txwjmc)s 
+        where sszj_ip = %(ip)s and id = %(id)s
+    </sql>
+    <!--校验进程有对应的采集信息-->
+    <sql sqlid = 'check_jc_cj' desc = "校验进程有对应的采集信息">
+        select count(0) as count from gl_dxcjpz a,gl_cjpzb b,gl_jkzb c
+        where a.sscjpzid = b.id
+        and a.zdzjip = %(ip)s
+        and b.zbid = c.id
+        and c.zbbm='get_process()'
+        and b.mc= %(jcmc)s
+        and a.scbz='0'
+        and a.dxzt='1'
+        and b.scbz='0'
+    </sql>
+    <!--删除进程-->
+    <sql sqlid = 'del_jcxx' desc = "删除进程">
+        update gl_jcxxpz set zt= '0',scbz = '1'
+        where(${paras._or('id',paras.jcid_lst)})
+    </sql>
+    <!--查询指标编码对应的crontab配置和对象采集配置的id-->
+    <sql sqlid = 'get_dxcjpzxx' desc = "查询指标编码对应的crontab配置和对象采集配置的id">
+        select a.cjpzzt,b.zdfqpz,c.zbbm,b.zdfqpzsm,a.id as dxcjpzid,a.lx from gl_dxcjpz a
+        inner join gl_cjpzb b
+        on a.sscjpzid = b.id
+        left join gl_jkzb c
+        on c.id = b.zbid 
+        where zdzjip=%(ip)s
+        and (${paras._or('c.zbbm',paras.zbbm_lst)})
+    </sql>
+    <!--更新对象采集配置的采集配置状态-->
+    <sql sqlid = 'update_dxcjpz_cjpzzt' desc = "更新对象采集配置的采集配置状态">
+        update gl_dxcjpz set cjpzzt = %(cjpz_zt)s where id = %(id)s
+    </sql>
+    <!--更新对象采集配置的采集配置状态-->
+    <sql sqlid = 'get_jcxx_byjcmc' desc = "根据进程名称查询进程信息">
+        select id, jcmc, jclx from gl_jcxxpz where jcmc = %(jcmc)s and sszj_ip = %(ip)s
+    </sql>
+    <!--更新进程类型-->
+    <sql sqlid = 'update_jcxx_jclx' desc = "更新进程信息">
+        update gl_jcxxpz set jclx = %(new_jclx)s 
+        where sszj_ip = %(ip)s and id = %(id)s
+    </sql>
+</sqllist>

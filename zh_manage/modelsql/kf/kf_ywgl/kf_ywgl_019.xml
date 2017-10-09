@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="create_table" desc="创建临时表">
+        create table ${paras._tb(paras.lsname)} as 
+        select * from ${paras._tb(paras.tname)}
+    </sql>
+    <sql sqlid="update_drlswjm" desc="更新导入流水的备份文件名">
+        update gl_drls set bfwjm = %(bfwjm)s where id = %(id)s
+    </sql>
+    <sql sqlid="get_left_ywcs" desc="获取左侧业务参数">
+        select a.wym,b.id ,b.ywmc as name,'' as diff,'ywcs' as lx
+        from gl_ywdy_ls b left join gl_csdy_ls a
+        on a.ssid = b.id
+        %if paras.ywid:
+            where b.id = %(ywid)s
+        %endif
+        order by a.csdm
+    </sql>
+    <sql sqlid="get_right_ywcs" desc="获取右侧业务参数">
+        select a.wym,b.id ,b.ywmc as name,'' as diff,'ywcs' as lx
+        from gl_ywdy b left join gl_csdy a
+        on a.ssid = b.id
+        where b.id = %(ywid)s
+        order by a.csdm
+    </sql>
+    <sql sqlid="get_left_jy" desc="获取左侧交易">
+        select a.jymc as name,b.xm as xgr,a.czsj as xgsj,a.wym,a.id,'' as diff,'jy' as lx,c.wym as cswym,a.zt as jyzt
+        from gl_jydy_ls a left join gl_hydy b
+        on a.czr = b.hydm
+        left join gl_csdy_ls c
+        on c.ssid = a.id
+        %if paras.ywid:
+            where a.ssywid = %(ywid)s
+        %endif
+        order by a.jym,c.csdm
+    </sql>
+    <sql sqlid="get_right_jy" desc="获取右侧交易">
+        select a.jymc as name,b.xm as xgr,a.czsj as xgsj,a.wym,a.id,'' as diff,c.wym as cswym,'jy' as lx,a.zt as jyzt
+        from gl_jydy a left join gl_hydy b on a.czr = b.hydm left join gl_csdy c on c.ssid = a.id
+        where a.ssywid = %(ywid)s
+        order by a.jym,c.csdm
+    </sql>
+    <sql sqlid="get_left_zlc" desc="获取左侧子流程">
+        select a.mc as name,b.xm as xgr,a.czsj as xgsj,a.wym,a.id,'' as diff,'zlc' as lx
+        from gl_zlcdy_ls a left join gl_hydy b
+        on a.czr = b.hydm
+        where a.lb = '2'
+        %if paras.ywid:
+            and a.ssywid = %(ywid)s
+        %endif
+        order by a.bm
+    </sql>
+    <sql sqlid="get_right_zlc" desc="获取右侧子流程">
+        select a.mc as name,c.xm as xgr,a.czsj as xgsj,a.wym,a.id,'' as diff,'zlc' as lx
+        from gl_zlcdy a left join gl_hydy c on a.czr = c.hydm,gl_ywdy b
+        where a.ssywid = b.id
+        and b.id = %(ywid)s
+        and a.lb = '2'
+        order by a.bm
+    </sql>
+    <sql sqlid="get_left_dymb" desc="获取左侧打印模版">
+        select a.id,a.mbmc as name,b.xm as xgr,a.czsj as xgsj,a.wym,'' as diff,'dymb' as lx
+        from gl_dymbdy_ls a left join gl_hydy b
+        on a.czr = b.hydm
+        %if paras.ywid:
+            where ssyw_id = %(ywid)s
+        %endif
+        order by mbmc
+    </sql>
+    <sql sqlid="get_right_dymb" desc="获取右侧打印模版">
+        select a.id,a.mbmc as name,b.xm as xgr,a.czsj as xgsj,a.wym,'' as diff,'dymb' as lx
+        from gl_dymbdy a left join gl_hydy b
+        on a.czr = b.hydm
+        where ssyw_id = %(ywid)s
+        order by mbmc
+    </sql>
+    <sql sqlid="get_left_gghs" desc="获取左侧公共函数">
+        select a.id,a.mc as name,b.xm as xgr,a.czsj as xgsj,a.wym,'' as diff,'gghs' as lx
+        from gl_yw_gghs_ls a left join gl_hydy b
+        on a.czr = b.hydm
+        %if paras.ywid:
+            where ssyw_id = %(ywid)s
+        %endif
+        order by mc
+    </sql>
+    <sql sqlid="get_right_gghs" desc="获取右侧公共函数">
+        select a.id,a.mc as name,b.xm as xgr,a.czsj as xgsj,a.wym,'' as diff,'gghs' as lx
+        from gl_yw_gghs a left join gl_hydy b
+        on a.czr = b.hydm
+        where ssyw_id = %(ywid)s
+        order by mc
+    </sql>
+    <sql sqlid="get_left_sjkmx" desc="获取左侧数据库模型">
+        select a.id,a.sjbmc as name,b.xm as xgr,a.czsj as xgsj,a.wym,'' as diff,'sjk' as lx
+        from gl_sjkmxdy_ls a left join gl_hydy b
+        on a.czr = b.hydm
+        %if paras.ywid:
+            where ssyw_id = %(ywid)s
+        %endif
+        order by sjbmc
+    </sql>
+    <sql sqlid="get_right_sjkmx" desc="获取右侧数据库模型">
+        select a.id,a.sjbmc as name,b.xm as xgr,a.czsj as xgsj,a.wym,'' as diff,'sjk' as lx
+        from gl_sjkmxdy a left join gl_hydy b
+        on a.czr = b.hydm
+        where ssyw_id = %(ywid)s
+        order by sjbmc
+    </sql>
+    <sql sqlid="get_left_jd" desc="获取左侧节点">
+        select id,name,xgr,xgsj,wym,diff,lx,bm
+        from (
+            select distinct c.id,c.jdmc as name,d.xm as xgr,c.czsj as xgsj,c.wym,'' as diff,'jd' as lx,c.bm
+            from gl_jddy_ls c left join gl_hydy d on c.czr = d.hydm,${paras._tb(paras.tname)} a,gl_lcbj_ls b
+            where  a.id = ${paras._tb(paras.fieldname)}
+            and b.jdlx = '1'
+            and b.jddyid = c.id
+            %if paras.ywid:
+                and a.ssywid = %(ywid)s
+            %endif
+            %if paras.tname == ['gl_zlcdy_ls']:
+                and a.lb = '2'
+            %endif
+        )    
+        order by bm
+    </sql>
+    <sql sqlid="get_left_jyjd" desc="获取左侧交易打解包节点">
+        select id,name,xgr,xgsj,wym,diff,lx,bm
+        from (
+        select distinct c.id,c.jdmc as name,d.xm as xgr,c.czsj as xgsj,c.wym as wym,'' as diff,'jd' as lx,c.bm
+        from gl_jddy_ls c left join gl_hydy d on c.czr =d.hydm,gl_jydy_ls a
+        where ${paras._tb(paras.fieldname)} = c.id
+            %if paras.ywid:
+                and a.ssywid = %(ywid)s
+            %endif
+        )
+        order by bm
+    </sql>
+    <sql sqlid="get_right_jd" desc="获取右侧节点">
+        select id,name,xgr,xgsj,wym,diff,lx,bm
+        from (
+            select distinct c.id,c.jdmc as name,d.xm as xgr,c.czsj as xgsj,c.wym,'' as diff,'jd' as lx,c.bm
+            from gl_jddy c left join gl_hydy d on c.czr = d.hydm,${paras._tb(paras.tname)} a,gl_lcbj b
+            where a.ssywid = %(ywid)s
+            and a.id = ${paras._tb(paras.fieldname)}
+            and b.jdlx = '1'
+            and b.jddyid = c.id
+            %if paras.tname == ['gl_zlcdy']:
+                and a.lb = '2'
+            %endif
+        )
+        order by bm
+    </sql>
+    <sql sqlid="get_right_jyjd" desc="获取右侧交易打解包节点">
+        select id,name,xgr,xgsj,wym,diff,lx,bm
+        from (
+        select distinct c.id,c.jdmc as name,d.xm as xgr,c.czsj as xgsj,c.wym as wym,'' as diff,'jd' as lx,c.bm
+        from gl_jddy c left join gl_hydy d on c.czr =d.hydm，gl_jydy a
+        where ${paras._tb(paras.fieldname)} = c.id
+            and a.ssywid = %(ywid)s
+        )
+        order by bm
+    </sql>
+    <sql sqlid="get_lsyw_id" desc="从临时表中获取带导入业务ID"> 
+        select id from gl_ywdy_ls 
+    </sql>
+    <sql sqlid="get_yw_count" desc="根据从临时表获取的业务ID，查询正式表中是否存在">
+        select count(0) as count from gl_ywdy where id = %(ywid)s
+    </sql>
+    <sql sqlid="get_bd_left_ywxx" desc="获取左侧比对业务信息">
+        select id,ywbm,ywmc,ywms,'' as diff
+        from gl_ywdy_ls where id = %(ywid)s
+    </sql>
+    <sql sqlid="get_bd_right_ywxx" desc="获取右侧比对业务信息">
+        select id,ywbm,ywmc,ywms,'' as diff
+        from gl_ywdy where id = %(ywid)s
+    </sql>
+    <sql sqlid="get_bd_left_cs" desc="获取左侧比对参数">
+        select id,csdm,value,csms,zt,''as diff
+        from gl_csdy_ls
+        where ssid = %(id)s
+        order by csdm
+    </sql>
+    <sql sqlid="get_bd_right_cs" desc="获取右侧比对参数">
+        select id,csdm,value,csms,zt,'' as diff
+        from gl_csdy
+        where ssid = %(id)s
+        order by csdm
+    </sql>
+    <sql sqlid="get_bd_left_jyxx" desc="获取左侧比对交易信息">
+        select a.id,a.jym,a.jymc,a.jyms,a.timeout,a.zt,a.zdfqpz,'' as diff,b.jdmc as dbjdmc,c.jdmc as jbjdmc,a.zdfqpzsm
+        from gl_jydy_ls a
+        left join gl_jddy_ls b
+        on a.dbjdid = b.id
+        left join gl_jddy_ls c
+        on a.jbjdid = c.id
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_jyxx" desc="获取右侧比对交易信息">
+        select a.id,a.jym,a.jymc,a.jyms,a.timeout,a.zt,a.zdfqpz,'' as diff,b.jdmc as dbjdmc,c.jdmc as jbjdmc,a.zdfqpzsm
+        from gl_jydy a
+        left join gl_jddy b
+        on a.dbjdid = b.id
+        left join gl_jddy c
+        on a.jbjdid = c.id
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_left_zlcxx" desc="获取左侧比对子流程信息">
+        select id,bm,mc,ms,'' as diff
+        from gl_zlcdy_ls
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_zlcxx" desc="获取右侧比对子流程信息">
+        select id,bm,mc,ms,'' as diff
+        from gl_zlcdy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_left_dymb" desc="获取左侧比对打印模版信息">
+        select id,mblx,mbmc,mbms,'' as diff
+        from gl_dymbdy_ls
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_dymb" desc="获取右侧比对打印模版信息">
+        select id,mblx,mbmc,mbms,'' as diff
+        from gl_dymbdy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_left_dymbnr" desc="获取左侧比对打印模版内容">
+        select b.nr from gl_dymbdy_ls a,gl_blob_ls b where a.id = %(id)s and a.nr_id = b.id
+    </sql>
+    <sql sqlid="get_bd_right_dymbnr" desc="获取右侧比对打印模版内容">
+        select b.nr from gl_dymbdy a,gl_blob b where a.id = %(id)s and a.nr_id = b.id
+    </sql>
+    <sql sqlid="get_bd_left_gghs" desc="获取左侧比对公共函数信息">
+        select id,mc,hsms,'' as diff
+        from gl_yw_gghs_ls
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_gghs" desc="获取右侧比对公共函数信息">
+        select id,mc,hsms,'' as diff
+        from gl_yw_gghs
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_left_gghsnr" desc="获取左侧比对公共函数内容">
+        select b.nr from gl_yw_gghs_ls a,gl_blob_ls b where a.id = %(id)s and a.nr_id = b.id
+    </sql>
+    <sql sqlid="get_bd_right_gghsnr" desc="获取右侧比对公共函数内容">
+        select b.nr from gl_yw_gghs a,gl_blob b where a.id = %(id)s and a.nr_id = b.id
+    </sql>
+    <sql sqlid="get_bd_left_sjbxx" desc="获取左侧比对数据表信息">
+        select id,sjbmc,sjbmcms,'' as diff from gl_sjkmxdy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_sjbxx" desc="获取右侧比对数据表信息">
+        select id,sjbmc,sjbmcms,'' as diff from gl_sjkmxdy where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_left_sjbzd" desc="获取左侧比对数据表字段">
+        select id,zdmc,zdlx,zdcd,xscd,sfkk,iskey,mrz,zdms,'' as diff from gl_sjkzdb_ls where sjb_id = %(id)s order by zdmc
+    </sql>
+    <sql sqlid="get_bd_right_sjbzd" desc="获取右侧比对数据表字段">
+        select id,zdmc,zdlx,zdcd,xscd,sfkk,iskey,mrz,zdms,'' as diff from gl_sjkzdb where sjb_id = %(id)s order by zdmc
+    </sql>
+    <sql sqlid="get_bd_left_sjbsy" desc="获取左侧比对数据表索引">
+        select id,symc,syzd,sylx,sfwysy,'' as diff from gl_sjksy_ls where sssjb_id = %(id)s order by symc
+    </sql>
+    <sql sqlid="get_bd_right_sjbsy" desc="获取右侧比对数据表索引">
+        select id,symc,syzd,sylx,sfwysy,'' as diff from gl_sjksy where sssjb_id = %(id)s order by symc
+    </sql>
+    <sql sqlid="get_bd_left_sjbys" desc="获取左侧比对数据表约束">
+        select id,ysmc,yszd,'' as diff from gl_sjkys_ls where sssjb_id = %(id)s order by ysmc
+    </sql>
+    <sql sqlid="get_bd_right_sjbys" desc="获取右侧比对数据表约束">
+        select id,ysmc,yszd,'' as diff from gl_sjkys where sssjb_id = %(id)s order by ysmc
+    </sql>
+    <sql sqlid="get_bd_left_jd" desc="获取左侧比对节点信息">
+        select id,jdlx,bm,jdmc,jdms,'' as diff from gl_jddy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_jd" desc="获取右侧比对节点信息">
+        select id,jdlx,bm,jdmc,jdms,'' as diff from gl_jddy where id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_left_jdys" desc="获取左侧比对节点输入、输出要素">
+        select a.id, a.bm, a.ysmc, a.mrz, a.ly, a.jkjy, a.ssgzmc, a.zjcs, '' as diff
+            , case when b.csdm is null then '1' else '2' end as gslb
+        from gl_jdys_ls a left join (
+                select distinct csdm from gl_csdy where lx = '5'
+            ) b on a.bm = b.csdm
+        where a.jddyid = %(id)s 
+            and a.lb = %(lb)s
+        order by a.bm
+    </sql>
+    <sql sqlid="get_bd_right_jdys" desc="获取右侧比对节点输入、输出要素">
+        select a.id, a.bm, a.ysmc, a.mrz, a.ly, a.jkjy, a.ssgzmc, a.zjcs, '' as diff
+            , case when b.csdm is null then '1' else '2' end as gslb
+        from gl_jdys a left join (
+                select distinct csdm from gl_csdy where lx = '5'
+            ) b on a.bm = b.csdm
+        where a.jddyid = %(id)s 
+            and a.lb = %(lb)s 
+        order by a.bm
+    </sql>
+    <sql sqlid="get_bd_left_jdfhz" desc="获取左侧比对节返回值">
+        select id,bm,ysmc,'' as diff from gl_jdys_ls where jddyid = %(id)s and lb = '3' order by bm
+    </sql>
+    <sql sqlid="get_bd_right_jdfhz" desc="获取右侧比对节返回值">
+        select id,bm,ysmc,'' as diff from gl_jdys where jddyid = %(id)s and lb = '3' order by bm
+    </sql>
+    <sql sqlid="get_bd_left_jdljdm" desc="获取左侧比对节点逻辑代码">
+        select b.nr from gl_jddy_ls a,gl_blob_ls b where a.id = %(id)s and a.dm_id = b.id
+    </sql>
+    <sql sqlid="get_bd_right_jdljdm" desc="获取右侧比对节点逻辑代码">
+        select b.nr from gl_jddy a,gl_blob b where a.id = %(id)s and a.dm_id = b.id
+    </sql>
+    <sql sqlid="get_extend_zlcjy" desc="获取哪些交易包含子流程">
+        select distinct b.jddyid from gl_jydy_ls a,gl_lcbj_ls b 
+        where a.id = %(id)s
+        and a.id = b.ssjyid 
+        and b.jdlx = '2'
+    </sql>
+    <sql sqlid="get_extend_czpz" desc="获取哪些交易包含子流程">
+        select distinct b.czpzid from gl_jydy_ls a,gl_lcbj_ls b 
+        where a.id = %(id)s
+        and a.id = b.ssjyid 
+        and b.czpzid is not null
+        and b.czpzid != ''
+    </sql>
+    <sql sqlid="get_extend_czpz_zlc" desc="获取哪些交易包含子流程">
+        select distinct b.czpzid from gl_zlcdy_ls a,gl_lcbj_ls b 
+        where a.id = %(id)s
+        and a.id = b.sszlcid
+        and b.czpzid is not null
+        and b.czpzid != ''
+    </sql>
+    
+    <sql sqlid="check_zlc_exist" desc="校验交易对应的子流程是否存在">
+        select distinct id from ${paras._tb(paras.tname)} where ${paras._or('id',paras.zlcid_lst)}
+    </sql>
+    <sql sqlid="get_ywmc" desc="获取需要升级的业务名称">
+        select ywmc from gl_ywdy where id = %(id)s
+    </sql>
+    <sql sqlid="get_ywxx" desc="获取原业务信息">
+        select id,ywbm,ywmc,ywms,cjr,cjsj from gl_ywdy where id = %(id)s
+    </sql>
+    <sql sqlid="delete_yw" desc="删除正式表中的业务信息">
+        delete from gl_ywdy where id = %(id)s
+    </sql>
+    <sql sqlid="ins_ywdy_from_lsb" desc="将临时表中的业务信息导入到正式表">
+        insert into gl_ywdy select * from gl_ywdy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="ins_csdy_from_lsb" desc="将临时表中的业务参数、交易参数、通讯参数导入到正式表">
+        insert into gl_csdy select * from gl_csdy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="get_csxx" desc="从正式表中获取参数信息">
+        select * from gl_csdy where ssid = %(id)s
+    </sql>
+    <sql sqlid="get_csxx_from_lsb" desc="从临时表中获取参数信息">
+        select * from gl_csdy_ls where ssid = %(id)s
+    </sql> 
+    <sql sqlid="update_csxx" desc="更新参数信息">
+        update gl_csdy set csdm=%(csdm)s,csms=%(csms)s,value=%(value)s,lx=%(lx)s,ssid=%(ssid)s,zt=%(zt)s,
+        czr=%(czr)s,czsj=%(czsj)s,wym=%(wym)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_jyxx" desc="从正式表中获取交易信息">
+        select * from gl_jydy where id = %(id)s
+    </sql>
+    <sql sqlid="get_jyxx_from_lsb" desc="从临时表中获取交易信息">
+        select * from gl_jydy_ls where id = %(id)s
+    </sql> 
+    <sql sqlid="update_jyxx" desc="更新交易信息">
+        update gl_jydy set ssywid=%(ssywid)s,jym=%(jym)s,jymc=%(jymc)s,jyms=%(jyms)s,timeout=%(timeout)s,zdfqpz=%(zdfqpz)s,zdfqpzsm=%(zdfqpzsm)s,dbjdid=%(dbjdid)s,jbjdid=%(jbjdid)s,
+        czr=%(czr)s,czsj=%(czsj)s,wym=%(wym)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_jydy_from_lsb" desc="获取临时表内容">
+        select * from gl_jydy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="ins_jydy_from_lsb" desc="将临时表中的交易信息导入到正式表">
+        insert into gl_jydy select * from gl_jydy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="get_lcbj_id" desc="获取交易、子流程的流程布局">
+        select id from gl_lcbj_ls where ${paras._tb(paras.field)} = %(id)s
+    </sql>
+    <sql sqlid="delete_lczx" desc="删除正式表中的流程走向">
+        delete from gl_lczx where ssid = %(ssid)s
+    </sql>
+    <sql sqlid="delete_lcbj" desc="删除正式表中的流程布局">
+        delete from gl_lcbj where ${paras._tb(paras.field)} = %(id)s
+    </sql>
+    <sql sqlid="ins_lbcj_from_lsb" desc="将流程布局信息从临时表导入正式表">
+        insert into gl_lcbj select * from gl_lcbj_ls where ${paras._tb(paras.field)} = %(id)s
+    </sql>
+    <sql sqlid="ins_lczx_from_lsb" desc="将流程走向信息从临时表导入正式表">
+        insert into gl_lczx select * from gl_lczx_ls where ssid = %(ssid)s
+    </sql>
+    <sql sqlid="ins_blob_for_bbtj" desc="插入BLOB管理表">
+        insert into gl_blob(id,lx,czr,czsj,nr) values(%(id)s,%(lx)s,%(czr)s,%(czsj)s,%(nr)s)
+    </sql>
+    <sql sqlid="ins_bbkz_for_bbtj" desc="插入版本控制表">
+        insert into gl_bbkz(id,lx,ssid,bbh,tjr,tjsj,tjms,nr_id,wym)
+        values(%(id)s,%(lx)s,%(ssid)s,%(bbh)s,%(tjr)s,%(tjsj)s,%(tjms)s,%(nr_id)s,%(wym)s)
+    </sql>
+    <sql sqlid="get_zlcxx" desc="从正式表中获取子流程信息">
+        select * from gl_zlcdy where id = %(id)s
+    </sql>
+    <sql sqlid="get_zlcxx_from_lsb" desc="从临时表中获取子流程信息">
+        select * from gl_zlcdy_ls where id = %(id)s
+    </sql> 
+    <sql sqlid="update_zlcxx" desc="更新子流程信息">
+        update gl_zlcdy set lb=%(lb)s,bm=%(bm)s,ms=%(ms)s,ssywid=%(ssywid)s,czr=%(czr)s,czsj=%(czsj)s,
+        wym=%(wym)s,mc=%(mc)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="ins_zlcdy_from_lsb" desc="将临时表中的子流程信息导入到正式表">
+        insert into gl_zlcdy select * from gl_zlcdy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="get_dymbxx" desc="从正式表中获取打印模版信息">
+        select a.*,b.nr from gl_dymbdy a,gl_blob b where a.id = %(id)s and a.nr_id = b.id
+    </sql>
+    <sql sqlid="get_dymbxx_from_lsb" desc="从临时表中获取打印模版信息">
+        select a.*,b.nr from gl_dymbdy_ls a,gl_blob_ls b where a.id = %(id)s and a.nr_id = b.id
+    </sql> 
+    <sql sqlid="update_dymbxx" desc="更新打印模版信息">
+        update gl_dymbdy set mbmc=%(mbmc)s,mbms=%(mbms)s,mblx=%(mblx)s,czr=%(czr)s,czsj=%(czsj)s,nr_id=%(nr_id)s,
+        ssyw_id=%(ssyw_id)s,wym=%(wym)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="ins_dymb_from_lsb" desc="将临时表中的打印模版信息导入到正式表">
+        insert into gl_dymbdy select * from gl_dymbdy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="delete_blob" desc="删除正式表中的打印模版、公共函数内容">
+        delete from gl_blob where id = %(id)s
+    </sql> 
+    <sql sqlid="ins_blob_for_lsb" desc="将临时表中的数据导入到正式版">
+        insert into gl_blob select * from gl_blob_ls where id = %(id)s
+    </sql>
+    <sql sqlid="get_gghsxx" desc="从正式表中获取公共函数信息">
+        select a.*,b.nr from gl_yw_gghs a,gl_blob b where a.id = %(id)s and a.nr_id = b.id
+    </sql>
+    <sql sqlid="get_gghsxx_from_lsb" desc="从临时表中获取公共函数信息">
+        select a.*,b.nr from gl_yw_gghs_ls a,gl_blob_ls b where a.id = %(id)s and a.nr_id = b.id
+    </sql> 
+    <sql sqlid="update_gghsxx" desc="更新公共函数信息">
+        update gl_yw_gghs set ssyw_id=%(ssyw_id)s,czr=%(czr)s,czsj=%(czsj)s,nr_id=%(nr_id)s,
+        mc=%(mc)s,hsms=%(hsms)s,wym=%(wym)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="ins_gghs_from_lsb" desc="将临时表中的公共函数信息导入到正式表">
+        insert into gl_yw_gghs select * from gl_yw_gghs_ls where id = %(id)s
+    </sql> 
+    <sql sqlid="get_sjbwym" desc="从正式表中查询数据表信息">
+        select wym from gl_sjkmxdy where id = %(id)s
+    </sql>
+    <sql sqlid="get_sjbwym_from_lsb" desc="从临时表中查询数据表信息">
+        select sjbmc,wym from gl_sjkmxdy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="ins_sjkmxdy" desc="将临时表中的数据库模型信息导入到正式表">
+        insert into gl_sjkmxdy select * from gl_sjkmxdy_ls where id = %(id)s
+    </sql>
+    <sql sqlid="ins_sjkzdb" desc="将临时表中的数据库字段信息导入到正式表">
+        insert into gl_sjkzdb select * from gl_sjkzdb_ls where sjb_id = %(id)s
+    </sql>
+    <sql sqlid="ins_sjkys" desc="将临时表中的数据库约束信息导入到正式表">
+        insert into gl_sjkys select * from gl_sjkys_ls where sssjb_id = %(id)s and ysmc not in ( select symc from gl_sjksy_ls where sssjb_id = %(id)s )
+    </sql>
+    <sql sqlid="ins_sjksy" desc="将临时表中的数据库索引信息导入到正式表">
+        insert into gl_sjksy select * from gl_sjksy_ls where sssjb_id = %(id)s
+    </sql>
+    <sql sqlid="get_txlsb_id" desc="从临时表中获取待导入的通讯ID">
+        select id from gl_txgl_ls
+    </sql>
+    <sql sqlid="get_tx_count" desc="校验待导入通讯在正式表中是否存在">
+        select count(0)  as count from gl_txgl where id = %(txid)s
+    </sql>
+    <sql sqlid="get_left_txcs" desc="获取左侧通讯参数">
+        select a.wym,b.id
+        from gl_csdy_ls a,gl_txgl_ls b
+        where a.ssid = b.id
+        %if paras.txid_lst:
+            and (${paras._or('b.id',paras.txid_lst)})
+        %endif
+        order by b.bm,a.csdm    
+    </sql>
+    <sql sqlid="get_right_txcs" desc="获取右侧通讯参数">
+        select a.wym,b.id
+        from gl_csdy a,gl_txgl b
+        where a.ssid = b.id
+        and (${paras._or('b.id',paras.txid_lst)})
+        order by b.bm,a.csdm    
+    </sql>
+    <sql sqlid="get_left_txxx" desc="获取左侧通讯信息">
+        select id ,wym,'' as diff,mc as name
+        from gl_txgl_ls
+        %if paras.txid_lst:
+            where ${paras._or('id',paras.txid_lst)}
+        %endif
+        order by bm
+    </sql>
+    <sql sqlid="get_right_txxx" desc="获取右侧通讯信息">
+        select id,wym,'' as diff,mc as name
+        from gl_txgl
+        where ${paras._or('id',paras.txid_lst)}
+        order by bm
+    </sql>
+    <sql sqlid="get_left_cdtx" desc="获取左侧通讯接口信息">
+        select c.mc as name,a.id as id,a.wym||c.wym as wym,b.xm as xgr,a.czsj as xgsj,a.txglid,'' as diff,'cdtx' as lx
+        from gl_cdtx_ls a left join gl_hydy b on a.czr = b.hydm,gl_zlcdy_ls c
+        where a.zlcdyid = c.id 
+        %if paras.txid_lst:
+            and ( ${paras._or('a.txglid',paras.txid_lst)} )
+        %endif
+        order by c.bm 
+    </sql>
+    <sql sqlid="get_right_cdtx" desc="获取右侧通讯接口信息">
+        select c.mc as name,a.id as id,a.wym||c.wym as wym,b.xm as xgr,a.czsj as xgsj,a.txglid,'' as diff,'cdtx' as lx
+        from gl_cdtx a left join gl_hydy b on a.czr = b.hydm,gl_zlcdy c
+        where a.zlcdyid = c.id 
+        and ( ${paras._or('a.txglid',paras.txid_lst)} )
+        order by c.bm 
+    </sql>
+    <sql sqlid="get_left_txjd" desc="获取左侧通讯节点">
+        select id,wym,name,xgr,xgsj,diff,'jd' as lx,bm,jdlx
+        from (
+            select distinct b.id,b.wym,b.jdmc as name,c.xm as xgr,b.czsj as xgsj,'' as diff,b.bm,b.jdlx
+            from gl_jddy_ls b left join gl_hydy c on b.czr = c.hydm,gl_cdtx_ls a
+            where ${paras._tb(paras.field)}= b.id
+            %if paras.txid_lst:
+                and ( ${paras._or('a.txglid',paras.txid_lst)} )
+            %endif
+        ) a
+        order by a.bm
+    </sql>
+    <sql sqlid="get_right_txjd" desc="获取右侧通讯节点">
+        select id,wym,name,xgr,xgsj,diff,'jd' as lx,bm,jdlx
+        from (
+            select distinct b.id,b.wym,b.jdmc as name,c.xm as xgr,b.czsj as xgsj,'' as diff,b.bm,b.jdlx
+            from gl_jddy b left join gl_hydy c on b.czr = c.hydm,gl_cdtx a
+            where ${paras._tb(paras.field)}= b.id
+            and ( ${paras._or('a.txglid',paras.txid_lst)} )
+        ) a
+        order by a.bm
+    </sql>
+    <sql sqlid="get_bd_left_txxx" desc="获取左侧通讯基本信息">
+        select a.id,a.bm,a.mc,c.mc as txlx,a.fwfx,a.txwjmc,a.cssj,a.jcbfs,'' as diff,b.nr
+        from gl_txgl_ls a left join gl_blob_ls b on a.jcjymhsid = b.id
+        left join gl_bmwh_ls c on a.txlx = c.bm and c.lx = '4'
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_txxx" desc="获取右侧通讯基本信息">
+        select a.id,a.bm,a.mc,c.mc as txlx,a.fwfx,a.txwjmc,a.cssj,a.jcbfs,'' as diff,b.nr
+        from gl_txgl a left join gl_blob b on a.jcjymhsid = b.id
+        left join gl_bmwh c on a.txlx = c.bm and c.lx = '4'
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_left_cdtx" desc="获取左侧C端通讯信息">
+        select a.id,a.bm,d.mc as zlcmc,a.dfjym,a.dfjymc,b.jdmc as dbjdmc,c.jdmc as jbjdmc,a.cssj,d.id as zlcid
+        from gl_cdtx_ls a,gl_jddy_ls b,gl_jddy_ls c,gl_zlcdy_ls d
+        where a.dbjdid = b.id
+        and a.jbjdid = c.id
+        and a.zlcdyid = d.id
+        and a.id = %(id)s
+    </sql>
+    <sql sqlid="get_bd_right_cdtx" desc="获取右侧C端通讯信息">
+        select a.id,a.bm,d.mc as zlcmc,a.dfjym,a.dfjymc,b.jdmc as dbjdmc,c.jdmc as jbjdmc,a.cssj,d.id as zlcid
+        from gl_cdtx a,gl_jddy b,gl_jddy c,gl_zlcdy d
+        where a.dbjdid = b.id
+        and a.jbjdid = c.id
+        and a.zlcdyid = d.id
+        and a.id = %(id)s
+    </sql>
+    <sql sqlid="update_jy_zt" desc="暂停或启动交易">
+        update gl_jydy set zt = %(zt)s where ${paras._or('id',paras.jyid_lst)}
+    </sql>
+    <sql sqlid="get_sjkmx" desc="获取数据表模型">
+        select sjbmc,sjbmcms from gl_sjkmxdy where id = %(id)s
+    </sql> 
+    <sql sqlid="get_sjkzd" desc="获取数据库字段">
+        select zdmc,zdms,zdlx,zdcd,xscd,sfkk,iskey,mrz from gl_sjkzdb where sjb_id = %(id)s
+    </sql> 
+    <sql sqlid="get_sjksy" desc="获取数据库索引">
+        select symc,syzd,sylx,sfwysy from gl_sjksy where sssjb_id = %(id)s
+    </sql> 
+    <sql sqlid="get_sjkys" desc="获取数据库约束">
+        select ysmc,yszd from gl_sjkys where sssjb_id = %(id)s
+    </sql> 
+    <sql sqlid="get_sjkzd_from_lsb" desc="从临时表获取数据库字段">
+        select zdmc,zdms,zdlx,zdcd,xscd,sfkk,iskey,mrz from gl_sjkzdb_ls where sjb_id = %(id)s
+    </sql> 
+    <sql sqlid="get_sjksy_from_lsb" desc="从临时表获取数据库索引">
+        select symc,syzd,sylx,sfwysy from gl_sjksy where sssjb_id_ls = %(id)s
+    </sql> 
+    <sql sqlid="get_sjkys_from_lsb" desc="从临时表获取数据库约束">
+        select ysmc,yszd from gl_sjbys where sssjb_id_ls = %(id)s
+    </sql> 
+    <sql sqlid="get_jdxx" desc="从正式表中获取节点信息">
+        select a.*,b.nr from gl_jddy a,gl_blob b where a.id = %(id)s and a.dm_id = b.id
+    </sql>
+    <sql sqlid="get_jdxx_from_lsb" desc="从临时表中获取节点信息">
+        select a.*,b.nr from gl_jddy_ls a,gl_blob_ls b where a.id = %(id)s and a.dm_id = b.id
+    </sql> 
+    <sql sqlid="update_jdxx" desc="更新节点信息">
+        update gl_jddy set bm=%(bm)s,jdlx=%(jdlx)s,jdmc=%(jdmc)s,jdms=%(jdms)s,dm_id=%(dm_id)s,
+        filename=%(filename)s,functionname=%(functionname)s,type=%(type)s,czr=%(czr)s,czsj=%(czsj)s,wym=%(wym)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="ins_jd_from_lsb" desc="将临时表中的节点信息导入到正式表">
+        insert into gl_jddy select distinct * from gl_jddy_ls where id = %(id)s
+    </sql> 
+    <sql sqlid="get_jdys" desc="获取节点要素的原始数据">
+        select a.id, a.lb, a.bm, a.ysmc, a.jddyid, a.mrz, a.ly, a.jkjy, a.ssgzmc, a.zjcs 
+            , case when b.csdm is null then '1' else '2' end as gslb
+        from gl_jdys a left join (
+                select distinct csdm from gl_csdy where lx = '5'
+            ) b on a.bm = b.csdm
+        where a.jddyid = %(id)s
+    </sql>
+    <sql sqlid="delete_jdys" desc="将正式表中的节点要素删除">
+        delete from gl_jdys where jddyid=%(id)s
+    </sql>
+    <sql sqlid="ins_jdys_from_lsb" desc="将临时表中的节点要素插入到正式表">
+        insert into gl_jdys select * from gl_jdys_ls where jddyid = %(id)s
+    </sql>
+    <sql sqlid="get_csal_from_lsb" desc="获取测试案例信息">
+        select demoid,jdcsalzxbzlb from gl_csaldy_ls where ssid = %(ssid)s and sslb = %(sslb)s
+    </sql>
+    <sql sqlid="get_csal_from_zsb" desc="获取测试案例信息">
+        select demoid,jdcsalzxbzlb from gl_csaldy where ssid = %(ssid)s and sslb = %(sslb)s
+    </sql>
+    <sql sqlid="delete_jdcsalys" desc="删除节点测试案例要素">
+        delete from gl_jdcsalys where ${paras._or('jdcsalzxbz',paras.jdcsalzxbzid_lst)}
+    </sql>
+    <sql sqlid="delete_jdcsalzxbz" desc="删除节点测试案例执行步骤">
+        delete from gl_jdcsalzxbz where ${paras._or('id',paras.jdcsalzxbzid_lst)}
+    </sql>
+    <sql sqlid="delete_csal" desc="删除测试案例">
+        delete from gl_csaldy where ssid = %(ssid)s and sslb = %(sslb)s
+    </sql>
+    <sql sqlid="delete_csal2" desc="删除测试案例">
+        delete from gl_csaldy where ssid = %(ssid)s and sslb = %(sslb)s 
+        and (ssjy_id in ( select id from gl_zlcdy_ls ) or ssjy_id in ( select id from gl_jydy_ls ))
+    </sql>
+    <sql sqlid="delete_demo_sj" desc="删除demo数据">
+        delete from gl_demo_sj where  ${paras._or('demojbxxid',paras.demoid_lst)}
+    </sql>
+    <sql sqlid="delete_demo_jbxx" desc="删除demo基本信息">
+        delete from gl_demo_jbxx where ${paras._or('id',paras.demoid_lst)}
+    </sql>
+    <sql sqlid="ins_csal_from_lsb" desc="插入测试案例">
+        insert into gl_csaldy select distinct * from gl_csaldy_ls where ssid = %(ssid)s and sslb = %(sslb)s
+    </sql>
+    <sql sqlid="ins_jdcsalzxbz_from_lsb" desc="插入节点测试案例执行步骤">
+        insert into gl_jdcsalzxbz select distinct * from gl_jdcsalzxbz_ls where ${paras._or('id',paras.jdcsalzxbzid_lst)}
+    </sql>
+    <sql sqlid="ins_jdcsalys_from_lsb" desc="插入节点测试案例要素">
+        insert into  gl_jdcsalys select distinct * from gl_jdcsalys_ls where ${paras._or('jdcsalzxbz',paras.jdcsalzxbzid_lst)}
+    </sql>
+    <sql sqlid="ins_demojbxx_from_lsb" desc="插入demo基本信息">
+        insert into  gl_demo_jbxx select * from gl_demo_jbxx_ls where ${paras._or('id',paras.demoid_lst)}
+    </sql>
+    <sql sqlid="ins_demosj_from_lsb" desc="插入demo数据">
+        insert into  gl_demo_sj select * from gl_demo_sj_ls where  ${paras._or('demojbxxid',paras.demoid_lst)}
+    </sql>
+    <sql sqlid="get_bmwh_id" desc="从临时表中获取需要导入的编码维护表信息">
+        select id from gl_bmwh_ls 
+    </sql>
+    <sql sqlid="get_bmwh_xx" desc="获取编码维护表的原始数据">
+        select id,lx,bm,mc from gl_bmwh where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid="delete_bmwh" desc="删除编码维护表信息">
+        delete from gl_bmwh where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid="ins_bmwh_from_lsb" desc="将编码维护信息从临时表导入至正式表">
+        insert into gl_bmwh select * from gl_bmwh_ls where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid="update_drls" desc="更新导入流水">
+        update gl_drls set ss_idlb=%(ss_idlb)s,czr=%(czr)s,czsj=%(czsj)s,bz=%(bz)s,czms=%(czms)s,fhr=%(fhr)s,zt=%(zt)s,ssywid=%(ssywid)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="ins_czls_to_blob" desc="登记导入操作流水">
+        insert into gl_blob(id,lx,czr,czsj,nr,ssls) values(%(id)s,%(lx)s,%(czr)s,%(czsj)s,%(nr)s,%(ssls)s)
+    </sql>
+    <sql sqlid="get_txglxx" desc="从正式表中获取通讯基本信息">
+        select * from gl_txgl where id = %(id)s
+    </sql>
+    <sql sqlid="get_txglxx_from_lsb" desc="从临时表中获取通讯基本信息">
+        select * from gl_txgl_ls where id = %(id)s
+    </sql> 
+    <sql sqlid="update_txglxx" desc="更新通讯信息">
+        update gl_txgl set bm=%(bm)s,mc=%(mc)s,fwfx=%(fwfx)s,cssj=%(cssj)s,txwjmc=%(txwjmc)s,wym=%(wym)s,
+        txlx=%(txlx)s,czr=%(czr)s,czsj=%(czsj)s,jcbfs=%(jcbfs)s,jcjymhsid=%(jcjymhsid)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="ins_txgl_from_lsb" desc="将临时表中的通讯信息导入到正式表">
+        insert into gl_txgl select * from gl_txgl_ls where id = %(id)s
+    </sql>
+    <sql sqlid="ins_txgl_blob_from_lsb" desc="将临时表中的通讯信息导入到正式表">
+        insert into gl_blob select * from gl_blob_ls where id in (
+            select jcjymhsid from gl_txgl_ls where id = %(id)s
+        )
+    </sql>
+    <sql sqlid="get_cdtx" desc="从正式表中获取C端通讯信息">
+        select * from gl_cdtx where id = %(id)s
+    </sql>
+    <sql sqlid="get_cdtx_from_lsb" desc="从临时表中获取C端通讯信息">
+        select * from gl_cdtx_ls where id = %(id)s
+    </sql> 
+    <sql sqlid="update_cdtx" desc="更新C端通讯信息">
+        update gl_cdtx set bm=%(bm)s,zlcdyid=%(zlcdyid)s,txglid=%(txglid)s,dfjym=%(dfjym)s,dfjymc=%(dfjymc)s,cssj=%(cssj)s,
+        dblx=%(dblx)s,dbssid=%(dbssid)s,wym=%(wym)s,ssywid=%(ssywid)s,jbjdid=%(jbjdid)s,dbjdid=%(dbjdid)s,czr=%(czr)s,czsj=%(czsj)s,jkqyzt=%(jkqyzt)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="ins_cdtx_from_lsb" desc="将临时表中的C端通讯导入到正式表">
+        insert into gl_cdtx select * from gl_cdtx_ls where id = %(id)s
+    </sql>
+    <sql sqlid='get_drlsb' desc="校验导入的临时表是否存在">
+        select count(1) as count from user_tables where table_name = %(tname)s
+    </sql>
+    <sql sqlid="del_dbys" desc="删除该C端通讯下的所有的挡板要素">
+        delete from gl_dbys where dbdyid in ( select id from gl_dbdy where cdtxid = %(id)s)
+    </sql>
+    <sql sqlid="del_dbdy" desc="删除该C端通讯下的所有的挡板">
+        delete from gl_dbdy where cdtxid = %(id)s
+    </sql>
+    <sql sqlid="ins_dbdy_from_lsb" desc="将临时表中的挡板定义信息导入到正式版">
+        insert into gl_dbdy select * from gl_dbdy_ls where cdtxid = %(id)s
+    </sql>
+    <sql sqlid="ins_dbys_from_lsb" desc="将临时表中的挡板要素信息导入到正式版">
+        insert into gl_dbys  select * from gl_dbys_ls where dbdyid in ( select id from gl_dbdy_ls where cdtxid = %(id)s )
+    </sql>
+    <sql sqlid="get_jy_id_lst" desc="获取业务下所有的交易">
+        select id from gl_jydy where ssywid= %(ywid)s
+    </sql>
+    <sql sqlid="get_jy_zt" desc="获取交易状态">
+        select id,zt from gl_jydy where ${paras._or('id',paras.jyid_lst)}
+    </sql>
+    <sql sqlid="get_jdxx_from_jddy" desc="从节点定义表获取节点信息">
+        select a.id,a.jdmc as name,b.xm as xgr,a.czsj as xgsj,a.wym,'' as diff,'jd' as lx,a.bm
+        from ${paras._tb(paras.tname)} a left join gl_hydy b  on a.czr =b.hydm
+        where ${paras._or('a.id',paras.id_lst)}
+        order by a.bm
+    </sql>
+    <sql sqlid="get_drdclx_ls" desc="获取临时表中的导入类型">
+        select lx from gl_drdclx_ls
+    </sql>
+    <sql sqlid="get_ywid_ls" desc="获取临时表中的导入类型">
+        select distinct ssywid from gl_jydy_ls
+    </sql>
+</sqllist>

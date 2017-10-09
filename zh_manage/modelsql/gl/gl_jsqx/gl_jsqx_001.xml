@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+
+    <!--获取角色列表-->
+    <sql sqlid="data_js_rs" desc="获取角色列表">
+        select jsmc, id
+        from gl_jsdy
+        where scbz='0'
+        order by jsmc
+    </sql>
+
+    <!--获取菜单信息-->
+    <sql sqlid="get_cd_rs" desc="获取菜单信息">
+        select id,cdmc  from gl_cddy
+        where
+            scbz = '0'
+            %if paras.cdid:
+                and id = %(cdid)s
+            %endif
+        order by pxh
+    </sql>
+
+    <!--获取角色已有菜单权限-->
+    <sql sqlid="get_cdqxExit" desc="获取角色已有菜单权限">
+        select a.qxid from gl_jsqxpz a , gl_cddy b
+        where a.qxid  = b.id
+        and b.scbz ='0'
+        and a.jsid = %(jsid)s
+        and a.zt='1'
+    </sql>
+
+    <!--获取角色已有菜单权限-->
+    <sql sqlid="get_cdExit" desc="获取角色已有菜单">
+        select cdmc as text, id,fjdid
+        from  gl_cddy
+        where  scbz ='0'
+        and  (${paras._or('id',paras.ids)})
+
+    </sql>
+
+    <!--删除角色原有权限-->
+    <sql sqlid="delete_jsqxpz" desc="删除角色原有权限">
+        delete from gl_jsqxpz where jsid=%(jsid)s and  (${paras._or('qxid',paras.ids)})
+    </sql>
+
+   <!--删除角色对应用户对应的用户权限-->
+   <sql sqlid="delete_yhqxpz" desc="删除角色对应的用户对应的原有权限">
+      delete from gl_yhqxpz
+      where jsid =%(jsid)s
+      and (${paras._or('qxid',paras.ids)})
+    </sql>
+
+    <!--获取角色对应的用户-->
+    <sql sqlid="get_yh" desc="获取拥有指定角色下的用户">
+        select yhid from gl_yhjspz where jsid =%(jsid)s
+    </sql>
+
+    <!--获取用户拥有的角色-->
+    <sql sqlid="get_yhjs" desc="获取用户拥有角色">
+        select jsid from gl_yhjspz where yhid =%(yhid)s and jsid !=%(jsid)s
+    </sql>
+
+    <!--获取角色权限-->
+      <sql sqlid="get_jsqx" desc="获取角色下的权限">
+        select qxid from gl_jsqxpz where (${paras._or('jsid',paras.jsids)})
+    </sql>
+
+    <!--获取角色对应的用户对应的权限-->
+    <sql sqlid="get_yhqx" desc="获取拥有指定角色下的用户对应的权限">
+        select qxid from gl_yhqxpz where yhid =%(yhid)s
+    </sql>
+
+    <!--获取用户权限信息sql-->
+    <sql sqlid="data_qx_rs" desc="获取用户权限信息">
+        select b.cdmc as text, b.id, b.fjdid, b.lx as qxfl, d.mc as qxflmc, b.bz as qxms
+        from gl_yhqxpz a, gl_cddy b
+        left join (select bm,mc from gl_bmwh where lx = '10025') d on b.lx = d.bm
+        where a.qxid = b.id
+            and a.zt= '1'
+            and b.scbz= '0'
+            and a.yhid  = %(yhid)s
+        order by b.cdmc
+    </sql>
+
+    <!--插入角色权限-->
+    <sql sqlid="insert_jsqxpz" desc="插入角色权限">
+        insert into gl_jsqxpz (jsid, qxid,  zt, czr, czsj)
+         values(%(jsid)s, %(qxid)s,  '1', %(czr)s, %(czsj)s)
+    </sql>
+
+    <!--插入用户权限-->
+    <sql sqlid="insert_yhqxpz" desc="插入角色对应的用户的用户权限">
+        insert into gl_yhqxpz (yhid, qxid, jsid , zt, czr, czsj)
+         values(%(yhid)s, %(qxid)s, %(jsid)s ,'1', %(czr)s, %(czsj)s)
+    </sql>
+
+
+    <!--获取角色名称，用于登记日志-->
+    <sql sqlid="get_jsmc" desc="获取角色名称">
+        select jsmc as mc
+        from gl_jsdy
+        where id=%(id)s
+    </sql>
+
+    <!--获取角色已有按钮权限-->
+    <sql sqlid="get_anqxExit" desc="获取角色已有按钮权限">
+        select a.qxid from gl_jsqxpz a , gl_gndy b, gl_cddy c
+        where a.jsid = %(jsid)s
+        and c.id = %(cdid)s
+        and a.qxid  = b.id
+        and c.scbz ='0'
+        and c.id = b.sscdid
+        and a.zt='1'
+    </sql>
+
+    <!--获取上级菜单信息-->
+    <sql sqlid="data_sjcd_rs" desc="获取上级菜单列表数据">
+        select  id , cdmc
+        from gl_cddy
+        where scbz='0'
+        order by cdmc
+    </sql>
+
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_rs" desc="获取菜单列表-所有菜单">
+        select a.id , a.cdmc as text, a.lx, b.mc as lxmc, a.fjdid,  a.bz, a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh b on b.lx='10025' and b.bm = a.lx
+        where  scbz='0'
+        order by  pxh
+    </sql>
+
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_lst" desc="获取菜单列表包含父节点-部分菜单">
+        select a.id , a.cdmc as text, a.lx, d.mc as lxmc, a.fjdid,  a.bz as qxms , a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh d on d.lx='10025' and d.bm = a.lx
+        where  scbz='0'
+        and (${paras._or('a.id',paras.ids)})
+        order by  pxh
+    </sql>
+
+    <!--获取菜单对应的功能列表-->
+    <sql sqlid="data_gnlb_rs" desc="获取菜单对应的功能列表">
+         select id,gndm,gnmc,bz,sscdid from gl_gndy where sscdid = %(sscdid)s
+    </sql>
+
+</sqllist>

@@ -1,0 +1,65 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>阈值校验流水</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/locale/easyui-lang-zh_CN.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <!-- 阈值校验流水调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_gtpm/yw_gtpm_003/yw_gtpm_003.js"></script>
+    <!--获取后台的初始化对象-->
+    <script>
+        // 对象类型
+        var ssyw = ${ssyw};
+        // 对象状态
+        var jklx = ${jklx};
+    </script>
+</head>
+
+<body>
+
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'north'" style="height:40px;">
+        <form id="yzjylsForm">
+            <table>
+                <tr style="height:34px;">
+                    <td nowrap="nowrap" align="right">所属业务：</td>
+                    <td style="width: 200px;"><input class="easyui-combobox" name="ssyw" id="selSsyw" style="width: 180px;" data-options="editable:false"/>&nbsp;</td>
+                    <td nowrap="nowrap" align="right">开始日期：</td>
+                    <td style="width: 200px;"><input class="easyui-datebox" name="startJyrq" id="dateStartJyrq" style="width: 180px;"/>&nbsp;</td>
+                    <td nowrap="nowrap" align="right">结束日期：</td>
+                    <td style="width: 200px;"><input class="easyui-datebox" name="endJyrq" id="dateEndJyrq" style="width: 180px;"/>&nbsp;</td>
+                    <td nowrap="nowrap" align="right">状态：</td>
+                    <td style="width: 200px;"><input class="easyui-combobox" name="jklx" id="selJklx" style="width: 180px;" data-options="editable:false"/>&nbsp;</td>
+                    <td><button class="easyui-linkbutton" style="width: 80px;" id = 'lbtnSearch'>查询</button>&nbsp;</td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false">
+        <table id="dgYzxyls"></table>
+    </div>
+</div>
+<!--编辑窗口引用-->
+<div id="divXzcs" class="easyui-window"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="overflow:hidden">
+    <iframe scrolling="auto" id="iframeXzcs" frameborder="0" style="width:100%;height:100%;"></iframe>
+</div>
+</body>
+
+</html>

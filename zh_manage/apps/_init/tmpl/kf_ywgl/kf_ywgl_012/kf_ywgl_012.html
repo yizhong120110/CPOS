@@ -1,0 +1,265 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>数据库表信息查看</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/accounting.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_012/kf_ywgl_012.js"></script>
+</head>
+<body onload = 'init()'>
+    <input type = 'hidden' id = 'sjbmc' value = "${sjkmxdy_dic['sjbmc']}">
+    <input type = 'hidden' id = 'sjbms' value = "${sjkmxdy_dic['sjbms']}">
+    <input type = 'hidden' id = 'demojbxxid' value = "${demojbxxid}">
+    <input type = 'hidden' id = 'lx' value = "${lx}">
+    <input type = 'hidden' id = 'hidPt' value = "${pt}">
+    <!-- 数据库表信息查看页面的div -->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <!-- 数据库表信息查看展示的div -->
+        <div data-options="region:'center',border:false">
+            <%
+                # 不查询的字段类型
+                not_type_lst = ('CLOB','BLOB','NCLOB','BFILE','LONG','RAW','LONG RAW')
+                #主键表名称
+                sjbmc = sjkmxdy_dic['sjbmc']
+                #数据表主键
+                sjbzj = [ zdxx['zdmc'] for zdxx in dg_columns if zdxx['zjtype'] == 's' ]
+                sjbzj_str = ",".join( sjbzj )
+                #数据表主键type
+                sjbzjtype = []
+                #全部字段集合
+                zdmc_str = ','.join( [ zdxx['zdmc'] for zdxx in dg_columns ] )
+                #显示、编辑字段的信息
+                zdmc_str_sel = ','.join( [ zdxx['zdmc'] for zdxx in dg_columns if zdxx['zdtype'] not in not_type_lst ] )
+                #number字段类型字段
+                zdmc_xsws_str = ','.join( [ ('%s:%s') % ( zdxx['zdmc'], zdxx['xsws'] if zdxx['xsws'] and zdxx['xsws']>=0 else 0 ) for zdxx in dg_columns if zdxx['zdtype'] == 'NUMBER' ] )
+                #字段信息集合（字段名称，字段描述，字段长度，是否可控，数据类型, 小数位数, 总位数）
+                zdxx_str = '|'.join( [ '%s,%s,%d,%s,%s,%d,%d' % ( zdxx['zdmc'], zdxx['zdms'],zdxx['zdcd'],zdxx['sfkk'],zdxx['zdtype'],zdxx['xsws'] if zdxx['xsws'] and zdxx['xsws']>=0 else 0,zdxx['zsws'] if zdxx['zsws'] and zdxx['zsws']>=0 else 0 ) for zdxx in dg_columns ] )
+                #显示字段的 WIDTH
+                columns_len = len(dg_columns)
+                #默认宽度
+                max_cd = 60
+                #获取date类型字段
+                date_zd_lst = []
+                #默认字段集合
+                mrz_lst = [ '%s:%s' % ( field['zdmc'], field['mrz'] ) for field in dg_columns if field['mrz'] ]
+                
+            %>
+            <table id="dgSjkbxxck" class="easyui-datagrid"> <!--data-options="url:'/oa/kf_ywgl/kf_ywgl_012/kf_ywgl_012_view/data_view?sjbmc=${sjbmc}&zdmc_str=${zdmc_str_sel}&sjbzj_str=${sjbzj_str}&zdxx_str=${zdxx_str}'">-->
+                <thead>
+                    <tr>
+                        %if pt == 'kf':
+                        <th data-options="field:'cz',width:75,halign:'center',align:'left',formatter: function(value,rowData,rowIndex){
+                            return '<a href=\'javascript:void(0)\' onclick =\'javascript:showHide(1,'+rowIndex+');\'>编辑</a>';}">操作</th>
+                        %endif
+                        %for field in dg_columns:
+                        <%
+                            #字段名称
+                            zdmc = field['zdmc']
+                            #字段描述
+                            zdms = field['zdms']
+                            zdms = zdms if zdms and zdms != 'None' else zdmc.upper()
+                            #字段类型
+                            zdtype = field['zdtype']
+                            #是否主键 s（是），f（否）
+                            zjtype = field['zjtype']
+                            if zjtype == 's':
+                                sjbzjtype.append( zdtype )
+                            #NUMBER类型小数位数
+                            xsws = field['xsws'] if field['xsws'] and field['xsws']>=0 else 0
+                            #显示信息位置：默认居左
+                            algin_type = 'left'
+                            #是否需要对浮点数千分位处理
+                            formatter_str = ''
+                            if zdtype in ['NUMBER','FLOAT']:
+                                algin_type = 'right'
+                                formatter_str = ",formatter: function(value,row,index){ return accounting.formatNumber(value,%d);}" % ( xsws )
+                            #date数据库类型的数据居中显示
+                            if zdtype == 'DATE':
+                                algin_type = 'center'
+                                date_zd_lst.append( zdmc )
+                            #特殊类型不进行显示
+                            if zdtype in not_type_lst:
+                                formatter_str = ",formatter: function(value,row,index){ return '[%s]类型数据不展示,不编辑';}" % ( zdtype )
+                            #计算长度
+                            cd = field['zsws'] if field['zsws'] and field['zsws'] else (  field['zdcd'] if field['zdcd'] and field['zdcd'] > 0 else 0 )
+                            if cd <= 0:
+                                cd = max_cd
+                            elif cd < 5 and cd > 0:
+                                cd = 7
+                            if zdtype == 'DATE':
+                                cd = 12
+                            if len(zdms)*2 > cd:
+                                cd = len(zdms)*2 + 2
+                            if zdtype in not_type_lst and cd < 30:
+                                cd = 30
+                            if cd > max_cd:
+                                cd = max_cd
+                            field_width = cd * 0.5
+                            #字段说明（ [cb]varchar[/cb](32), [cg]ZZETC客户解约登记簿[/cg], [cr]主键[/cr] ）
+                            zsws = field['zsws']
+                            xszdcd = str(field['zdcd']) if field['zdcd'] else ''
+                            if zsws:
+                                xszdcd = str(zsws)
+                                if xsws:
+                                    xszdcd += ',' + str(xsws)
+                            zdsm = "[cb]%s[/cb](%s), [cg]%s[/cg]" % ( zdtype, xszdcd, zdms )
+                            if zdtype in [ 'DATE', 'LONG' ]:
+                                zdsm = "[cb]%s[/cb], [cg]%s[/cg]" % ( zdtype, zdms )
+                            if zjtype == 's':
+                                zdsm += ', [cr]主键[/cr]'
+                            
+                        %>
+                        <th data-options="field:'${ zdmc }',width:'${ field_width }%',halign:'center',align:'${algin_type}'${formatter_str}, ttip:true, ttipMsg:'${zdsm}', ttipEvent:'hover', ttipPosition:'top'" >${ zdmc }</th>
+                        %endfor
+
+                    </tr>
+                </thead>
+            </table>
+            <input type = 'hidden' id = 'zdmc_str' value = "${zdmc_str}">
+            <input type = 'hidden' id = 'zdmc_str_sel' value = "${zdmc_str_sel}">
+            <input type = 'hidden' id = 'zdmc_xsws_str' value = "${zdmc_xsws_str}">
+            <input type = 'hidden' id = 'zdxx_str' value = "${zdxx_str}">
+            <input type = 'hidden' id = 'sjbzj' value = "${sjbzj_str}">
+            <input type = 'hidden' id = 'sjbzjtype' value = "${','.join( sjbzjtype )}">
+            <input type = 'hidden' id = 'date_zd_str' value = "${','.join( date_zd_lst )}">
+            <input type = 'hidden' id = 'mrz_str' value = "${','.join( mrz_lst )}">
+        </div>
+    </div>
+    <div id="dgSjkbxxckTb">
+        <table cellspacing="0" cellpadding="0" style="width:100%">
+            <tr>
+                <td>
+                    <a id = 'lbtDateOpen' href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">插入</a>
+                    <a id = 'lbtDateDel' href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+                    <a id = 'lbtDateCR' href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">批量插入</a>
+                </td>
+                <td id="searchBox" style="text-align:right">
+                    <input id="sebSjkmxdy" class="easyui-searchbox" style="width:300px"></input>
+                    <div id="shbSjkmxdyDiv"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- 批量插入demo数据的弹出框 -->
+    <div id="divCRWindow" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+        <form id = 'crform'>
+            <table style="font-size:14px;" align="center">
+                <tr>
+                    <input id='txtCRNr' name='crnr' class="easyui-textbox" value="" data-options="multiline:true,width:450,height:200">
+                </tr>
+            </table>
+            <!-- 提交按钮 -->
+            <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+                <button id="lbtnCRSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                <button id="lbtnCRCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+        </form>
+    </div>
+    <!-- 增加/编辑表数据的弹出框 -->
+    <div id="divBsjWindow" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+        <form method="post" id = 'bsjform'>
+        <table id = "tabSaveEdit" style="font-size:14px;width:100%" cellspacing="5px">
+            <input type = 'hidden' id = 'cztype' value = "">
+            <input type = 'hidden' id = 'updid' value = "">
+            %for field in dg_columns:
+            <%
+                #字段名称
+                zdmc = field['zdmc']
+                #字段描述
+                zdms = field['zdms']
+                #字段长度
+                zdcd = field['zdcd']
+                #是否可控 N(不可空)，Y(可空)
+                sfkk = field['sfkk']
+                #字段类型
+                zdtype = field['zdtype']
+                if zdtype == 'DATE':
+                    zdcd = 12
+                #字段说明（ [cb]varchar[/cb](32), [cg]ZZETC客户解约登记簿[/cg], [cr]主键[/cr] ）
+                zsws = field['zsws']
+                xsws = field['xsws']
+                xszdcd = str(zdcd) if zdcd else ''
+                if zsws:
+                    xszdcd = str(zsws)
+                    if xsws:
+                        xszdcd += ',' + str(xsws)
+                zdsm = "[cb]%s[/cb](%s), [cg]%s[/cg]" % ( zdtype, xszdcd, zdms )
+                if zdtype == 'DATE':
+                    zdsm = "[cb]%s[/cb], [cg]%s[/cg]" % ( zdtype, zdms )
+                if field['zjtype'] == 's':
+                    zdsm += ', [cr]主键[/cr]'
+                    
+            %>
+            % if zdtype not in not_type_lst:
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:150px;">
+                    ${zdmc.upper()}：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input class="easyui-textbox" name="name_${zdmc}" id="txt${zdmc}" data-toggle="ttip" data-ttip-msg="${zdsm}" style="width:250px;"/>
+                    %if sfkk == 'N':
+                    <span  id = 'span${zdmc}' class="colorRed">*</span>
+                    %endif
+                </td>
+            </tr>
+            % endif
+            %endfor
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+            <button id="lbtnCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+        </div>
+        </form>
+    </div>
+</body>
+<script type="text/javascript" language="javascript">
+    
+    // 页面初始化后执行js函数
+    function init(){
+        // 初始化datagrid的动态title
+        $('#dgSjkbxxck').datagrid( {title:"数据表：${sjbmc} 数据表名称：${sjkmxdy_dic['sjbzwmc'] if sjkmxdy_dic['sjbzwmc'] else sjbmc}"});
+        
+        // 最大值限制
+        // 字段详细信息集合
+        var zdxx_attr = $("#zdxx_str").val().split('|');
+        // 需要校验非空
+        for( var i= 0; i < zdxx_attr.length; i++  ){
+            //字段信息集合（字段名称，字段描述，字段长度，是否可控，数据类型, 小数位数, 整数位数）
+            // 字段名称
+            zdmc = zdxx_attr[i].split(',')[0]
+            // 字段长度
+            var zdcd = parseInt(zdxx_attr[i].split(',')[2])
+            // number类型根据定义的长度限定
+            if( zdxx_attr[i].split(',')[4] == 'NUMBER' && zdxx_attr[i].split(',')[6] > 0 ){
+                zdcd = zdxx_attr[i].split(',')[6]
+                // 有小数位数，则长度加1，用来录入小数点
+                if( zdxx_attr[i].split(',')[5] && zdxx_attr[i].split(',')[5] > 0){
+                    zdcd = zdcd + 1
+                }
+            }
+            //日期长度限定为12位（年-月-日）
+            if( zdxx_attr[i].split(',')[4] == 'DATE' ){
+                zdcd = 12
+            }
+            //long 类型的字段不限定长度
+            if( zdxx_attr[i].split(',')[4] != 'LONG' ){
+                $("#txt" + zdmc).next().children().attr("maxlength",zdcd);
+            }
+        }
+    }
+</script>
+</html>
+

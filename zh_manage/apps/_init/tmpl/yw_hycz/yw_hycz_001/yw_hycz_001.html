@@ -1,0 +1,78 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>行员日常运维流水展示</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/locale/easyui-lang-zh_CN.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_hycz/yw_hycz_001/yw_hycz_001.js"></script>
+    <style>
+        /**
+        * 分组标题显示红色
+        */
+        .datagrid-group-title{
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+  <!-- 监控展现页面的div -->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <div data-options="region:'north'" style="text-align:right;padding:5px;height:50px;">
+        	<form> 
+            <table id="dgSearch" style="width:auto;margin:0;" border="0">
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right;width:80px;">
+                        操作时间：
+                    </td>
+                    <td style="text-align:left;width:150px;">
+                        <input id="searchCzsj" name="searchCzsj" class="easyui-datebox" style="width:150px;">
+                    </td>
+                    <td nowrap="nowrap" style="text-align:right;width:80px;">
+                        操作人员：
+                    </td>
+                    <td style="text-align:left;width:150px;">
+                        <input id="searchCzry" name="searchCzry" class="easyui-textbox" style="width:150px;">
+                    </td>
+                    <td nowrap="nowrap" style="text-align:right;width:80px;">
+                        操作平台：
+                    </td>
+                    <td style="text-align:left;width:150px;">
+                            <input id="combSearchCzpt" name="combSearchCzpt"
+                                   class="easyui-combobox"
+                                   data-options="
+                                       data: ${ czpt_lst },
+                                       editable: false,
+                                       valueField:'value',
+                                       textField:'text'
+                                   ">
+                    </td>
+                    <td style="text-align:right;width:100px;">
+                        <button id="btnSearch" href="#" class="easyui-linkbutton" style="width:80px;">查询</button>
+                    </td>
+                </tr>
+            </table>
+          </form>
+        </div>
+        <!-- 监控列表展示的div -->
+        <div data-options="region:'center',border:false">
+            <table id="dgHycz001"></table>
+        </div>
+    </div>
+</body>
+
+</html>

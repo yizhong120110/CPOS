@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- mapper.xml是固定文件名，用于说明sql和model的映射关系 -->
+<mapperlist>
+
+    <mapper modelsid="tcr_0002" resource="/tcr/tcr_0002.xml"/>
+    <mapper modelsid="tcr_0003" resource="/tcr/tcr_0003.xml"/>
+    <mapper modelsid="tcr_0004" resource="/tcr/tcr_0004.xml"/>
+
+</mapperlist>

@@ -1,0 +1,65 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>通讯参数比对</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <link type="text/css" rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/mergely.css"/>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/mergely.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/xml/xml.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_019/kf_ywgl_019_bbdb_txcs.js"></script>
+</head>
+<body class="easyui-layout">
+<textarea style="display:none" id="hidLeftRs" name="leftRs">${leftRs}</textarea>
+<textarea style="display:none" id="hidRightRs" name="rightRs">${rightRs}</textarea>
+<div data-options="region:'north', border:false" style="height:55px;">
+    <div class="easyui-layout" data-options="fit:true, border:false">
+        <div data-options="region:'west', border:false" style="width:50%;">
+            <div class="easyui-layout" data-options="fit:true, border:false">
+                <div style="margin:0 10px;margin-right: 14px;height:100%">
+                    <div  style="margin: 5px;font-size: 16px; font-weight:bold; text-align:center;">
+                        待导入库
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-options="region:'center', border:false" style="width:50%;">
+            <div class="easyui-layout" data-options="fit:true, border:false">
+                <div style="margin-left:14px;margin-right: 11px;height:100%">
+                    <div  style="margin: 5px;font-size: 16px; font-weight:bold; text-align:center;">
+                        本地库
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-options="region:'center', border:false" style="height:45px;margin:0;">
+    <div id="divJbxx" class="easyui-layout" data-options="fit:true, border:false" style="margin:0px;">
+        <div data-options="region:'west', border:false" style="width:50%;height:98%">
+            <div style="margin:0 10px;margin-right: 14px;height:100%">
+                <table id="dgTxcsLeft"></table>
+            </div>
+        </div>
+        <div data-options="region:'center', border:false" style="width:50%;height:98%">
+            <div style="margin-left: 14px;margin-right: 11px;height:100%">
+                <table id="dgTxcsRight"></table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

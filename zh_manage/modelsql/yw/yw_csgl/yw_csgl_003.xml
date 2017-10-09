@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--交易总数据：
+        查询交易总条数，不限定交易状态，查询个数也需要关联业务，关联业务的目的是为了和查询交易详细信息sql保持一致
+        状态在查询时进行翻译为中文，因为查询时时根据中文显示的，所以在sql中翻译，则条件查询时，无需做转化
+        支持单个条件查询：
+            所属业务
+            交易码
+            交易名称
+    -->
+    <sql sqlid = 'data_count' desc = "交易参数：获取详细信息">
+        select count(0) as count
+        from (
+            select a.id, a.jym, a.jymc, a.jyms, a.timeout, a.zdfqpz, case a.zt when '1' then '启用' else '禁用' end as zt, b.ywmc
+            from gl_jydy a, gl_ywdy b
+            where a.ssywid = b.id
+            order by b.ywmc, a.jym
+        ) c
+        %if paras.search_value:
+        where c.${paras._tb(paras.search_name)} like '%'||%(search_value)s||'%'
+        %endif
+    </sql>
+    
+    <!--交易详情：
+        查询交易详情，不限定交易状态
+        状态在查询时进行翻译为中文，因为查询时时根据中文显示的，所以在sql中翻译，则条件查询时，无需做转化
+        支持单个条件查询：
+            所属业务
+            交易码
+            交易名称
+    -->
+    <sql sqlid = 'data_rs' desc = "交易参数：获取详细信息">
+        select d.id, d.jym, d.jymc, d.jyms, d.timeout, d.zdfqpz, d.zt, d.ywmc from (
+            select c.id, c.jym, c.jymc, c.jyms, c.timeout, c.zdfqpz, c.zt, c.ywmc, rownum rn from (
+                select a.id, a.jym, a.jymc, a.jyms, a.timeout, a.zdfqpz, case a.zt when '1' then '启用' else '禁用' end as zt, b.ywmc
+                from gl_jydy a, gl_ywdy b
+                where a.ssywid = b.id
+                order by b.ywmc, a.jym
+            ) c
+            %if paras.search_value:
+            where c.${paras._tb(paras.search_name)} like '%'||%(search_value)s||'%'
+            %endif
+        ) d
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--编辑交易基本信息：
+        根据id编辑交易：状态，超时时间，自动发起配置，自动发起配置描述，操作时间，操作人
+    -->
+    <sql sqlid="update_jydy" desc="更新交易基本信息">
+        update gl_jydy set zt = %(zt)s, timeout = %(timeout)s, zdfqpz = %(zdfqpz)s, zdfqpzsm = %(zdfqpzsm)s, czsj = %(czsj)s, czr = %(czr)s
+        where id = %(id)s
+    </sql>
+    
+</sqllist>

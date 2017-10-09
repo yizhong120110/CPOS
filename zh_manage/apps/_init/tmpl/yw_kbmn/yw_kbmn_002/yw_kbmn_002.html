@@ -1,0 +1,54 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>知识库首页</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/locale/easyui-lang-zh_CN.js"></script>
+    <!-- 引入当前css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/yw_kbmn_001.css">
+    <!-- 引入当前js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_kbmn/yw_kbmn_002/yw_kbmn_002.js"></script>
+    
+</head>
+<body>
+    <!-- 隐藏放置文章分类 -->
+    <input type="hidden" id="hidWzfl" value="${ fl }"/>
+    <div class="easyui-layout" data-options="fit: true,border: false">
+        <div id="divWzxx" data-options="region:'north',split:true,border:0" style="height:60px;padding-left: 10px;">
+            <form method="post">
+                <table align="center" style="margin-top: 3px;">
+                    <tr>
+                        <td nowrap="nowrap" ><label for="name">知识库：</label></td>
+                        <td><input class="easyui-textbox" type="text" id="txtName" name="name" value="${ nr }" style="width: 500px;"></td>
+                        <td ><button id="lbtnSearch" class="easyui-linkbutton" data-options="iconCls:'icon-search'">找找看</button></td>
+                    </tr>
+                </table>
+            </form>
+            <a id="wdZsk" href="javascript:void(0);" onclick="my_zsk()">我的知识库</a>
+        </div>
+        <div data-options="region:'center',border:0" style="padding: 0 10px;">
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'center',border:0">
+                    <table id="dgWzxx">
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

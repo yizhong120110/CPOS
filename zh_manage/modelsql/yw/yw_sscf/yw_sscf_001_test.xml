@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+
+    <sql sqlid = 'zjxx_rs' desc = "主机信息查询">
+        select ip,mc,zt from gl_zjxx
+    </sql>
+    <sql sqlid = 'sxpl_rs' desc = "从参数表中获取页面刷新频率">
+        select value as sxpl from gl_csdy where csdm = 'sxpl'
+    </sql>
+    <sql sqlid = 'ycyjsl_rs' desc = "获取当前主机的异常和预警数量">
+        select yjjb, count(ip) as sl, ip from gl_drzxjhb where (${paras._or('ip',paras.ip)}) and fxgzjg = 'true' group by yjjb,ip
+    </sql>
+    <sql sqlid = 'cpu_rs' desc = "获取CPU使用率">
+        select ip,nr from gl_cjjgb 
+        where (${paras._or('ip',paras.ip)})
+        and zbbm = 'get_cpu()'
+        and to_char(sysdate,'yyyymmddhhmmss') >= jlsj
+        and jlsj >= to_char(sysdate - %(sxpl)s /(24*60*60), 'yyyymmddhhmmss')
+        order by jlsj
+    </sql>
+    <sql sqlid = 'nc_rs' desc = "获取内存使用率">
+        select ip,nr from gl_cjjgb 
+        where (${paras._or('ip',paras.ip)})
+        and zbbm = 'ncsy'
+        and to_char(sysdate,'yyyymmddhhmmss') >= jlsj
+        and jlsj >= to_char(sysdate - %(sxpl)s /(24*60*60), 'yyyymmddhhmmss') 
+        order by jlsj
+    </sql>
+    <sql sqlid = 'cg_sb_yc_lst' desc = "查询交易流水成功、失败、异常笔数">
+        select count(lsh) as sl from jy_ls
+        where 1 = 1
+        %if paras.beginTime:
+            and jyfqsj >= %(beginTime)s
+        %endif
+        %if paras.endTime:
+            and %(endTime)s > jyjssj
+        %endif
+        %if paras.zt:
+            and zt = %(zt)s
+        %endif
+    </sql>
+    <sql sqlid = 'jymx_cg_sb_yc_lst' desc = "获取交易明细信息（总数、成功数、失败数、异常数）">
+        select b.ywmc, count(a.zt) as sl from jy_ls a,gl_ywdy b, gl_jydy c
+        where a.jym = c.jym
+        and c.ssywid = b.id
+        and jyrq = to_char(sysdate,'YYYYMMDD')
+        %if paras.zt:
+            and a.zt = %(zt)s
+        %endif
+        group by b.ywmc
+    </sql>
+    <sql sqlid = 'sjkhhs_lst' desc = "获取记录时间、会话数">
+        select jlsj,nr as hhs from gl_cjjgb
+        where zbbm = 'get_conversation()'
+        and substr(jlsj,1,8) = to_char(sysdate,'YYYYMMDD')
+        order by jlsj
+    </sql>
+    <sql sqlid = 'kjkx_lst' desc = "展示可监控项">
+        select id,zbmc from gl_jkzb 
+        where sslbbm = 'Computer(zjip,cjid)'
+        and zbmc in ('获取CPU使用情况','获取内存使用情况','获取文件系统使用率')
+    </sql>
+    <sql sqlid = 'check_ip' desc = "校验IP是否唯一">
+        select count(ip) as sl from gl_zjxx
+        %if paras.fwqdz:
+            where ip = %(fwqdz)s
+        %endif
+    </sql>
+    <sql sqlid = 'check_mc' desc = "校验名称是否唯一">
+        select count(mc) as sl from gl_zjxx
+        %if paras.fwqmc:
+            where mc = %(fwqmc)s
+        %endif
+    </sql>
+    <sql sqlid = 'add_zjxx' desc = "记录主机信息表">
+        insert into gl_zjxx(ip,mc,ycsl,yjsl,zt,sxpl) 
+        values( %(fwqdz)s, %(fwqmc)s, '0', '0',  '1', '60')
+    </sql>
+    <sql sqlid = 'add_dxdy' desc = "记录对象定义表">
+        insert into gl_dxdy (id, dxbm, sslbbm, dxmc, dxms, zt, czr, czsj)
+        values( %(id)s, %(fwqdz)s, %(sslbbm)s, %(fwqmc)s, %(dxms)s, '1', %(czr)s, %(czsj)s )
+    </sql>
+    <sql sqlid = 'add_cjpz' desc = "记录采集配置表">
+        insert into gl_cjpzb ( id,mc,ms,sslbbm,zbid,lx,zdfqpz,zdfqpzsm,sfkbf,zt,czr,czsj)
+        values( %(cjpzid)s, %(jkmc)s, %(ms)s, %(sslbbm)s, %(jkid)s, '1', %(sxpl)s, %(ms)s, '1', '1', %(czr)s, %(czsj)s )
+    </sql>
+    <sql sqlid = 'add_dxcjpz' desc = "记录对象采集配置">
+        insert into gl_dxcjpz(id,dxid,zdzjip,sscjpzid,cjpzzt,dxzt,czr,czsj,lx,bbh,pid,zzzxdbb)
+        values( %(dxcjpzid)s, %(id)s, %(fwqdz)s, %(cjpzid)s, '1', '1', %(czr)s, %(czsj)s, '1', '1','1','1')
+    </sql>
+    
+</sqllist>

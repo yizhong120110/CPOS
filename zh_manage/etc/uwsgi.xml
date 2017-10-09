@@ -1,0 +1,15 @@
+<uwsgi>
+    <!--http>127.0.0.1:5642</http--> <!-- 单独调试uwsgi时使用这个，替换socket -->
+    <socket>127.0.0.1:5642</socket>
+    <file>/home/tcr/src/zh_manage/bin/start.py</file>
+    <callable>app</callable>
+    <!--limit-as>256MB</limit-as--><!-- 注意这里，放开后会超出内存 -->
+    <processes>16</processes> 
+    <master/>
+    <memory/>
+    <daemonize>/home/tcr/log/oa_uwsgi.log</daemonize>
+    <!-- oasj_uwsgi.log 备份参考时间戳文件, 需要手动创建此文件,此时间戳如果发生变化，则重新创建uwsgi.log -->
+    <touch-logreopen>/home/tcr/log/.touchforlogrotate</touch-logreopen>
+    <max-requests>10000</max-requests>
+    <buffer-size>32768</buffer-size>
+</uwsgi>

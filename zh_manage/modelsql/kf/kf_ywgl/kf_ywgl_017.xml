@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+	<sql sqlid="gghs_have" desc="判断公共函数是否存在">
+        select mc from gl_yw_gghs where ssyw_id = %(ywid)s
+    </sql>
+    <sql sqlid="gghs_add" desc="添加公共函数">
+        insert into gl_yw_gghs(id,mc,hsms,ssyw_id,czr,czsj,nr_id) 
+        values 
+        (%(id)s, %(mc)s, %(hsms)s, %(ywid)s, %(czr)s, %(czsj)s, %(gl_blob_id)s)
+    </sql>
+    <sql sqlid="get_gghs_name" desc="查询公共函数名称">
+        select mc from gl_yw_gghs where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <sql sqlid="del_gghs" desc="删除公共函数">
+        delete from gl_yw_gghs where (${paras._or('id',paras.ids_lst)})
+    </sql>
+    <sql sqlid="update_blob" desc="更新函数内容">
+        update gl_blob set nr = %(nr)s, czr = %(czr)s, czsj = %(czsj)s where id = %(nr_id)s
+    </sql>
+    <sql sqlid="select_gghs" desc="查询修改前的信息">
+        select mc,hsms from gl_yw_gghs where id = %(id)s
+    </sql>
+    <sql sqlid="update_gghs" desc="更新函数信息">
+        update gl_yw_gghs set hsms = %(hsms)s, mc = %(mc)s, czr = %(czr)s, czsj = %(czsj)s where id = %(id)s
+    </sql>
+    <sql sqlid="get_gghs_count" desc="查询所有函数总条数">
+        select count(1) as count from gl_yw_gghs 
+        where ssyw_id = %(ywid)s
+        %if paras.hsmc:
+            and mc like '%'|| %(hsmc)s ||'%' 
+        %endif  
+        %if paras.hsms:
+            and hsms like '%'|| %(hsms)s ||'%' 
+        %endif 
+
+    </sql>
+    <sql sqlid="get_gghs" desc="查询所有函数">
+        select x.id, x.hsmc, x.hsms, x.czr, x.czsj, nvl(y.bbh, 0) as bbh,  decode(x.wym, y.wym, 1, 0) as bbsftj, x.nr, x.nr_id
+        from (
+            select a.id ,  a.hsmc, a.hsms,a.czr, a.czsj, a.wym,a.nr_id, b.nr
+               from (
+                   select id,  hsmc, hsms,czr, czsj, wym,nr_id
+                   from(
+                       select id,  hsmc,hsms,czr, czsj, wym,nr_id,rownum rn
+                        from (
+                               select a.id,a.mc as hsmc,a.hsms,b.xm as czr, a.czsj, wym, nr_id            
+                               from gl_yw_gghs a,gl_hydy b
+                               where a.ssyw_id = %(ywid)s
+                               %if paras.hsmc:
+                                   and a.mc like '%'|| %(hsmc)s ||'%' 
+                               %endif  
+                               %if paras.hsms:
+                                   and a.hsms like '%'|| %(hsms)s ||'%' 
+                               %endif                                
+                               and a.czr = b.hydm
+                               order by a.mc
+                               )
+                        ) where rn >= %(rn_start)s and %(rn_end)s >= rn
+                ) a left join gl_blob b on a.nr_id = b.id 
+            ) x left join 
+           (
+              select a.ssid,a.bbh,b.wym
+                from (
+                  select ssid,max(bbh) as bbh
+                  from gl_bbkz
+                  where lx = 'gghs'
+                  group by ssid
+                ) a,gl_bbkz b
+                where a.bbh = b.bbh
+                and a.ssid = b.ssid  
+             ) y on y.ssid = x.id
+             order by x.hsmc
+    </sql>
+</sqllist>

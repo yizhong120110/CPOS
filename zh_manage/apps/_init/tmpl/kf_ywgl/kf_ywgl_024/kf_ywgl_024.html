@@ -1,0 +1,146 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>交易列表</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!--kf_ywlg_024引入模块-->
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_024/kf_ywgl_024.js"></script>
+    <!--kf_ywlg_024引入模块:下载代码使用-->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+    <style type="text/css">
+        .clean {
+            background: url('/static/${settings._T.APP_NAME}/images/clean.png') no-repeat 0 -2px;
+            width: 16px;
+            height: 18px;
+            display: inline-block;
+            padding-left: 14px;
+        }
+        .modified {
+            background: url('/static/${settings._T.APP_NAME}/images/modified.png') no-repeat 0 -2px;
+            width: 16px;
+            height: 18px;
+            display: inline-block;
+            padding-left: 14px;
+        }
+    </style>
+</head>
+<body>
+<!-- 交易展现页面的div -->
+<div class="easyui-layout" data-options="fit : true,border : false">
+    <!-- 交易列表展示的div -->
+    <div data-options="region:'center',border:false">
+        <table id="dgjylb"></table>
+        <input type='hidden' id='ywid' value="${ywid}">
+        <input type='hidden' id='ywmch' value="${ywmc}">
+    </div>
+    <div id="tb" style="text-align:right;padding:3px;">
+        <input id="search_box" class="easyui-searchbox" data-options="prompt:'请输入查询内容',searcher:doSearch"
+               style="width:300px">
+
+        <div id="mm"></div>
+    </div>
+</div>
+
+<!-- 增加/修改交易的弹出框 -->
+<div id="bean_window" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false ,maximizable:false" style="left:124px;top:185px;">
+    <form method="post">
+        <!-- 增加/修改交易 -->
+        <div class="esayui-panel" style="margin-top:15px">
+            <table style="font-size:12px;" align="center" cellspacing="5px">
+                <tr>
+                    <input type='hidden' id='ssywid' name="ssywid">
+                    <input type='hidden' id="focusInput" name='focusInput'>
+                    <td nowrap="nowrap" style="text-align:right">所属业务：</td>
+                    <td>
+                        <input disabled='disabled' id="ywmc" value="${ywmc}" class="easyui-textbox"
+                               data-options="editable:false" style="width:250px;">
+                    </td>
+                </tr>
+				<tr>
+                    <td nowrap="nowrap" style="text-align:right">交易码：</td>
+                    <td nowrap="nowrap" >
+                        <input id="txtJym" name="jym" class="easyui-textbox"
+                               data-options="required:true,validType:'length[1,20]'" style="width:250px;">
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">交易名称：</td>
+                    <td nowrap="nowrap" >
+                        <input id="txtJymc" name="jymc" class="easyui-textbox"
+                               data-options="required:true,validType:'length[1,30]'" style="width:250px;">
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">交易描述：</td>
+                    <td>
+                        <input id='txtJyms' name="jyms" class="easyui-textbox"
+                               data-options="required:true,validType:'length[1,120]',multiline:true"
+                               style="width:250px;height:59px">
+                        </input>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" style="text-align:right">交易状态：</td>
+                    <td>
+                        <a class="onoffswitch" style="float:left">
+                            <input type="checkbox" class="onoffswitch-checkbox" id="jyzt" name="jyzt" checked>
+                            <label class="onoffswitch-label" for="jyzt">
+                                <span class="onoffswitch-inner">
+                                <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                    <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                </span>
+                            </label>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtn_window_ok_add" class="easyui-linkbutton" data-options="iconCls:'icon-save'"
+                    style="width:80px">保存
+            </button>
+            <button id="lbtn_window_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+    </form>
+
+</div>
+
+<!-- 版本提交 -->
+<div id="bbtj_window" class="easyui-window" title="版本提交"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="padding:10px;">
+    <iframe scrolling="auto" id="bbtjIfram" name="bbtjIfram" src="" frameborder="0"
+            style="width:100%;height:99%;"></iframe>
+</div>
+
+<!-- 版本还原 -->
+<div id="bbhy_window" class="easyui-window" title="版本还原"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="padding:10px;">
+    <iframe scrolling="auto" id="bbhyIfram" name="bbhyIfram" src="" frameborder="0"
+            style="width:100%;height:90%;"></iframe>
+</div>
+
+
+</body>
+</html>

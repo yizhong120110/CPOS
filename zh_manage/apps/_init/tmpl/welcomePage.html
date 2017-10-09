@@ -1,0 +1,30 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!doctype html>
+<html>
+
+<head lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <title>主页</title>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+</head>
+
+<script type="text/javascript">
+         $(document).ready(
+                 function(){
+            $('#glMainBackground').height($(window).height());
+            $('#glMainBackground').width($(window).width());
+        });
+</script>
+<body>
+    <div id="glMainBackground" style="position:absolute; z-index:-1;width:100%; height:100%;">
+        <img src="/static/${settings._T.APP_NAME}/images/index/FESB.jpg"  height="100%" width="100%" />
+    </div>
+</body>
+
+</html>

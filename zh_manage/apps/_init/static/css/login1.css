@@ -1,0 +1,173 @@
+ html,body {min-height: 100%;height: 100%;
+    }
+    body {
+        font-weight: 300;
+        padding-bottom: 100px;
+        background-color: rgba(74,121,147,0.89);
+        background: radial-gradient(farthest-side ellipse at 10% 0, rgba(74,121,147,0.89),rgba(204,204,204,0.85) 60%,rgba(185,135,131,0.87) 120%);
+        background: -webkit-radial-gradient(10% 0, farthest-side ellipse, rgba(74,121,147,0.89), rgba(204,204,204,0.85) 60%, rgba(185,135,131,0.87) 120%);
+        background: -moz-radial-gradient(10% 0, farthest-side ellipse, rgba(74,121,147,0.89), rgba(204,204,204,0.85) 60%, rgba(185,135,131,0.87) 120%);
+        -webkit-backface-visibility: hidden;
+        font-size: 14px;
+        line-height: 20px;
+        color: #f8f8f8;
+        /*position: relative;
+        display: table;*/
+    }
+
+    body.background-dark {
+        background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjEwJSIgY3k9IjAiIHI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9InJnYmEoMTAyLCAxMDUsIDEwNCwgMC45MCkiLz48c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0icmdiYSg5MywgMTEyLCAxMTksIDAuODkpIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSJyZ2JhKDE2MCwgMTc0LCAxNTAsIDAuOTApIi8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmFkKSIgLz48L3N2Zz4=");
+        background-color: rgba(102,105,104,0.9);
+        background: radial-gradient(farthest-side ellipse at 10% 0, rgba(102,105,104,0.9),rgba(93,112,119,0.89),rgba(160,174,150,0.9));
+        background: -webkit-radial-gradient(10% 0, farthest-side ellipse, rgba(102,105,104,0.9), rgba(93,112,119,0.89), rgba(160,174,150,0.9));
+        background: -moz-radial-gradient(10% 0, farthest-side ellipse, rgba(102,105,104,0.9), rgba(93,112,119,0.89), rgba(160,174,150,0.9))
+    }
+    .widget {
+    -moz-border-radius: 1px;
+    -webkit-border-radius: 1px;
+    border-radius: 1px;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    padding: 10px 12px;
+    color: #f8f8f8;
+    background: rgba(51,51,51,0.4);
+    margin-bottom: 30px;
+    position: relative;
+    }
+
+    .wrapper-choice {width:100%;text-align: center;}
+    .cell {}
+    .choice-widget {
+        /*width: 350px;*/
+        width:23%;
+        padding-bottom: 0;
+        height: 95%;
+        /*border:blue 1px solid;*/
+        /*float: left;*/
+        margin-left: 1%;
+        display: inline-block;
+    }
+
+      .wrapper-choice {
+        width: 100%;
+        height: 300px;
+        margin: 0 auto;
+        overflow: hidden;
+        text-align: center;
+        overflow: hidden;
+        /*border: red 1px solid;*/
+        position: absolute;
+        padding:0;
+
+       
+      }
+      .contentBox {width:90%;margin:0 auto;height: 100%;}
+      .choice-title {
+            font-family: 'SimHei';
+            font-size: 28px;
+            line-height: 1;
+            /*background: url("../images/index/hx-logo.png") 0 0 no-repeat;*/
+            /*text-indent: 28px;*/
+            text-align: center;
+        }
+
+        .widget>header {
+        position: relative;
+        background: none;
+        }
+        .widget .body {
+        margin-top: 10px;
+        }
+        .no-margin {
+        margin: 0 !important;
+        }
+        .h-show {
+            height: 100%;
+            width:100%;
+            position: relative;
+            margin: 0;padding: 0;
+            padding:10px ;
+
+            /*margin-top:-10px;*/
+        }
+     /*   .showBox {
+            position: absolute;
+            bottom:10px;
+            left: 0;
+            height: 10px;
+            width:100%;
+            background: rgba(0,0,0,0.5 );
+        }
+*/  
+        .wrapper-choice  ul {
+          list-style: none;
+          height: 100%;
+          margin:0;
+          padding:2px;
+        }
+        .wrapper-choice  ul li {
+          margin-left: 15px!important;
+          /*padding:10px;*/
+        }
+         .wrapper-choice  ul li:hover {
+    -webkit-box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.8);
+    -moz-box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.8);
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.8);
+    margin-top: -5px!important;
+    /*margin-left:5px!important;*/
+  }
+        .wrapper-choice  ul li:hover .showBox {
+            position: absolute;
+            bottom:0;
+            left: 0;
+            height: 10px;
+            width:100%;
+            background:rgba(147,36,57,0.8);
+            z-index: 999;
+            animation:moveLine 1s;
+            -moz-animation:moveLine 1s; /* Firefox */
+            -webkit-animation:moveLine 1s; /* Safari and Chrome */
+            -o-animation:moveLine 1s; /* Opera */
+        }
+        @keyframes moveLine
+            {
+            0%   {background:rgba(147,36,57,0.3); width:0; }
+            100% {background:rgba(147,36,57,0.8); width:100% ;}
+            }
+
+            @-moz-keyframes moveLine 
+            {
+                0%   {background:rgba(147,36,57,0.3); width:0; }
+            100% {background:rgba(147,36,57,0.8); width:100% ;}
+            }
+
+            @-webkit-keyframes moveLine 
+            {
+                    0%   {background:rgba(147,36,57,0.3); width:0; }
+            100% {background:rgba(147,36,57,0.8); width:100%;}
+
+      /*  .wrapper-choice  ul li:hover  {
+            outline:red 2px solid;
+        }*/
+   /*     .wrapper-choice .choice-widget  ul li a  {
+            display: block;
+            width:100%;
+            height: 100%;
+            color: #fff!important;
+        }*/
+      /*  .wrapper-choice .choice-widget ul li a:hover  {
+            outline:red 2px solid!!important;
+            color: rgba(74,121,147,0.89)!!important;
+        }*/
+        /*fix font aw*/
+        .wrapper-choice  ul li [class^=icon-], li [class*=" icon-"] {
+                display: inline-block!important;
+                width: 1.25em;
+                text-align: center;
+        }
+        .body>img {
+            width:100%;
+            height: 100%;
+            padding-bottom:5px;
+        }

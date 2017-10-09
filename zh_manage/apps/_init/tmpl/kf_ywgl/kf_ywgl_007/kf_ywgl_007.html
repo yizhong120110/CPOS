@@ -1,0 +1,116 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>子流程列表</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/accounting.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_007/kf_ywgl_007.js"></script>
+    <style type="text/css">
+        .clean {
+            background: url('/static/_init/images/clean.png') no-repeat 0 -2px;
+            width: 16px;
+            height: 18px;
+            display: inline-block;
+            padding-left: 14px;
+        }
+
+        .modified {
+            background: url('/static/_init/images/modified.png') no-repeat 0 -2px;
+            width: 16px;
+            height: 18px;
+            display: inline-block;
+            padding-left: 14px;
+        }
+
+        .colorRed {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+<!-- 子流程展现页面的div -->
+<div class="easyui-layout" data-options="fit : true,border : false">
+    <form id="dgZlclbForm">
+        <!-- 子流程列表展示的div -->
+        <div data-options="region:'center',border:false">
+            <table id="dgZlclb"></table>
+        </div>
+    </form>
+</div>
+<input type="hidden" id="hidYwid" name="ywid" value="${ywid}"/>
+<input type="hidden" id="hidYwmc" name="ywmc" value="${ywmc}"/>
+<!-- 新增子流程的弹出框 -->
+<div id="divZlcWindow" class="easyui-window"
+     data-options="closed:true,collapsible:false,minimizable:false ,maximizable:false" style="left:124px;top:185px;">
+    <form method="post" id="addZlcForm">
+        <!-- 新增子流程 -->
+        <div class="esayui-panel" style="margin-top:20px">
+            <table style="font-size:12px;" align="center" cellspacing="10px">
+                <tr>
+                    <td nowrap="nowrap" >所属业务：</td>
+                    <td><input id="txtSsyw" name="ssyw" class="easyui-textbox" style="width:250px"></td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" >子流程编码：</td>
+                    <td><input id="txtZlcbm" name="zlcbm" class="easyui-textbox" style="width:250px">
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" >子流程名称：</td>
+                    <td nowrap="nowrap" ><input id="txtZlcmc" name="zlcmc" class="easyui-textbox" style="width:250px">
+                        <span class="colorRed">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="nowrap" >子流程描述：</td>
+                    <td><input id="txtZlcms" name="zlcms" class="easyui-textbox" style="width:250px;height:59px"
+                               data-options="multiline:true"></td>
+                </tr>
+            </table>
+        </div>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnZlcSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                保存
+            </button>
+            <button id="lbtnZlcCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+                    style="width:80px">取消
+            </button>
+        </div>
+    </form>
+</div>
+<!-- 版本提交 -->
+<div id="bbtj_window" class="easyui-window" title="版本提交"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="padding:10px;">
+    <iframe scrolling="auto" id="bbtjIfram" name="bbtjIfram" src="" frameborder="0"
+            style="width:100%;height:99%;"></iframe>
+</div>
+<!-- 版本还原 -->
+<div id="bbhy_window" class="easyui-window" title="版本还原"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="padding:10px;">
+    <iframe scrolling="auto" id="bbhyIfram" name="bbhyIfram" src="" frameborder="0"
+            style="width:100%;height:90%;"></iframe>
+</div>
+<!--子流程引用次数查看-->
+<div id="yycs_window" class="easyui-window"
+     data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false"
+     style="overflow:hidden">
+    <iframe scrolling="auto" id="yycs_frame" frameborder="0" style="width:100%;height:100%;"></iframe>
+</div>
+</body>
+</html>
+

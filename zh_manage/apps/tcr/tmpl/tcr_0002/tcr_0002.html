@@ -1,0 +1,190 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>TCR终端管理</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/_init/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/_init/css/style.css">
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <!-- 公共模块js -->
+    <script src="/static/_init/js/lib/jquery.min.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.jdirk.min.js"></script>
+    <script src="/static/_init/js/jeasyui-extensions/jeasyui.extensions.validatebox.js"></script>
+    <script src="/static/_init/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/_init/js/fileupload/jquery.fileupload.min.js"></script>
+    <script src="/static/_init/js/lib/jquery.fileDownload.js"></script>
+    <script src="/static/_init/js/lib/common.js" ></script>
+    <script src="/static/_init/js/lib/accounting.min.js"></script>
+    <!-- 同步密钥js -->
+    <script src="/static/${settings._T.APP_NAME}/js/tcr_0002.js"></script>
+
+</head>
+
+<body>
+    <!--查询div-->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <div data-options="region:'north'" style="text-align:right;padding:1px;height:46px;">
+            <!--查询的form-->
+            <form id="dxForm">
+                <table id="datagrid_search" style="width:100%;margin:6px 0;" border="0" align="center">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            机构名称：
+                        </td>
+                        <td style="text-align:left" style="width:200px;">
+                            <!-- 机构名称 -->
+                            <input class="easyui-textbox" id="txtSearch_jgmc2" name="search_jgmc2" style="width:200px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            终端名称：
+                        </td>
+                        <td style="text-align:left" style="width:200px;">
+                            <!-- 终端名称 -->
+                            <input class="easyui-textbox" id="txtSearch_jgmc" name="search_jgmc" style="width:200px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            终端IP：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!-- 终端IP -->
+                            <input class="easyui-textbox" id="txtSearch_cip" name="search_cip" style="width:150px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            终端状态：
+                        </td>
+                        <td style="text-align:left" style="width:100px;">
+                            <!--对象状态-->
+                            <input class="easyui-combobox" name="search_dxzt" id="combSearch_state" style="width:100px;" data-options="editable:false">
+                        </td>
+                        <td style="text-align:center" rowspan="2">
+                            <!--查询按钮-->
+                            <button id="lbtnSearch" class="easyui-linkbutton" style="width:100px;">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 监控对象的div -->
+        <div data-options="region:'center',border:false">
+            <!-- 监控对象的grid -->
+            <table id="dgZdxx" style="width:auto;"></table>
+        </div>
+    </div>
+
+    <!-- 新增与编辑监控 -->
+    <div id="tcr_add2upd_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <!--新增和编辑的窗口-->
+        <form method="post">
+            <!--新增和编辑窗口的div布局panel-->
+            <div class="esayui-panel" style="margin-top:20px">
+                <!--新增和编辑的table-->
+                <table style="font-size:12px;width:100%" cellspacing="5px" border='0'>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            机构号：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:250px;">
+                            <input class="easyui-textbox" id="txt_tcrjgh" name="tcrjgh" style="width:230px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            机构名称：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:250px;">
+                            <input class="easyui-textbox" id="txt_tcrjgmc" name="tcrjgmc" style="width:230px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            虚拟柜员号：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:250px;">
+                            <input class="easyui-textbox" id="txt_tcrvgyh" name="tcrvgyh" style="width:230px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            终端号：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:250px;">
+                            <input class="easyui-textbox" id="txt_tcrid" name="tcrid" style="width:230px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr id = "zjlx_tr">
+                        <td nowrap="nowrap" style="text-align:right;">
+                            终端名称：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left; width:250px;">
+                            <input class="easyui-textbox" id="txt_tcrname" name="tcrname" style="width:230px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            终端IP：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left; width:250px;">
+                            <input class="easyui-textbox" id="txt_tcrip" name="tcrip" style="width:230px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            工作开始时间：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left; width:250px">
+                            <input class="easyui-timespinner" id="txt_gzqssj" name="gzqssj" style="width:80px" data-options="min:'07:00', max:'23:59'">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            工作结束时间：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left; width:250px">
+                            <input class="easyui-timespinner" id="txt_gzjssj" name="gzjssj" style="width:80px" data-options="min:'07:00', max:'23:59'">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                        <!--隐藏的监控对象id-->
+                        <input type='hidden' name="jkdx_id" id="hidJkdx_id" value=''>
+                        <!--隐藏的对象类型-->
+                        <input type='hidden' name="hid_jkdx_dxlx" id="hid_jkdx_dxlx" value=''>
+                        <!--隐藏的监控对象名称-->
+                        <input type='hidden' name="jkdx_dxmc_old" id="hidJkdx_dxmc_old" value=''>
+                        <!--隐藏的监控对象编码-->
+                        <input type='hidden' name="jkdx_dxbm_hid" id="hidJkdx_dxbm" value=''>
+                    </tr>
+                </table>
+            </div>
+            <!-- 提交按钮-->
+            <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+                <!--保存按钮-->
+                <button id="lbtnJkdx_ok_add" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                <!--取消按钮-->
+                <button id="lbtnJkdx_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

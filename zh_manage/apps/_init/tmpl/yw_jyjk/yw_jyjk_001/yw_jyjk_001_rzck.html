@@ -1,0 +1,97 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 交易监控 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>交易监控</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 交易监控调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/fileupload/jquery.fileupload.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jyjk/yw_jyjk_001/yw_jyjk_001_rzck.js"></script>
+    <!--流程图显示需要引入模块-->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/jsplumb.css">
+    <script src="/static/${settings._T.APP_NAME}/js/jsPlumb/dom.jsPlumb-1.6.4-min.js"></script>
+    
+</head>
+<body>
+    <!--'jyrq': jyrq, 'lsh': lsh, 'jym': jym, 'lclx': lclx, 'lccj': lccj, 'jymc': jymc-->
+    <input type="hidden" id="hidJyid" value="${jyid}"/>
+    <input type="hidden" id="hidJyrq" value="${jyrq}"/>
+    <input type="hidden" id="hidLsh" value="${lsh}"/>
+    <input type="hidden" id="hidJym" value="${jym}"/>
+    <input type="hidden" id="hidLclx" value="${lclx}"/>
+    <input type="hidden" id="hidLccj" value="${lccj}"/>
+    <input type="hidden" id="hidJymc" value="${jymc}"/>
+    <input type="hidden" id="hidSys_run_trace" value="${sys_run_trace}"/>
+    <input type="hidden" id="hidConnector1"/>
+    <input type="hidden" id="hidLczx"/>
+    <input type="hidden" id="hidZlcDic"/>
+    <div id="tbsRzck" class="easyui-tabs" data-options="fit:true, border:true, tabPosition:'top', tools:'#tab-tools'">
+        <div title="流程图" style="overflow:hidden">
+            <!-- 流程图 -->
+            <div class="workflow" id="divWorkflow"></div>
+            <div style="position:absolute;top:380px;left:68px;-moz-border-radius:0px;border-radius:0px;">
+                <button id="lbtnCkrz" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:80px">查看日志</button>
+                <button style = "margin-left:20px;" id="lbtnDcrz" class="easyui-linkbutton" data-options="iconCls:'icon-down'" style="width:80px">导出日志</button>
+        </div>
+            </div>
+        </div>
+        <div title="列表" style="overflow:hidden">
+            <!-- 节点列表 -->
+            <iframe scrolling="auto" id="ifrJdlb" src="##" frameborder="0" style="width:100%;height:100%;"></iframe>
+        </div>
+    </div>
+    <!--查看本流程全部日志-->
+    <div id="winRznr" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div id="divRznr">
+            <pre style='margin:3px' id="preLcrznr">
+            </pre>
+        </div>
+    </div>
+    <!--节点详情-->
+    <div id="winJdxx" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div id="lb_busnessTab" class="easyui-tabs"  data-options="fit: true, border: true, tabPosition: 'top'">
+            <div title="输入要素">
+                <table id="dgSrys"></table>
+            </div>
+            <div title="输出要素">
+                <table id="dgScys"></table>
+            </div>
+            <div title="日志">
+                <div id="divJdRz">
+                    <pre id = 'preJdRz' style='margin:3px'>
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 子流程详情 -->
+    <div id="winZlcxx" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <iframe id='fraZlcxx' name='fraZlcxx' scrolling="auto"  frameborder="0"  src="##" style="width:100%;height:99.5%;"></iframe>
+    </div>
+    <div id="mm" class="easyui-menu" style="width:150px;">
+        <div id="divJdbj">节点编辑</div>
+    </div>
+    <!-- 节点编辑 -->
+    <div id="winNodeEdit" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="overflow:hidden">
+        <iframe scrolling="no" frameborder="0" style="width:100%;height:100%"></iframe>
+    </div>
+</body>
+</html>

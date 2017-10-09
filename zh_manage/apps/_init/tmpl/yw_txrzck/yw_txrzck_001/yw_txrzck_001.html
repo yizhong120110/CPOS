@@ -1,0 +1,89 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>通讯日志查看</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_txrzck/yw_txrzck_001/yw_txrzck_001.js"></script>
+    <!-- 代码下载使用 -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+</head>
+<body>
+    <!-- 通讯展示页面的div -->
+    <div class="easyui-layout" data-options="fit:true, border:false">
+        <!-- 通讯展示的div -->
+        <div data-options="region:'center',border:false">
+            <table id="dgTxgl"></table>
+        </div>
+    </div>
+
+    <!-- 通讯日志查看弹出框 -->
+    <div id="divTxglWindow" class="easyui-window"
+         data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <form id="txform" method="post">
+            <div class="esayui-panel" style="margin-top:20px">
+                <table style="font-size:12px;width:100%" cellspacing="10px">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right">
+                            交易日期：
+                        </td>
+                        <td style="text-align:left;width:115px;">
+                            <input id="dateSeaJyrq" name="seaJyrq" class="easyui-datebox" style="width:100px" value = "${ nowdate if nowdate else '' }"/>
+                            <span class="colorRed">*</span>
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            开始时间：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:85px;">
+                            <input type="text" id="txtKssj" name="kssj" class="easyui-textbox" style="width:70px"/>
+                            <span class="colorRed">*</span>
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right">
+                            结束时间：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:80px;">
+                            <input type="text" id="txtJssj" name="jssj" class="easyui-textbox" style="width:70px"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- 提交按钮 -->
+            <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+                <button id="lbtnCkrz" class="easyui-linkbutton" data-options="iconCls:'icon-ok'"
+                   style="width:80px">查看日志</button>
+                &nbsp;&nbsp;&nbsp;&nbsp;<button id="lbtnDcrz" class="easyui-linkbutton" data-options="iconCls:'icon-down'"
+                   style="width:80px">导出日志</button>
+            </div>
+            <div hidden="true">
+                <input id="txtMc" name="mc" class="easyui-textbox" style="width:200px;" data-options="disabled:true,readonly:true"/>
+            </div>
+            <div hidden="true">
+                <input class="easyui-textbox" id="txtTxwjmc" name="txwjmc" style="width:200px;">
+            </div>
+        </form>
+    </div>
+    
+    <!--查看日志-->
+    <div id="winRznr" class="easyui-window"
+        data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <div id="divRznr">
+            <pre style='margin:3px' id="preLcrznr">
+            </pre>
+        </div>
+    </div>
+    
+</body>
+</html>
+

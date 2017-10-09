@@ -1,0 +1,181 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>监控对象管理</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    
+    <!-- 参数管理调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jkgl/yw_jkgl_002/yw_jkgl_002.js"></script>
+    <!--获取后台的初始化对象-->
+    <script>
+        // 对象类型
+        var dxlx = ${dxlx};
+        // 对象状态
+        var dxzt = ${dxzt};
+    </script>
+</head>
+<body>
+    <!--查询div-->
+    <div class="easyui-layout" data-options="fit : true,border : false">
+        <div data-options="region:'north'" style="text-align:right;padding:1px;height:44px;">
+            <!--查询的form-->
+            <form id="dxForm">
+                <table id="datagrid_search" style="width:100%;margin:5px 0;" border="0" align="center">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            对象类型：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--对象类型-->
+                            <input class="easyui-combobox" id="combSearch_dxlx" name="search_dxlx" style="width:150px;" data-options="editable:false" >
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            对象编码：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--对象编码-->
+                            <input class="easyui-textbox" id="txtSearch_dxbm" name="search_dxbm" style="width:150px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            对象名称：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--对象名称-->
+                            <input class="easyui-textbox" id="txtSearch_dxmc" name="search_dxmc" style="width:150px;">
+                        </td>
+                        <td nowrap="nowrap" style="text-align:right" style="width:100px;">
+                            对象状态：
+                        </td>
+                        <td style="text-align:left" style="width:150px;">
+                            <!--对象状态-->
+                            <input class="easyui-combobox" name="search_dxzt" id="combSearch_dxzt" style="width:150px;" data-options="editable:false">
+                        </td>
+                        <td style="text-align:center" rowspan="2">
+                            <!--查询按钮-->
+                            <button id="lbtnSearch" class="easyui-linkbutton" style="width:100px;">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 监控对象的div -->
+        <div data-options="region:'center',border:false">
+            <!-- 监控对象的grid -->
+            <table id="dgJkdx"></table>
+        </div>
+    </div>
+    <!-- 新增与编辑监控 -->
+    <div id="jkdx_add2upd_window" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <!--新增和编辑的窗口-->
+        <form method="post">
+            <!--新增和编辑窗口的div布局panel-->
+            <div class="esayui-panel" style="margin-top:20px">
+                <!--新增和编辑的table-->
+                <table style="font-size:12px;width:100%" cellspacing="5px" border='0'>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            对象类型：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:230px;">
+                            <!--对象类型-->
+                            <input class="easyui-combobox" id="combJkdx_dxlx" name="jkdx_dxlx" style="width:200px" data-options="editable:false">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr id = "zjlx_tr">
+                        <td nowrap="nowrap" style="text-align:right;">
+                            主机类型：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;">
+                            <select id="selZjlx" name="jkdx_zjlx" class="easyui-combobox" style="width:200px">
+                            </select>
+                            <span class="colorRed">*</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            对象编码：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:230px;">
+                            <!--对象编码-->
+                            <input class="easyui-textbox" id="txtJkdx_dxbm" name="jkdx_dxbm" style="width:200px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            对象名称：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;" style="width:230px">
+                            <!--对象名称-->
+                            <input class="easyui-textbox" id="txtJkdx_dxmc" name="jkdx_dxmc" style="width:200px">
+                            <!--红星标识必填项-->
+                            <span><span class="colorRed">*</span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            对象描述：
+                        </td>
+                        <td style="text-align:left;width:230px;">
+                            <!--对象描述-->
+                            <input class="easyui-textbox" id="txtJkdx_dxms" name="jkdx_dxms" data-options="multiline:true" style="height:70px;width:200px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;">
+                            对象状态：
+                        </td>
+                        <td style="text-align:left;width:200px;">
+                            <!--对象状态-->
+                            <a class="onoffswitch" style="float:left">
+                                <input type="checkbox" name="dxzt" id="dxzt" class="onoffswitch-checkbox" checked>
+                                <label class="onoffswitch-label" for="dxzt" id="state_link">
+                                    <span class="onoffswitch-inner">
+                                    <!--启用-->
+                                    <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                    <!--禁用-->
+                                    <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                    </span>
+                                </label>
+                            </a>
+                        </td>
+                        <!--隐藏的监控对象id-->
+                        <input type='hidden' name="jkdx_id" id="hidJkdx_id" value=''>
+                        <!--隐藏的对象类型-->
+                        <input type='hidden' name="hid_jkdx_dxlx" id="hid_jkdx_dxlx" value=''>
+                        <!--隐藏的监控对象名称-->
+                        <input type='hidden' name="jkdx_dxmc_old" id="hidJkdx_dxmc_old" value=''>
+                        <!--隐藏的监控对象编码-->
+                        <input type='hidden' name="jkdx_dxbm_hid" id="hidJkdx_dxbm" value=''>
+                    </tr>
+                </table>
+            </div>
+            <!-- 提交按钮-->
+            <div data-options="region:'south',border:false" style="text-align:center;padding:20px 0 15px">
+                <!--保存按钮-->
+                <button id="lbtnJkdx_ok_add" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">保存</button>
+                <!--取消按钮-->
+                <button id="lbtnJkdx_cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">取消</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

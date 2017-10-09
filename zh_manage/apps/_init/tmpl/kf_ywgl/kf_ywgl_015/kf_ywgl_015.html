@@ -1,0 +1,60 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>交易日志查看</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jeasyui-extensions/jeasyui.extensions.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/jsplumb.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/lib/codemirror.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/codemirror4.6/mode/xml/xml.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" ></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jsPlumb/dom.jsPlumb-1.6.4-min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_015/kf_ywgl_015.js"></script>
+    
+</head>
+
+<body>
+    <input type="hidden" id="hidCsalid" value="${csalid}"/>
+    <input type="hidden" id="hidLx" value="${lx}"/>
+    <input type="hidden" id="hidLxdm" value="${lxdm}"/>
+    <input type="hidden" id="hidId" value="${id}"/>
+    <input type="hidden" id="hidPc" value="${pc}"/>
+    <input type="hidden" id="hidZxjg" value="${zxjg}"/>
+    <input type="hidden" id="hidJgsm" value="${jgsm}"/>
+
+    <div id="tbsJylc" class="easyui-tabs" data-options="fit:true, border:true, tabPosition:'top', tools:'#tab-tools'">
+        <div title="流程图" style="overflow:hidden">
+            <!-- 流程图 -->
+            <div class="workflow" id="workflow"></div>
+            <div style="position:absolute;top:380px;left:68px;background:#FF1717;-moz-border-radius:0px;border-radius:0px;">
+                <a id="view_log_btn_error" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:80px">查看日志</a>
+            </div>
+            <!-- 提示用户各个颜色的连接线代表意义 -->
+            <div style="position:absolute;top:50px;right:100px;">
+                <span >普通节点连线：</span><span style="background:#5c96bc;padding:1px 30px 0px 30px;" ></span><br>
+                <span >预期流程走向：</span><span style="background:#FF8C00;padding:1px 30px 0px 30px;" ></span><br>
+                <span >实际流程走向：</span><span style="background:#FF0000;padding:1px 30px 0px 30px;" ></span><br>
+            </div>
+        </div>
+        <div title="列表" style="overflow:hidden">
+            <!-- 节点列表 -->
+            <iframe scrolling="auto" id="jdlb" src="" frameborder="0" style="width:100%;height:100%;"></iframe>
+        </div>
+    </div>
+    <div id="rzck_window" style="width:500px;height:200px">
+        <div style="height:100%;width:100%;overflow:scroll;">
+            <pre style="margin:3px;line-height:150%" id="rznr"></pre>
+        </div>
+    </div>
+</body>
+</html>

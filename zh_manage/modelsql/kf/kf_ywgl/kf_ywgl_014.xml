@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_zdcs_lb" desc="自动化测试案例的执行列表">
+        select a.id , a.lb,a.ssid,a.demoid,
+         case when a.lb='1' then b.jymc
+         when ( a.lb ='2'or a.lb ='4') then c.mc
+         when a.lb='3' then d.jdmc
+         end as csmkmc,a.mc,a.ms,a.ssid, a.ssywid
+         from (
+             select id, lb, mc, ms, ssid,demoid, ssywid
+             from gl_csaldy
+             where  ${paras._or('id',paras.csalids)}
+             ) a
+        left join gl_jydy b on a.ssid=b.id
+        left join gl_zlcdy c on a.ssid=c.id
+        left join gl_jddy d on a.ssid=d.id
+    </sql>
+    <sql sqlid="add_zdhcslsb" desc="开启测试的时候向临时表中插入数据">
+        insert into gl_zdhcslsb ( id, pc, lx, tzbz) values ( %(id)s, %(pc)s,'99', '0')
+    </sql>
+    <sql sqlid="get_zxjg" desc="获取自动化测试的执行结果">
+        select csal_id, zxjg,jgsm from gl_zdhcslsb where pc =  %(pc)s and lx = '3' and csal_id = %(id)s order by zxjg 
+    </sql>
+    <sql sqlid="update_zdhcslsb" desc="停止测试的时候修改临时表中的数据">
+        update gl_zdhcslsb set tzbz = '1'  where pc =  %(pc)s
+    </sql>
+    <sql  sqlid="delete_zdhcslsb" desc="关闭测试的时候删除临时表中的数据">
+        delete from gl_zdhcslsb where pc = %(pc)s
+    </sql>
+    <sql  sqlid="validate_zdhcslsb" desc="发起交易前进行验证是否已经停止测试了">
+        select tzbz from gl_zdhcslsb where pc = %(pc)s and lx = '99'
+    </sql>
+    <sql sqlid="get_csalzxbzidlb" desc="获取执行案例的执行步骤">
+        select ssid, jdcsalzxbzlb, demoid from gl_csaldy where id = %(id)s
+    </sql>
+    <sql sqlid="get_csalzxbz" desc="获取执行案例的执行步骤">
+        select id, lx, ssdyid, fhz, sftg,mc,ms from gl_jdcsalzxbz where  ${paras._or('id',paras.jdcsalzxbzlb)}
+    </sql>
+    <sql sqlid="update_csalzxbz" desc="更新案例的执行步骤的rzlsh">
+        update gl_jdcsalzxbz set rzlsh = '' where  ${paras._or('id',paras.jdcsalzxbzlb)}
+    </sql>
+    <sql sqlid="get_jy_jdbudyxx" desc="获取交易节点ID和布局ID的对应信息">
+        select id, jddyid from gl_lcbj where ssjyid = %(ssjyid)s
+    </sql>
+    <sql sqlid="get_jd_lx" desc="获取节点的类型">
+        select id, jdlx , jdmc from gl_jddy where id = %(jdid)s
+    </sql>
+    <sql sqlid="get_zlc_jdbudyxx" desc="获取子流程节点ID和布局ID的对应信息">
+        select id, jddyid from gl_lcbj where sszlcid = %(sszlcid)s
+    </sql>
+    <sql sqlid="validate_jybzyxx" desc="校验步骤有效性">
+        select * from gl_lczx
+        where fhz = %(fhz)s
+        and qzjdlcbjid = %(qzjdlcbjid)s
+        and hzjdlcbjid = %(hzjdlcbjid)s
+        and sslb = %(sslb)s
+        and ssid = %(ssid)s
+    </sql>
+    <sql sqlid="add_zdhcslsb_zxycjg" desc="步骤的不具有有效性的时候执行结果为异常的数据">
+        insert into gl_zdhcslsb (id, pc, csal_id, lx, zxjg, jgsm) values (%(id)s, %(pc)s, %(csal_id)s, %(lx)s, %(zxjg)s,%(jgsm)s)
+    </sql>
+    <sql sqlid="get_demo_sjb" desc="获取demo数据表的信息">
+        select id, sjbjc from gl_demo_sj where sjjb = '1' and  (${paras._or('demojbxxid',paras.demoids)})
+    </sql>
+    <sql sqlid="get_demo_zdmzdz" desc="提取预设数据">
+        select sjid,zdm,xssx,to_char(zdz) as zdz from gl_demo_sj 
+        where sjjb = '2'
+        and (${paras._or('sjid',paras.sjid)})
+    </sql>
+    <sql sqlid="get_demo_zj" desc="获取demo的主键">
+        select a.sjbmc,b.zdmc from gl_sjkmxdy a,gl_sjkzdb b
+        where a.id = b.sjb_id
+        and a.sjbmc = %(sjbmc)s
+        and b.iskey = 1
+    </sql>
+    <sql sqlid="add_sjbjc_data" desc="增加数据表简称的数据信息">
+       <!--select count(1) as count from ${paras._tb(paras.tname_lst)} where ${paras._tb(paras.zdmc_lst)} = '' or ${paras._tb(paras.zdmc_lst)} is null-->
+        insert into ${paras._tb(paras.tname_lst)}(${paras._tb(paras.zdmc_lst)}) values(${paras._tb(paras.zdmc_lst)})
+    </sql>
+    <sql sqlid="get_bzysxx" desc="获取该步骤的信息及输入要素">
+        select lx, ysdm, ysz from gl_jdcsalys where jdcsalzxbz = %(jdcsalzxbz)s
+    </sql>
+    <sql sqlid="add_zdhcslsb_yzscysxx" desc="将预置的输出要素信息插入到临时表中">
+        insert into gl_zdhcslsb (id, pc, csal_id, lx, ysdm, ysz,jdcsalzxbz) values (%(id)s, %(pc)s, %(csal_id)s,%(lx)s,%(ysdm)s,%(ysz)s,%(bzid)s)
+    </sql>
+    <sql sqlid="add_zdhcslsb_rzlb" desc="将执行日志列表信息更新到临时表中">
+        insert into gl_zdhcslsb (id, pc, csal_id, lx, lb, rzlb,jdcsalzxbz,zxjg) values (%(id)s, %(pc)s, %(csal_id)s, %(lx)s,%(lb)s,%(rzlb)s,%(bzid)s,%(zxjg)s)
+    </sql>
+    <sql sqlid="add_zdhcslsb_zxjg" desc="将执行结果信息更新到临时表中">
+        insert into gl_zdhcslsb (id, pc, csal_id, lx, zxjg, jgsm,rzlb,jdcsalzxbz) values (%(id)s, %(pc)s, %(csal_id)s, %(lx)s,%(zxjg)s,%(jgsm)s,%(rzlb)s,%(bzid)s)
+    </sql>
+    <sql sqlid="update_zdhcslsb_cg" desc="执行结果信息更新到临时表中">
+        update gl_zdhcslsb
+        set lb = %(jdcsalzxbzlb)s
+        where
+        csal_id = %(csal_id)s
+    </sql>
+    <sql sqlid="get_csalxx" desc="执行结果信息更新到临时表中">
+        select id,ssdyid,demoid from gl_jdcsalzxbz where id = ( 
+        select jdcsalzxbzlb from gl_csaldy where id = %(csaldyid)s)
+    </sql>
+    <sql sqlid="get_ssywid" desc="获取测试案例对应的所属业务id">
+        select ssywid
+        from gl_csaldy
+        where id= %(csaldyid)s
+    </sql>
+    <sql sqlid="getysxx" desc="根据测试案例执行步骤查询要素代码，要素值">
+        select ysdm,ysz from gl_jdcsalys
+        where (${paras._or('jdcsalzxbz',paras.jdcsalzxbzlb)})
+            and lx= %(lx)s
+    </sql>
+    <sql sqlid="update_csalkey" desc="更新测试案例定义表的日志key">
+        update gl_csaldy
+        set rzlsh= %(rzlsh)s
+        where id=%(id)s
+    </sql>
+    <sql sqlid="get_jdcsfhz" desc="节点测试案例执行步骤表的返回值">
+        select b.id,a.fhz
+        from gl_jdcsalzxbz a
+        left join gl_jddy b on a.ssdyid=b.id
+        where ${paras._or('a.id',paras.jdcsalzxbzlb)}
+    </sql>
+    <sql sqlid="get_csal_byywid" desc="根据业务id获取测试案例">
+        select a.id , a.lb,a.ssid,a.demoid,
+         case when a.lb='1' then b.jymc
+         when ( a.lb ='2'or a.lb ='4') then c.mc
+         when a.lb='3' then d.jdmc
+         end as csmkmc,a.mc,a.ms,a.ssid,a.ssywid
+         from (
+             select id, lb, mc, ms, ssid,demoid, ssywid
+             from gl_csaldy
+             where  ${paras._or('ssid',paras.ywid)}
+             ) a
+        left join gl_jydy b on a.ssid=b.id
+        left join gl_zlcdy c on a.ssid=c.id
+        left join gl_jddy d on a.ssid=d.id
+    </sql>
+    <sql sqlid="get_jdmc" desc="获取节点名称">
+        select jdmc as mc,bm,jdlx from gl_jddy where id = %(id)s
+    </sql>
+    <sql sqlid="get_zlcmc" desc="获取子流程名称">
+        select mc from gl_zlcdy where id = %(id)s
+    </sql>
+    <sql sqlid="get_jymby_csal" desc="根据测试案例id查询所属交易的交易码、超时时间">
+        select b.jym, b.timeout
+        from gl_csaldy a left join gl_jydy b on a.ssjy_id = b.id
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="update_rzlsh" desc="根据测试案例执行步骤id更新日志流水号">
+        update gl_jdcsalzxbz set rzlsh=%(rzlsh)s where id = %(jdcsalzxbzid)s
+    </sql>
+</sqllist>

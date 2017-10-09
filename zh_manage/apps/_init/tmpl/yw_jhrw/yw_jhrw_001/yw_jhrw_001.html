@@ -1,0 +1,54 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 计划任务管理：主页面 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>计划任务管理</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 计划任务管理调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jhrw/yw_jhrw_001/yw_jhrw_001.js"></script>
+</head>
+<body>
+    <!-- 平台:如果不存在默认为wh（维护） -->
+    <input type = "hidden" name = "pt" id = "hidPt" value = "${ pt if pt else 'wh' }">
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <div data-options="region:'center',border:false">
+            <!--
+                计划任务管理操作tab
+            -->
+            <div id="tbsJhrwgl" class="easyui-tabs"
+                data-options="fit:true,border:false,showOption:true,enableNewTabMenu:true,tabPosition:'left',headerWidth:140">
+                <!-- 自动发起交易列表：操作有配置自动发起规则的交易信息 -->
+                <div title="自动发起交易列表" style="overflow:hidden">
+                    <!-- 框架加载信息由js定义 -->
+                    <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                            src="##"></iframe>
+                </div>
+                <!-- 监控规则发起列表: -->
+                <div title="监控配置列表" style="overflow:hidden">
+                    <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                            src="##"></iframe>
+                </div>
+                <!-- 当日执行计划列表：显示当天发起任务信息 -->
+                <div title="当日执行计划列表" style="overflow:hidden">
+                    <iframe style="border:0;padding:0;margin:0;" scrolling="none" width="100%" height="100%"
+                            src="##"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

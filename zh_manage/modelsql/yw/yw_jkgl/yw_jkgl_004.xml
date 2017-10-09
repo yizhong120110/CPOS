@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqllist>
+     <!--获取代码类型列表内容-->
+    <sql sqlid = 'get_bmwh' desc = "获取编码维护列表内容">
+        select bm,mc from gl_bmwh where lx = %(lx)s order by bm
+    </sql>
+    <!--获取响应动作-->
+    <sql sqlid = 'get_xydz' desc = "获取响应动作">
+        select ly,id,hsmc,zwmc,ms,dmlx,zt,czr,czsj from(
+            select ly,id,hsmc,zwmc,ms,dmlx,zt,czr,czsj ,rownum rn from(
+                select a.ly,a.id,a.hsmc,a.zwmc,a.ms,a.zt,b.xm as czr,a.czsj ,c.mc as dmlx from gl_hsxxb a
+                left join gl_hydy b on a.czr = b.hydm
+                left join gl_bmwh c on a.dmlx = c.bm and lx = '10008'
+                where a.lb = 'dz'  --响应动作
+                %if paras.hsmc:
+                    and a.hsmc  like '%'||%(hsmc)s||'%'
+                %endif
+                %if paras.zwmc:
+                    and a.zwmc  like '%'||%(zwmc)s||'%'
+                %endif
+                %if paras.dmlx:
+                    and a.dmlx = %(dmlx)s
+                %endif
+                %if paras.dxzt:
+                    and a.zt = %(dxzt)s
+                %endif
+                %if paras.dxly:
+                    and a.ly = %(dxly)s
+                %endif
+                order by a.hsmc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取未修改的响应动作-->
+    <sql sqlid = 'get_oldxydz' desc = "获取未修改的响应动作">
+        select a.id,a.hsmc,a.zwmc,a.ms,a.dmlx,a.zt from gl_hsxxb a where a.id = %(id)s
+    </sql>
+    <!--获取响应动作条数-->
+    <sql sqlid = 'get_xydz_count' desc = "获取响应动作条数">
+        select count(1) as count from gl_hsxxb a
+        left join gl_hydy b on a.czr = b.hydm
+        where a.lb = 'dz'  --响应动作
+        %if paras.hsmc:
+            and a.hsmc like '%'||%(hsmc)s||'%'
+        %endif
+        %if paras.zwmc:
+            and a.zwmc like '%'||%(zwmc)s||'%'
+        %endif
+        %if paras.dmlx:
+            and a.dmlx = %(dmlx)s
+        %endif
+        %if paras.dxzt:
+            and a.zt = %(dxzt)s
+        %endif
+        %if paras.dxly:
+            and a.ly = %(dxly)s
+        %endif
+    </sql>
+    <!--校验中文名称是否重复-->
+    <sql sqlid = 'check_zwmc' desc = "校验中文名称是否重复">
+        select count(1) as count
+        from gl_hsxxb
+        where zwmc = %(zwmc)s
+        and lb = 'dz' --响应动作
+        %if paras.id:
+            and id != %(id)s
+        %endif
+    </sql>
+    <!--插入blob表-->
+    <sql sqlid="insert_blob" desc="插入blob表">
+        insert into gl_blob(id,lx,czr,czsj,nr) values (%(id)s,%(lx)s,%(czr)s,%(czsj)s,%(nr)s)
+    </sql>
+    <!--更新blob表-->
+    <sql sqlid="edit_blob" desc="更新blob表">
+        update gl_blob set czr = %(czr)s ,czsj = %(czsj)s,nr = %(nr)s
+        where id = %(nr_id)s
+    </sql>
+    <!--插入函数信息表-->
+    <sql sqlid="insert_hsxxb" desc="插入函数信息表">
+        insert into gl_hsxxb(id,hsmc,zwmc,ms,nr_id,dmlx,zt,lb,czr,czsj,ly)
+        values(%(id)s,%(hsmc)s,%(zwmc)s,%(ms)s,%(nr_id)s,%(dmlx)s,%(zt)s,%(lb)s,%(czr)s,%(czsj)s,1)
+    </sql>
+    <!--更新函数信息表-->
+    <sql sqlid="edit_hsxxb" desc="更新函数信息表">
+        update gl_hsxxb set hsmc = %(hsmc)s,zwmc = %(zwmc)s,ms = %(ms)s,dmlx = %(dmlx)s,czr = %(czr)s,czsj = %(czsj)s where id = %(id)s
+    </sql>
+    <!--插入传入参数表-->
+    <sql sqlid="insert_crcs" desc="插入传入参数表">
+        insert into gl_crcs(id,csdm,cssm,sslb,ssid,sxh,sfkk,mrz) values (%(id)s,%(csdm)s,%(cssm)s,%(sslb)s,%(ssid)s,%(sxh)s,%(sfkk)s,%(mrz)s)
+    </sql>
+    <!--获取响应动作代码对应的参数说明-->
+    <sql sqlid="get_cssm" desc="获取响应动作代码对应的参数说明">
+        select cssm as cssm_ls
+        from gl_crcs 
+        where ssid = %(id)s
+        and csdm = %(csdm)s
+    </sql>
+    <!--更新参数信息2-->
+    <sql sqlid="update_crcs" desc="更新参数信息2">
+        update gl_crcs set sxh = %(sxh)s, sfkk = %(sfkk)s, mrz = %(mrz)s  where ssid = %(ssid)s and csdm = %(csdm)s
+    </sql>
+    <!--删除参数-->
+    <sql sqlid="del_crcs" desc="删除参数">
+        delete from gl_crcs
+        where ssid = %(id)s
+        and csdm = %(csdm)s
+    </sql>
+    <!--删除没有使用的参数-->
+    <sql sqlid="del_crcs_not" desc="删除没有使用的参数">
+        delete from gl_crcs
+        where ssid = %(id)s
+        and (${paras._and_n(paras.csdm)})
+    </sql>
+    <!--删除全部参数-->
+    <sql sqlid="del_crcs_all" desc="删除全部参数">
+        delete from gl_crcs
+        where ssid = %(id)s
+    </sql>
+    <!--获取传入参数-->
+    <sql sqlid="get_crcs" desc="获取传入参数">
+        select id,csdm,cssm,sfkk,mrz,ssid
+        from gl_crcs
+        where 1=1 
+        %if paras.xydz_id:
+            and ssid = %(xydz_id)s
+        %endif
+        %if paras.id:
+            and id = %(id)s
+        %endif
+        order by sxh
+    </sql>
+    <!--获取传入参数的条数-->
+    <sql sqlid="get_crcs_count" desc="获取传入参数的条数">
+        select count(1) as count
+        from gl_crcs
+        where ssid = %(xydz_id)s
+    </sql>
+    <!--更新参数信息-->
+    <sql sqlid="edit_crcs" desc="更新参数信息">
+        update gl_crcs set cssm = %(cssm)s where id = %(id)s
+    </sql>
+    <!--查询要删除的响应动作的中文名称-->
+    <sql sqlid="get_zwmc" desc="查询要删除的响应动作的中文名称">
+        select a.zwmc
+        from gl_hsxxb a , gl_xydzpz b 
+        where a.id = b.dzid 
+        and (${paras._or('b.dzid',paras.ids)})
+        group by a.zwmc
+    </sql>
+    <!--查询要删除的函数信息-->
+    <sql sqlid = 'get_del_hsxx' desc = "查询要删除的函数信息">
+        select a.hsmc,a.zwmc,a.ms,a.nr_id,a.zt from gl_hsxxb a where (${paras._or('a.id',paras.ids)})
+    </sql>
+    <!--删除函数信息表的内容-->
+    <sql sqlid = 'del_hsxx' desc = "删除函数信息表的内容">
+        delete from gl_hsxxb where (${paras._or('id',paras.ids)})
+    </sql>
+    <!--删除gl_blob信息-->
+    <sql sqlid = 'del_blob' desc = "删除gl_blob信息">
+        delete from gl_blob where (${paras._or('id',paras.nr_ids)})
+    </sql>
+    <!--删除传入参数表信息-->
+    <sql sqlid = 'del_crcss' desc = "删除传入参数表信息">
+        delete from gl_crcs where (${paras._or('ssid',paras.ids)})
+    </sql>
+    <!--获取需要启用的函数信息-->
+    <sql sqlid = 'get_hsxx_able' desc = "获取需要启用的函数信息id">
+        select id from gl_hsxxb where (${paras._or('id',paras.ids)}) and zt = %(zt)s
+    </sql>
+    <!--更新函数信息的状态-->
+    <sql sqlid = 'edit_hsxx_zt' desc = "更新函数信息的状态">
+        update gl_hsxxb set zt = %(zt)s where (${paras._or('id',paras.ids)})
+    </sql>
+    <!--查询响应动作-->
+    <sql sqlid = 'get_xydz_edit' desc = "查询响应动作">
+        select a.id,a.hsmc,a.zwmc,a.ms,a.nr_id,b.nr,a.dmlx,a.zt
+        from gl_hsxxb a
+        left join gl_blob b on a.nr_id = b.id 
+        where a.id = %(id)s
+    </sql>
+    <!--查询响应动作有没有被使用-->
+    <sql sqlid="get_dz_count" desc="查询响应动作有没有被使用">
+        select count(1) as count from gl_xydzpz where dzid = %(dzid)s
+    </sql>
+</sqllist>

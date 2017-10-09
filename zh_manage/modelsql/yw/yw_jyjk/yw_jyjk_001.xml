@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--
+        查询满足条件的交易流水总条数
+        支持条件查询：
+            交易日期：yyyymmdd
+            交易名称
+            交易码
+            流水状态
+    -->
+    <sql sqlid = 'data_count' desc = "交易流水列表：查询总条数">
+        select count(0) as count
+        from jy_ls a, gl_jydy b, gl_ywdy c
+        where a.jym = b.jym
+        and b.ssywid = c.id
+        %if paras.jyrq:
+            and a.jyrq = %(jyrq)s
+        %endif
+        %if paras.jymc:
+            and b.jymc like '%'||%(jymc)s||'%'
+        %endif
+        %if paras.jym:
+            and a.jym like '%'||%(jym)s||'%'
+        %endif
+        %if paras.lszt:
+            and a.zt = %(lszt)s
+        %endif
+        %if paras.jgdm:
+            and a.jgdm like '%'||%(jgdm)s||'%'
+        %endif
+        %if paras.lsh:
+            and a.lsh = %(lsh)s
+        %endif
+        %if paras.khzh:
+            and a.khzh like '%'||%(khzh)s||'%'
+        %endif
+        %if paras.shzh:
+            and a.shzh like '%'||%(shzh)s||'%'
+        %endif
+        %if paras.gyh:
+            and a.gyh like '%'||%(gyh)s||'%'
+        %endif
+        %if paras.ywbm:
+            and c.ywbm like '%'||%(ywbm)s||'%'
+        %endif
+    </sql>
+    <!--
+        查询满足条件的交易流水详情，本页面的交易流水详情
+        支持条件查询：
+            交易日期：yyyymmdd
+            交易名称
+            交易码
+            流水状态
+        排序：根据交易日期降序，交易时间降序，流水号
+        查询交易对应的交易接口校验流水个数
+    -->
+    <sql sqlid = 'data_rs' desc = "交易流水列表：获取详细信息">
+        select c.lsh, c.jyrq, c.jysj, c.jymc, c.jym, c.khzh, c.shzh, c.fse, c.zt, c.xynr, c.id as jyid, c.jgdm, c.xym, yjyrq, ylsh, czbz, nvl( d.jysl, 0 ) as jysl, nvl( e.dbjysl, 0 ) as dbjysl, gyh, ywbm, ywmc
+        from (
+            select lsh, jyrq, jysj, jymc, jym, khzh, shzh, fse, zt, xynr, id, jgdm, xym, yjyrq, ylsh, czbz, gyh, ywbm, ywmc
+            from(
+                select lsh, jyrq, jysj, jymc, jym, khzh, shzh, fse, zt, xynr, id, jgdm, xym, yjyrq, ylsh, czbz, gyh, ywbm, ywmc, rownum rn
+                from(
+                    select a.lsh, a.jyrq, a.jysj, b.jymc,
+                    a.jym, a.khzh, a.shzh, a.fse，
+                    a.zt, a.xynr, b.id, a.jgdm, a.xym
+                    , a.yjyrq, a.ylsh, a.czbz, a.gyh
+                    , c.ywbm, c.ywmc
+                    from jy_ls a, gl_jydy b, gl_ywdy c
+                    where a.jym = b.jym
+                    and b.ssywid = c.id
+                    %if paras.jyrq:
+                        and a.jyrq = %(jyrq)s
+                    %endif
+                    %if paras.jymc:
+                        and b.jymc like '%'||%(jymc)s||'%'
+                    %endif
+                    %if paras.jym:
+                        and a.jym like '%'||%(jym)s||'%'
+                    %endif
+                    %if paras.lszt:
+                        and a.zt = %(lszt)s
+                    %endif
+                    %if paras.jgdm:
+                        and a.jgdm like '%'||%(jgdm)s||'%'
+                    %endif
+                    %if paras.lsh:
+                        and a.lsh = %(lsh)s
+                    %endif
+                    %if paras.khzh:
+                        and a.khzh like '%'||%(khzh)s||'%'
+                    %endif
+                    %if paras.shzh:
+                        and a.shzh like '%'||%(shzh)s||'%'
+                    %endif
+                    %if paras.gyh:
+                        and a.gyh like '%'||%(gyh)s||'%'
+                    %endif
+                    %if paras.ywbm:
+                        and c.ywbm like '%'||%(ywbm)s||'%'
+                    %endif
+                    order by a.jyrq desc, a.lsh desc
+                )
+            )
+            where rn >= %(rn_start)s and %(rn_end)s >= rn
+        ) c
+        left join (
+            select jyrq, jylsh, count(jylsh) as jysl
+            from gl_jkjy_ls
+            group by jyrq, jylsh
+        ) d on c.lsh = d.jylsh and c.jyrq = d.jyrq
+        left join (
+            select jyrq, lsh, count(lsh) as dbjysl
+            from gl_dbls
+            group by jyrq, lsh
+        ) e on c.lsh = e.lsh and c.jyrq = e.jyrq
+        
+        order by c.jyrq desc, c.jysj desc, c.lsh
+    </sql>
+    <!--
+        查询子流程的布局信息
+        根据子流程编码和流程id获取子流程布局信息
+        查询结果：布局id，子流程id，子流程名称
+    -->
+    <sql sqlid = 'get_zlc_bj' desc = "子流程布局信息">
+        select b.id as bjid, a.id as jdid, a.mc
+        from gl_zlcdy a, gl_lcbj b
+        where a.id = b.jddyid
+        and a.bm = %(bm)s
+        %if paras.ssjyid:
+            and b.ssjyid = %(ssjyid)s
+        %endif
+        %if paras.sszlcid:
+            and b.sszlcid = %(sszlcid)s
+        %endif
+    </sql>
+    <!--
+        查询节点的布局信息
+        根据节点编码和流程id获取节点布局信息
+        查询结果：布局id，节点id，节点名称
+    -->
+    <sql sqlid = 'get_lc_bj' desc = "流程布局信息">
+        select b.id as bjid, a.id as jdid, a.jdmc as mc
+        from gl_jddy a, gl_lcbj b
+        where a.id = b.jddyid
+        and a.bm = %(bm)s
+        %if paras.ssjyid:
+            and b.ssjyid = %(ssjyid)s
+        %endif
+        %if paras.sszlcid:
+            and b.sszlcid = %(sszlcid)s
+        %endif
+    </sql>
+    <!--
+        查询节点的输入、输出要素
+        根据节点id进行查询
+        查询结果：要素类别、要素编码
+    -->
+    <sql sqlid = 'get_jdys' desc = "获取节点要素">
+        select lb, bm from gl_jdys
+        where jddyid = %(jddyid)s
+        and lb in ( '1', '2' )
+    </sql>
+    <!--
+        查询节点的输入、输出要素
+        根据节点编码和要素列表
+        查询结果：要素类别、要素编码
+    -->
+    <sql sqlid = 'get_jdys_byjdbm' desc = "获取节点要素根据节点编码">
+        select a.lb, a.bm from gl_jdys a, gl_jddy b
+        where a.jddyid = b.id
+        and b.bm = %(jdbm)s
+        and a.lb = %(lb)s
+    </sql>
+    <!--
+        查询指定流水的有效性校验流水
+        根据流水号和交易日期查询
+        查询结果：校验流水基本信息
+    -->
+    <sql sqlid = 'get_lsyxxjy_total' desc = "有效性校验条数">
+        select count(1) as count from gl_jkjy_ls
+        where jylsh = %(lsh)s
+        and jyrq = %(jyrq)s
+    </sql>
+    <sql sqlid = 'get_lsyxxjy' desc = "有效性校验">
+        select id, jylsh, cd_dfjymc, zddm, zdmc, jymc, jyms, jyrq, jysj, jyjg, cd_txbm, jyjgsm from(
+            select id, jylsh, cd_dfjymc, zddm, zdmc, jymc, jyms, jyrq || ' ' || jysj as jyrq, jysj, jyjg, cd_txbm, jyjgsm , rownum rn  from gl_jkjy_ls
+            where jylsh = %(lsh)s
+            and jyrq = %(jyrq)s
+            order by jysj
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--
+        查询指定流水的挡板校验流水
+        根据流水号和交易日期查询
+        查询结果：校验流水基本信息
+    -->
+    <sql sqlid = 'get_lsdbjy_total' desc = "挡板校验条数">
+        select count(1) as count from gl_dbls
+        where lsh = %(lsh)s
+        and jyrq = %(jyrq)s
+    </sql>
+    <sql sqlid = 'get_lsdbjy' desc = "挡板校验">
+        select id, lsh, jyrq, ysmc, ysz, lx, dblx, cd_txbm, cd_dfjymc from(
+            select id, lsh, jyrq, ysmc, ysz, lx, dblx, cd_txbm, cd_dfjymc, rownum rn from gl_dbls
+            where lsh = %(lsh)s
+            and jyrq = %(jyrq)s
+            order by ysmc
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid = 'get_dbjdys_sr' desc = "获取打包节点要素(输入)">
+        select b.lb, b.bm
+        from gl_cdtx a, gl_jdys b
+        where a.zlcdyid = %(zlcdyid)s
+        and a.dbjdid = b.jddyid
+        and b.lb = '1'
+        order by b.bm
+    </sql>
+    <sql sqlid = 'get_ywlst' desc = "获取系统内业务">
+        select ywbm as value, ywmc as text from gl_ywdy
+        where ywbm != 'BEAITX'
+        order by ywmc
+    </sql>
+    
+</sqllist>

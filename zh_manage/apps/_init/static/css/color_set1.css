@@ -1,0 +1,145 @@
+/*20141031
+.sett-color{background: #ae006e;}
+.logoff-color{background:#6441a5}
+end*/
+
+
+/*.home-color{background: #0099ac;}*/
+/*.top-color1{background:#d62424;}*/
+/*.sett-color{background: #6633cc;}
+.logoff-color{background:#bd1e49}*/
+
+
+
+/*20141031
+.top-color{background:#b61f2f;}
+.top-color1{background:#b10000;}
+.user-info-color{background: #ef4056;}
+.home-color{background: #774d4d;}
+.sett-color{background: #9c5174;}
+.logoff-color{background:#1e6e8f}
+end*/
+
+/*.m-right>.mnav li >:hover a　*/
+
+ 
+/*.m-right>.mnav li:hover:nth-child(1) a { background:#bb9793;}
+.m-right>.mnav li:hover:nth-child(2) a { background:#7e6896;}
+.m-right>.mnav li:hover:nth-child(3) a { background:#368898; }*/
+/*#box a:nth-child(4) { background:#d04610 }*/
+
+
+/*================================================
+==============        导航菜单        ============
+===================================================*/
+/*更改bootstrap的默认导航菜单样式*/
+.navbarSuper>.navbar>.navbar-inner {
+
+background-color: #961717;
+
+background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#6a0000), color-stop(0.2, #961717), color-stop(0.8, #961717), to(#6a0000));
+background-image: -webkit-linear-gradient(#6a0000, #961717 20%, #961717 80%, #6a0000 100%);
+background-image: -moz-linear-gradient(#6a0000, #961717 20%, #961717 80%, #6a0000 100%);
+background-image: -o-linear-gradient(#6a0000, #961717 20%, #961717 80%, #6a0000 100%);
+background-image: linear-gradient(#6a0000, #961717 20%, #961717 80%, #6a0000 100%);
+
+background-repeat: repeat-x;
+/*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff2f2f2', GradientType=0);
+*//*border: 1px solid #6f0b0b;*/
+-webkit-border-radius: 0;
+-moz-border-radius: 0;
+border-radius: 0;
+-webkit-box-shadow: none;
+-moz-box-shadow: none;
+box-shadow:none;
+min-height: 20px;
+}
+/*导航当前状态颜色样式*/
+.navbarSuper .navMenuLi{
+	background: #6a0000;
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#570000), color-stop(0.2, #6a0000), color-stop(0.8, #6a0000), to(#570000));
+	background-image: -webkit-linear-gradient(#570000, #6a0000 20%, #6a0000 80%, #570000 100%);
+	background-image: -moz-linear-gradient(#570000, #6a0000 20%, #6a0000 80%, #570000 100%);
+	background-image: -o-linear-gradient(#570000, #6a0000 20%, #6a0000 80%, #570000 100%);
+	background-image: linear-gradient(#570000, #6a0000 20%, #6a0000 80%, #570000 100%);
+}
+/*导航子菜单当前状态和hover时状态样式*/
+.navbarSuper .navbar .sjmenu > a:hover, .navbarSuper .navbar .sjmenu > .navMenu{
+	background: #f0e3e3;
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f0e3e3), to(#f0e3e3));
+	background-image: -webkit-linear-gradient(#f0e3e3, #f0e3e3 100%);
+	background-image: -moz-linear-gradient(#f0e3e3, #f0e3e3 100%);
+	background-image: -o-linear-gradient(#f0e3e3, #f0e3e3 100%);
+	background-image: linear-gradient(#f0e3e3, #f0e3e3 100%);
+	color: #000;
+	text-shadow:none;
+	outline: #570000 1px solid;
+}
+/*主导航当前状态的caret样式*/
+.navbarSuper .navbar .sjmenu > .navMenu > .caret {
+	 border-bottom-color: #774d4d;
+    border-bottom: 4px solid #774d4d;
+	  border-right: 4px solid transparent;
+	  border-left: 4px solid transparent;
+	  border-top:none;
+}
+/*主导航菜单默认caret三角符号*/
+.navbarSuper .dropdown-toggle .caret {
+  border-top-color: #F3C0C0;
+  border-bottom-color: #F3C0C0;
+  margin-top: 6px;
+}
+.navbarSuper .dropdown-toggle:hover .caret,
+.navbarSuper .dropdown-toggle:focus .caret {
+ /* border-top-color: #b10000;*/
+  border-bottom-color: #b10000;
+  border-bottom: 4px solid #b10000;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  border-top:none;
+}
+/*子导航当前颜色样式*/
+.navbarSuper .maintainHover {
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#4a322c), to(#60473f));
+	background-image: -webkit-linear-gradient(#4a322c, #60473f);
+	background-image: -moz-linear-gradient(#4a322c, #60473f);
+	background-image: -o-linear-gradient(#4a322c, #60473f);
+	background-image: linear-gradient(#4a322c, #60473f);
+	color: #fff;
+}
+/*当前状态的子菜单的文字颜色定义*/
+.navbarSuper .maintainHover > a {
+  color: #927777;
+}			
+
+/*子导航hover时颜色样式*/
+.navbarSuper .dropdown-menu > li > a:hover,
+.navbarSuper .dropdown-menu > li > a:focus,
+.navbarSuper .dropdown-submenu:hover > a,
+.navbarSuper .dropdown-submenu:focus > a {
+  text-decoration: none;
+  color: #ffffff;
+  background-color: red;
+/*  background-image: -moz-linear-gradient(top, #0088cc, #0077b3);*/
+
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#4a322c), to(#60473f));
+  background-image: -webkit-linear-gradient(#4a322c, #60473f);
+  background-image: -moz-linear-gradient(#4a322c, #60473f);
+  background-image: -o-linear-gradient(#4a322c, #60473f);
+  background-image: linear-gradient(#4a322c, #60473f);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4a322c', endColorstr='#60473f', GradientType=0);
+}
+/*person-info控制面板导航颜色样式*/
+.person-nav-left ul > li > a {
+	color:#6c5143;
+}
+.person-nav-left ul > li > a:hover {
+	color:#fff;
+	background: #88766e;
+}
+.person-nav-left ul > li:last-child h4 a {
+  color: #000;
+}
+
+

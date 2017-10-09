@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!-- 文章信息条数查询 -->
+    <sql sqlid = 'select_wzts' desc = "文章信息条数查询">
+        select count(id) count from (
+            select a.id,a.cjhydm,a.bt,a.nr,a.xm,a.cjsj,a.plts,a.fwl,rn from (
+                select a.zslxid,a.id,a.cjhydm,a.bt,a.nr,a.xm,a.cjsj,a.plts,a.fwl,rn from(
+                    select b.zslxid,a.id,a.cjhydm,a.bt,a.nr,c.xm,a.cjsj,b.plts,a.fwl,rownum rn from
+                        ( select a.id,a.zslxid,a.cjhydm,count(c.id) plts from gl_zskjbb a left join gl_zskplb c on a.id = c.codid group by a.id,a.cjhydm,a.zslxid ) b,
+                        ( select a.id,a.bt,DBMS_LOB.SUBSTR(b.nr,300,0) nr,a.cjhydm,a.cjsj,a.fwl from gl_zskjbb a left join gl_blob b on a.zsnrid=b.id ) a
+                        left join gl_hydy c on c.hydm=a.cjhydm where a.id=b.id order by a.cjsj desc
+                )a where 1=1
+                %if paras.flxx:
+                    and a.zslxid = %(flxx)s
+                %endif
+                %if paras.value:
+                        and a.bt like  '%'||%(value)s||'%' 
+                        or a.nr like  '%'||%(value)s||'%' 
+                        or a.id in ( 
+                        select a.jbbid from ( 
+                            (select a.id,b.jbbid,b.bqbid from gl_zskfljbqgl a 
+                                left join gl_zskbq b on a.id = b.bqbid 
+                                where a.lx = 'bq' and a.mc like '%'||%(value)s||'%') a 
+                            left join gl_zskjbb b on a.id = b.id)
+                        )
+                    %endif
+            )a
+        )
+    </sql>
+    <!-- 文章信息条件查询 -->
+    <sql sqlid = 'select_wzxx' desc = "文章信息条件查询">
+        select a.id,a.cjhydm,a.bt,a.nr,a.xm,a.cjsj,a.plts,a.fwl,rn from (
+            select a.zslxid,a.id,a.cjhydm,a.bt,a.nr,a.xm,a.cjsj,a.plts,a.fwl,rn from(
+                select b.zslxid,a.id,a.cjhydm,a.bt,a.nr,c.xm,a.cjsj,b.plts,a.fwl,rownum rn from
+                    ( select a.id,a.zslxid,a.cjhydm,count(c.id) plts from gl_zskjbb a left join gl_zskplb c on a.id = c.codid group by a.id,a.cjhydm,a.zslxid ) b,
+                    ( select a.id,a.bt,DBMS_LOB.SUBSTR(b.nr,300,0) nr,a.cjhydm,a.cjsj,a.fwl from gl_zskjbb a left join gl_blob b on a.zsnrid=b.id ) a
+                    left join gl_hydy c on c.hydm=a.cjhydm where a.id=b.id order by a.cjsj desc
+            )a where 1=1
+            %if paras.flxx:
+                and a.zslxid = %(flxx)s
+            %endif
+            %if paras.value:
+                    and a.bt like  '%'||%(value)s||'%' 
+                    or a.nr like  '%'||%(value)s||'%' 
+                    or a.id in ( 
+                    select a.jbbid from ( 
+                        (select a.id,b.jbbid,b.bqbid from gl_zskfljbqgl a 
+                            left join gl_zskbq b on a.id = b.bqbid 
+                            where a.lx = 'bq' and a.mc like '%'||%(value)s||'%') a 
+                        left join gl_zskjbb b on a.id = b.id)
+                    )
+                %endif
+        )a where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+</sqllist>

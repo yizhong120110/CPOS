@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!-- 知识库分类展示查询 -->
+    <sql sqlid = 'select_zskfl' desc = "知识库分类展示查询">
+        select a.id,a.mc,a.mc||'('||count(b.zslxid)||')' xx from gl_zskfljbqgl a 
+        left join gl_zskjbb b on a.id=b.zslxid 
+        where a.lx='fl'
+        group by a.id,a.mc 
+        order by mc 
+    </sql>
+    <!-- 推荐排行展示查询 -->
+    <sql sqlid = 'select_tjph' desc = "推荐排行展示查询">
+        select b.xm, a.cjhydm, a.fwl from(
+          select cjhydm,fwl from(
+            select sum(fwl) as fwl,cjhydm from gl_zskjbb group by cjhydm
+          ) order by fwl desc
+        ) a 
+        left join gl_hydy b on b.hydm = a.cjhydm
+    </sql>
+    <!-- 统计文章信息 -->
+    <sql sqlid = 'select_tjwz' desc = "统计文章信息">
+        select '文章-'||count(zsnrid) wz from gl_zskjbb
+    </sql>
+    <!-- 统计评论信息 -->
+    <sql sqlid = 'select_tjpl' desc = "统计评论信息">
+        select '评论-'||count(id) pl from gl_zskplb
+    </sql>
+    <!-- 统计浏览信息 -->
+    <sql sqlid = 'select_tjll' desc = "统计浏览信息">
+        select '浏览-'||sum(fwl) ll from gl_zskjbb
+    </sql>
+    <!-- 文章信息条数查询 -->
+    <sql sqlid = 'select_wzts' desc = "文章信息条数查询">
+        select count(id) count from (
+            select a.id,a.cjhydm,a.bt,a.nr,a.xm,a.cjsj,a.plts,a.fwl,rn from(
+                select a.id,a.cjhydm,a.bt,a.nr,c.xm,a.cjsj,b.plts,a.fwl,rownum rn from
+                    ( select a.id,a.cjhydm,count(c.id) plts from gl_zskjbb a left join gl_zskplb c on a.id = c.codid group by a.id,a.cjhydm ) b,
+                    ( select a.id,a.bt,DBMS_LOB.SUBSTR(b.nr,300,0) nr,a.cjhydm,a.cjsj,a.fwl from gl_zskjbb a left join gl_blob b on a.zsnrid=b.id ) a
+                    left join gl_hydy c on c.hydm=a.cjhydm where a.id=b.id order by a.cjsj desc
+            )a 
+        )
+    </sql>
+    <!-- 文章信息条件查询 -->
+    <sql sqlid = 'select_wzxx' desc = "文章信息条件查询">
+        select a.id,a.cjhydm,a.bt,a.nr,a.xm,a.cjsj,a.plts,a.fwl,rn from(
+            select a.id,a.cjhydm,a.bt,a.nr,c.xm,a.cjsj,b.plts,a.fwl,rownum rn from
+                ( select a.id,a.cjhydm,count(c.id) plts from gl_zskjbb a left join gl_zskplb c on a.id = c.codid group by a.id,a.cjhydm ) b,
+                ( select a.id,a.bt,DBMS_LOB.SUBSTR(b.nr,300,0) nr,a.cjhydm,a.cjsj,a.fwl from gl_zskjbb a left join gl_blob b on a.zsnrid=b.id ) a
+                left join gl_hydy c on c.hydm=a.cjhydm where a.id=b.id order by a.cjsj desc
+        )a  where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+</sqllist>

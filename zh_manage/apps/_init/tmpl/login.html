@@ -1,0 +1,61 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/login.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/component1.css">
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/${settings._T.APP_NAME}/js/lib/bootstrap.js"></script>
+    <title>登录</title>
+</head>
+<body>
+<div class="single-widget-container">
+    <section class="widget login-widget">
+        <header class="text-align-center">
+                <span>
+                    <h4 class="login-title">开发系统</h4>
+                </span>
+        </header>
+        <div class="body " style="position:relative;">
+            <form class="no-margin" action="/oa_core/login_submit" method="post">
+                <fieldset>
+                    <div class="form-group no-margin">
+                        <label for="username">用户名</label>
+
+                        <div class="input-group input-group-lg">
+                                <span class="input-group-addon"> <i class="icon-user"></i>
+                                </span>
+                            <input id="username" name="username" type="text" class="form-control input-lg"
+                                   placeholder="用户名"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pwd">密码</label>
+
+                        <div class="input-group input-group-lg">
+                                <span class="input-group-addon"> <i class="fa icon-lock"></i>
+                                </span>
+                            <input id="pwd" name="pwd" type="password" class="form-control input-lg"
+                                   placeholder="密码"></div>
+
+                    </div>
+                </fieldset>
+                <div class="form-actions " style="margin-bottom:-10px; ">
+
+                    <button type="submit" class=" btn btn-block btn-lg btn-danger  ">
+                        <i class=" icon-ok-sign"></i>
+                        <small>登录</small>
+                    </button>
+
+
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+</body>
+</html>

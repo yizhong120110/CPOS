@@ -1,0 +1,188 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 计划任务管理：自动发起交易列表 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>自动发起交易列表</title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <!-- 自动发起交易列表调用js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/yw_jhrw/yw_jhrw_001/yw_jhrw_001_zdfqjylb.js"></script>
+</head>
+<body>
+    <!-- 平台:如果不存在默认为wh（维护） -->
+    <input type = "hidden" name = "pt" id = "hidPt" value = "${ pt if pt else 'wh' }">
+    <!--
+        自动发起交易列表主页面：
+        top：查询条件区域
+        main：交易列表信息
+    -->
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <!--
+            条件查询区域：支持根据：业务名称、交易码、交易名称、交易状态组合查询
+            交易状态：从gl_bmwh表中获取lx为10001的状态信息
+            所有查询都是精确查询
+        -->
+        <!-- 查询区域 -->
+        <div data-options="region:'north',border:true" style="padding-top:1px;height:44px;">
+            <form id = 'fmSearch' method="get">
+                <table id="dgSearch" style="width:100%;margin:4px 0;" border="0">
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right;width:90px;">
+                            业务名称：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <input id="txtSeaYwmc" name="seaYwmc" class="easyui-textbox" style="width:150px" />
+                        </td>
+                        
+                        <td nowrap="nowrap" style="text-align:right;width:80px;">
+                            交易码：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <input id="txtSeaJym" name="seaJym" class="easyui-textbox" style="width:150px">
+                        </td>
+                        
+                        <td nowrap="nowrap" style="text-align:right;width:90px;">
+                            交易名称：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <input id="txtSeaJymc" name="seaJymc" class="easyui-textbox" style="width:150px">
+                        </td>
+                        
+                        <td nowrap="nowrap" style="text-align:right;width:90px;">
+                            交易状态：
+                        </td>
+                        <td style="text-align:left;width:150px;">
+                            <!-- 交易状态数据来源于后台查询，默认选择请选择 -->
+                            <input class="easyui-combobox" id = 'selSeaJyzt'
+                            name="seaJyzt"
+                            data-options="
+                                    data: ${ zt_lst },
+                                    editable: false,
+                                    valueField:'value',
+                                    textField:'text'
+                            ">
+                        </td>
+                        <td style="text-align:center">
+                            <!-- 查询按钮，发起条件查询请求 -->
+                            <button id = 'lbtnSearch' class="easyui-linkbutton" style="width:100px;" onclick="javascript:doSearch(event)">查询</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- 数据展示、操作区域 -->
+        <div data-options="region:'center',border:false">
+            <table id="dgZdfqjy"></table>
+        </div>
+    </div>
+    <!-- 编辑自动发起交易 -->
+    <div id="winZdfqjyUpd" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false">
+        <!-- 交易操作form表单 -->
+        <form id = "fmZdfqjyUpd" method="post">
+            <!-- 隐藏域：操作交易id -->
+            <input type = "hidden" name = "jyid" id = "hidJyid">
+            <!-- 隐藏域：交易基本信息修改前信息：业务名称：xx，交易码：xx，交易名称：xx，crontab配置：xx，状态：xx -->
+            <input type = "hidden" name = "ynr" id = "hidYnr">
+            <!-- 显示和编辑元素信息 -->
+            <div class="esayui-panel" style="margin-top:20px">
+                <table style="font-size:12px;width:100%" cellspacing="5px" border='0'>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right; width:120px;">
+                            业务名称：
+                        </td>
+                        <td style="text-align:left;width:200px;">
+                            <!-- 回显，不可编辑 -->
+                            <input class="easyui-textbox" id="txtZdfqjyYwmc" name="zdfqjyYwmc" style="width:200px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right; width:120px;">
+                            交易码：
+                        </td>
+                        <td style="text-align:left;width:200px;">
+                            <!-- 回显，不可编辑 -->
+                            <input class="easyui-textbox" id="txtZdfqjyJym" name="zdfqjyJym" style="width:200px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right; width:120px;">
+                            交易名称：
+                        </td>
+                        <td style="text-align:left;width:200px;">
+                            <!-- 回显，不可编辑 -->
+                            <input class="easyui-textbox" id="txtZdfqjyJymc" name="zdfqjyJymc" style="width:200px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right; width:120px;">
+                            自动发起配置：
+                        </td>
+                        <td nowrap="nowrap" style="text-align:left;width:200px;">
+                            <!-- 
+                                回显，可编辑，
+                                限定最大长度为100，
+                                不可为空
+                            -->
+                            <input type="hidden" id="hidYzdfqpz" name = 'yzdfqpz'/>
+                            <input class="easyui-textbox" id="txtZdfqjyZdfqpz" name="zdfqjyZdfqpz" style="width:200px">
+                            <!-- 对输入的自动发起配置进行验证和翻译 -->
+                            <button id="lbtnFy" class="easyui-linkbutton">翻译</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right; width:120px;">
+                            自动发起配置说明：
+                        </td>
+                        <td style="text-align:left;width:200px;">
+                            <!-- 回显，不可编辑， 当进行翻译操作时，将最新的说明更新到此文本域中 -->
+                            <input class="easyui-textbox" id="txtZdfqjyZdfqpzsm" name="zdfqjyZdfqpzsm" style="width:200px;height:50px" data-options="multiline:true" >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" style="text-align:right; width:120px;">
+                            交易状态：
+                        </td>
+                        <td style="text-align:left;width:200px;" colspan="3">
+                            <!-- 回显，可切换、修改 -->
+                            <input type="hidden" id="hidYzt" name = 'yzt'/>
+                            <a class="onoffswitch" style="float:left">
+                                <input type="checkbox" id="nfsJyzt" class="onoffswitch-checkbox" checked>
+                                <label class="onoffswitch-label" for="nfsJyzt">
+                                    <span class="onoffswitch-inner">
+                                        <span class="onoffswitch-active"><span class="onoffswitch-switch">启用</span></span>
+                                        <span class="onoffswitch-inactive"><span class="onoffswitch-switch">禁用</span></span>
+                                    </span>
+                                </label>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- 提交按钮-->
+            <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+                <!-- 保存，提交修改请求-->
+                <button id="lbtnZdfqjySubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                    保存
+                </button>
+                <!-- 取消，取消修改操作-->
+                <button id="lbtnZdfqjyCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">
+                    取消
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

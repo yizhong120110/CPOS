@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+
+    <!--获取部门信息-->
+    <!--获取部门ID-->
+    <sql sqlid="get_bmid_rs" desc="获取部门ID">
+        select
+		   bm.id as id
+	      ,bm.bmmc as text
+		  ,bm.fjdid
+		  ,decode(c.persons,null,0,c.persons) as persons
+		from gl_bmdy bm
+		left join
+		  (
+		    select a.cbm, sum(t.persons) as persons
+			from gl_bmdy a
+			left join 
+			   (
+			     select b.cbm, a.bmid, a.persons
+				 from (select bm.bmid, count(1) as persons
+				       from gl_yhbmpz bm
+					   group by bm.bmid) a
+			     left join gl_bmdy b
+				   on b.id = a.bmid) t
+			  on t.cbm like a.cbm || '%'
+			where a.scbz = '0'
+			group by a.cbm) c
+		on c.cbm = bm.cbm
+		where bm.scbz = '0'
+		order by bm.cbm
+    </sql>
+
+    <!--获取部门下的用户：获取-->
+    <sql sqlid="get_bmyh_rs" desc="获取部门下的用户">
+        select
+            b.id,b.hydm, b.xm||'('||b.hydm||')' as xm
+        from gl_hydy b
+        where
+            b.id in (
+                select  a.yhid
+                from gl_yhbmpz a
+                where ${paras._or('bmid',paras.ids)}
+
+            )
+        and scbz='0'
+        %if paras.search_name and paras.search_value:
+            and b.xm || b.hydm  like '%'||%(search_value)s||'%'
+        %endif
+        order by  b.hydm desc
+    </sql>
+
+    <!--获取菜单信息-->
+    <sql sqlid="get_cd_rs" desc="获取菜单信息">
+        select id,cdmc  from gl_cddy
+        where
+            scbz = '0'
+            %if paras.cdid:
+                and id = %(cdid)s
+            %endif
+        order by pxh
+    </sql>
+
+    <!--获取用户已有菜单权限-->
+    <sql sqlid="get_cdqxExit" desc="获取用户已有菜单权限">
+        select a.qxid from gl_yhqxpz a , gl_cddy b
+        where a.qxid  = b.id
+        and b.scbz ='0'
+        and a.yhid = %(yhid)s
+        and a.zt='1'
+    </sql>
+
+    <!--删除用户原有权限-->
+    <sql sqlid="delete_yhqxpz" desc="删除用户原有权限">
+        delete from gl_yhqxpz
+        where yhid = %(yhid)s
+             and (${paras._or('qxid',paras.ids)})
+    </sql>
+
+    <!--插入用户权限-->
+    <sql sqlid="insert_yhqxpz" desc="插入用户权限">
+        insert into gl_yhqxpz (yhid, qxid,  zt, czr, czsj)
+         values(%(yhid)s, %(qxid)s,  '1', %(czr)s, %(czsj)s)
+    </sql>
+    <!--获取用户名称，用于登记日志-->
+    <sql sqlid="get_yhmc" desc="获取用户名称">
+        select xm as mc
+        from gl_hydy
+        where id=%(id)s
+    </sql>
+
+    <!--获取用户已有按钮权限-->
+    <sql sqlid="get_anqxExit" desc="获取用户已有按钮权限">
+        select a.qxid from gl_yhqxpz a , gl_gndy b, gl_cddy c
+        where a.yhid = %(yhid)s
+        and c.id = %(cdid)s
+        and a.qxid  = b.id
+        and c.scbz ='0'
+        and c.id = b.sscdid
+        and a.zt='1'
+    </sql>
+
+    <!--获取上级菜单信息-->
+    <sql sqlid="data_sjcd_rs" desc="获取上级菜单列表数据">
+        select  id , cdmc
+        from gl_cddy
+        where scbz='0'
+        order by cdmc
+    </sql>
+
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_rs" desc="获取菜单列表-所有菜单列表">
+        select a.id , a.cdmc as text, a.lx, b.mc as lxmc, a.fjdid,  a.bz, a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh b on b.lx='10025' and b.bm = a.lx
+        where  scbz='0'
+        order by  pxh
+    </sql>
+
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_lst" desc="获取菜单列表包含父节点-部分菜单">
+        select a.id , a.cdmc as text, a.lx, d.mc as lxmc, a.fjdid,  a.bz as qxms , a.scbz, a.pxh, a.zt, a.url, a.czr ,
+               a.czsj, a.ly,
+               case ly
+                  when '1' then '自定义'
+                  when '2' then '系统预置'
+               else '' end  as lymc
+        from gl_cddy a
+        left join gl_bmwh d on d.lx='10025' and d.bm = a.lx
+        where  scbz='0'
+        and ${paras._or('a.id',paras.ids)}
+        order by  pxh
+    </sql>
+
+    <!--获取菜单对应的功能列表-->
+    <sql sqlid="data_gnlb_rs" desc="获取菜单对应的功能列表">
+         select id,gndm,gnmc,bz,sscdid from gl_gndy where sscdid = %(sscdid)s
+    </sql>
+
+    <!-- 获取要删除菜单信息，用于登记日志-->
+    <sql sqlid="get_cdxx" desc="获取要删除菜单的信息">
+        select
+            cdmc,id
+        from gl_cddy
+        where id = %(id)s
+    </sql>
+
+</sqllist>

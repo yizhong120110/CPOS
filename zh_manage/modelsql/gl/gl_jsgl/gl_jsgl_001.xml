@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    
+    <!--  查询角色管理信息的角色分类下拉列表信息  -->
+    <sql sqlid = 'data_jsfl_rs' desc = "下拉列表：角色分类查询">
+        select bm, mc
+        from gl_bmwh
+        where lx = '10023'
+        order by bm
+    </sql>
+
+    <!--  查询角色管理的详细信息  -->
+    <sql sqlid = 'data_rs' desc = "角色列表：获取详细信息">
+        select id,jsdm,jsmc,jsfl,jsms,scbz,jsflmc,xm,czsj from (
+            select a.id,a.jsdm, a.jsmc,a.jsfl, a.jsms, a.scbz ,d.mc as jsflmc,c.xm, a.czsj, rownum rn
+            from gl_jsdy  a
+            left join (select bm,mc from gl_bmwh where lx = '10023') d on a.jsfl = d.bm
+            left join gl_hydy c on c.hydm = a.czr
+            where a.scbz='0'
+                %if paras.jsfl and paras.jsfl != '-1':
+                    and a.jsfl = %(jsfl)s
+                %endif
+                %if paras.jsdm:
+                    and a.jsdm = %(jsdm)s
+                %endif
+                %if paras.jsmc:
+                    and a.jsmc like '%'||%(jsmc)s||'%'
+                %endif
+            order by a.jsdm
+            )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+
+    <!--  查询角色管理的详细信息  -->
+    <sql sqlid = 'data_count' desc = "角色列表：获取详细信息条数">
+        select count(1) as count from gl_jsdy
+        where scbz='0'
+        %if paras.jsfl and paras.jsfl != '-1':
+            and jsfl = %(jsfl)s
+        %endif
+        %if paras.jsdm:
+            and jsdm = %(jsdm)s
+        %endif
+        %if paras.jsmc:
+            and jsmc like '%'||%(jsmc)s||'%'
+        %endif
+        order by jsdm
+    </sql>
+
+    <!--新增或者编辑：判断角色名称是否重复-->
+    <sql sqlid="check_jsmc" desc="校验角色名称是否存在">
+        select  a.id
+        from gl_jsdy  a
+        where a.jsmc=%(jsmc)s
+            %if paras.id:
+                and a.id != %(id)s
+            %endif
+        and scbz='0'
+    </sql>
+
+    <!--新增：判断角色代码是否重复-->
+    <sql sqlid="check_jsdm" desc="校验角色代码是否存在">
+        select  a.id
+        from gl_jsdy  a
+        where a.jsdm=%(jsdm)s
+        and scbz='0'
+    </sql>
+    
+    <!--  增加信息时 点击保存按钮 执行的数据插入-->
+    <sql sqlid="insert_jsxx" desc="新增角色的数据的插入">
+        insert into gl_jsdy (id,jsdm, jsmc,jsfl,jsms, czr,czsj,scbz)
+        values(%(id)s, %(jsdm)s, %(jsmc)s, %(jsfl)s, %(jsms)s, %(czr)s, %(czsj)s, %(sfsc)s)
+    </sql>
+
+    <!--获取角色信息，用于获取编辑前数据-->
+    <sql sqlid="get_jsxx_edit" desc="获取编辑前数据">
+        select a.id,a.jsdm, a.jsmc,a.jsfl, a.jsms, a.scbz ,d.mc as jsflmc,c.xm, a.czsj
+        from gl_jsdy  a
+        left join (select bm,mc from gl_bmwh where lx = '10023') d on a.jsfl = d.bm
+        left join gl_hydy c on c.hydm = a.czr
+        where a.scbz='0'
+        and a.id = %(id)s
+    </sql>
+    <!--编辑角色信息sql-->
+    <sql sqlid="update_jsxx" desc="编辑角色信息更新sql">
+        update gl_jsdy set jsmc = %(jsmc)s,
+            jsfl = %(jsfl)s,jsms = %(jsms)s,
+            czr= %(czr)s,czsj = %(czsj)s
+        where id = %(id)s
+    </sql>
+
+    <!-- 查询信息，方便登记操作日志-->
+    <sql sqlid="select_js_rz" desc="获取角色信息">
+        select jsmc,jsdm, id from gl_jsdy
+        where ${paras._or('id',paras.ids)}
+    </sql>
+    
+    <!-- 批量 删除角色权限配置-->
+    <sql sqlid="delete_jsqxpz" desc="删除角色权限配置">
+        delete from gl_jsqxpz where ${paras._or('jsid',paras.ids)}
+    </sql>
+
+    <!-- 批量 删除用户角色配置数据-->
+    <sql sqlid="delete_yhjspz" desc="删除用户角色配置">
+        delete from gl_yhjspz where ${paras._or('jsid',paras.ids)}
+    </sql>
+
+    <!-- 批量删除角色信息-->
+    <sql sqlid="delete_pl" desc="批量删除">
+        update gl_jsdy set
+            scbz='1',
+            czr= %(czr)s,czsj = %(czsj)s
+        where ${paras._or('id',paras.ids)}
+    </sql>
+    
+</sqllist>

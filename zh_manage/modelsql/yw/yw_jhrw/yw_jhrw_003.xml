@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <!--获取当日计划任务数量
+    查询指定日期，任务类型不为动作的
+    且手工执行流水号要为空
+    -->
+    <sql sqlid = 'data_count' desc = "获取当日计划任务数量">
+        select count(0) as count  from(
+        select a.id as drzxjhid,a.lsh,a.zt as ztbm,a.rwlx as rwlxbm,a.rq,
+        (case when a.rwlx = 'jy' then nvl(f.jymc, g.jymc ) when a.rwlx = 'cj' then f.cjmc when a.rwlx = 'fx' then f.fxmc else '' end) as mc
+        from gl_drzxjhb a
+        left join (
+            select b.id, c.jymc, d.mc as fxmc, e.mc as cjmc 
+            from gl_jhrwb b
+            left join gl_jydy c on b.ssid = c.id
+            left join gl_jkfxpz d on b.ssid = d.id
+            left join gl_dxcjpz j on b.ssid = j.id
+            left join gl_cjpzb e on j.sscjpzid = e.id) f on a.ssid = f.id
+        left join gl_jydy g on a.ssid = g.id
+        where rq = %(rq)s
+        and rwlx != 'dz'
+        and (sgzxlsh = '' or sgzxlsh is null)
+        %if paras.rwlx:
+            and rwlx = %(rwlx)s 
+        %endif
+        %if paras.zt:
+            and a.zt = %(zt)s 
+        %endif
+        %if paras.lsh:
+            and lsh like '%'|| %(lsh)s ||'%' 
+        %endif
+        )
+        %if paras.mc:
+            where mc like '%'|| %(mc)s ||'%' 
+        %endif
+    </sql>
+    <!--获取当日计划任务信息
+    关联交易定义表、采集配置表、监控分析配置表
+    查询指定日期，任务类型不为动作的
+    且手工执行流水号要为空
+    -->
+    <sql sqlid = 'data_rs' desc = "获取当日计划任务信息">
+        select drzxjhid, lsh, mc, rwlx, dzlx, zdfqpz, jhfqsj, sjfqsj, zt, bcflsh, rzlsh, ztbm, rwlxbm, rq,jhrwid
+        from (
+            select drzxjhid, lsh, mc, rwlx, dzlx, zdfqpz, jhfqsj, sjfqsj, zt, bcflsh, rzlsh, ztbm, rwlxbm, rq,jhrwid, rownum rn
+            from (
+                select a.id as drzxjhid,a.lsh,a.zt as ztbm,a.rwlx as rwlxbm,a.rq,f.id as jhrwid,
+                    (case when a.rwlx = 'jy' then nvl(f.jymc, g.jymc ) when a.rwlx = 'cj' then f.cjmc when a.rwlx = 'fx' then f.fxmc else '' end) as mc, 
+                    (select mc from gl_bmwh where lx = '10002' and bm = a.rwlx) as rwlx,
+                    (select mc from gl_bmwh where lx = '10004' and bm = a.dzlx) as dzlx,
+                    a.zdfqpz, 
+                    to_char(to_date(a.rq||a.jhfqsj,'YYYY-MM-DD HH24:MI:SS'),'YYYY-MM-DD HH24:MI:SS') as jhfqsj,
+                    to_char(to_date(a.sjfqsj,'YYYY-MM-DD HH24:MI:SS' ),'YYYY-MM-DD HH24:MI:SS') as sjfqsj,
+                    (select mc from gl_bmwh where lx = '10003' and bm = a.zt) as zt,
+                    a.bcflsh as bcflsh,a.rzlsh as rzlsh
+                from gl_drzxjhb a
+                left join (
+                    select b.id, c.jymc, d.mc as fxmc, e.mc as cjmc 
+                    from gl_jhrwb b
+                    left join gl_jydy c on b.ssid = c.id
+                    left join gl_jkfxpz d on b.ssid = d.id
+                    left join gl_dxcjpz j on b.ssid = j.id
+                    left join gl_cjpzb e on j.sscjpzid = e.id) f on a.ssid = f.id
+                left join gl_jydy g on a.ssid = g.id
+                where a.rq = %(rq)s
+                and (a.sgzxlsh = '' or a.sgzxlsh is null)
+                and a.rwlx != 'dz'
+                %if paras.rwlx:
+                    and a.rwlx = %(rwlx)s 
+                %endif
+                %if paras.zt:
+                    and a.zt = %(zt)s 
+                %endif
+                %if paras.lsh:
+                    and a.lsh like '%'|| %(lsh)s ||'%' 
+                %endif
+                order by a.zt, a.lsh
+            )
+            %if paras.mc:
+                where mc like '%'|| %(mc)s ||'%' 
+            %endif
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取动作执行计划列表数量-->
+    <sql sqlid = 'data_dzzxjhlb_count' desc = "动作执行计划列表：获取动作执行计划列表数量">
+        select count(0) as count
+        from gl_drzxjhb
+        Where bcflsh = %(lsh)s 
+    </sql>
+    <!--获取动作执行计划列表信息
+    指定被触发流水号，并对查询的状态及类型进行转意
+    -->
+    <sql sqlid = 'data_dzzxjhlb_rs' desc = "动作执行计划列表：获取动作执行计划列表信息">
+        select drjhid, lsh, mc, rq, dzlx, jhfqsj, sjfqsj, zt, rzlsh, ztbm from (
+            select drjhid, lsh, mc, rq, dzlx, jhfqsj, sjfqsj, zt, rzlsh, ztbm, rownum rn from (
+                select a.id as drjhid, a.lsh, b.zwmc as mc, a.rq,
+                    (select mc from gl_bmwh where lx = '10004' and bm = a.dzlx) as dzlx,
+                    to_char(to_date(a.rq || a.jhfqsj,'YYYY-MM-DD HH24:MI:SS'),'YYYY-MM-DD HH24:MI:SS') as jhfqsj,
+                    to_char(to_date(a.sjfqsj,'YYYY-MM-DD HH24:MI:SS' ),'YYYY-MM-DD HH24:MI:SS') as sjfqsj,
+                    (select mc from gl_bmwh where lx = '10003' and bm = a.zt) as zt,a.rzlsh,a.zt as ztbm
+                from gl_drzxjhb a 
+                left join gl_xydzpz c on a.ssid=c.id 
+                left join gl_hsxxb b on c.dzid = b.id 
+                Where a.bcflsh = %(lsh)s 
+                order by a.lsh desc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取手工执行列表数量-->
+    <sql sqlid = 'data_sgzxlb_count' desc = "手工执行列表：获取手工执行列表数量">
+        select count(0) as count
+        from gl_drzxjhb
+        where rwlx = %(rwlx)s
+        and sgzxlsh = %(lsh)s
+    </sql>
+    <!--获取手工执行列表信息
+    指定任务类型和手工执行流水号
+    并对查询的状态进行转意
+    -->
+    <sql sqlid = 'data_sgzxlb_rs' desc = "手工执行列表：获取手工执行列表信息">
+        select lsh,rwlx,ztbm,rq,jhfqsj,sjfqsj,zt,rzlsh from (
+            select lsh,rwlx,ztbm,rq,jhfqsj,sjfqsj,zt,rzlsh,rownum rn from (
+                select lsh,rwlx,zt as ztbm,rq,
+                    to_char(to_date(rq || jhfqsj,'YYYY-MM-DD HH24:MI:SS'),'YYYY-MM-DD HH24:MI:SS') as jhfqsj,
+                    to_char(to_date(sjfqsj,'YYYY-MM-DD HH24:MI:SS' ),'YYYY-MM-DD HH24:MI:SS') as sjfqsj,
+                    (select mc from gl_bmwh where lx = '10003' and bm = zt) as zt, rzlsh
+                from gl_drzxjhb
+                where rwlx = %(rwlx)s
+                and sgzxlsh = %(lsh)s
+                order by lsh desc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <!--获取计划任务信息-->
+    <sql sqlid = 'get_jhxx' desc = "获取计划任务信息">
+        select  lsh as ylsh, rwlx as yrwlx, ssid as yssid，zdfqpz as yzdfqpz，ip as yip, fxgzjg  as yfxgzjg, zt as yzt
+        from gl_drzxjhb 
+        where id = %(drzxjhid)s
+    </sql>
+    <!--更新当日计划任务状态-->
+    <sql sqlid = 'upd_jhzt' desc = "更新当日计划任务状态">
+        update gl_drzxjhb set zt = '3' where id = %(drzxjhid)s and zt = '0'
+    </sql>
+    <!--查询计划任务表的IP-->
+    <sql sqlid = 'select_jhip' desc = "查询计划任务表的IP">
+        select a.ip from gl_jhrwb a, gl_drzxjhb b where a.id = b.ssid and a.rwlx='fx' and b.id = %(drzxjhid)s
+    </sql>
+    <!--插入当日计划任务表信息
+    默认状态为0未执行
+    动作类型为1自动发起
+    -->
+    <sql sqlid = 'ins_jhrw' desc = "插入当日计划任务表信息">
+        insert into gl_drzxjhb (id,lsh,rwlx,ssid,zdfqpz,ip,fxgzjg,dzlx,rq,jhfqsj,zt,sgzxlsh)
+        values(%(id)s,%(lsh)s,%(yrwlx)s,%(yssid)s,%(yzdfqpz)s,%(yip)s,%(yfxgzjg)s,'1',%(rq)s,%(jhfqsj)s,'0',%(ylsh)s)
+    </sql>
+    <sql sqlid = 'ins_plzdb' desc = "插入批量转单笔">
+        insert into gl_plzdb (id,drzxjhbid,buf,txglbm)
+        select %(id)s, %(drzxjhbid)s, buf, txglbm from gl_plzdb
+        where drzxjhbid = %(ydrzxjhbid)s
+    </sql>
+</sqllist>

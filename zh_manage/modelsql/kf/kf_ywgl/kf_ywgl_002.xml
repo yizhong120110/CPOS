@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_ywjbxx" desc="查询业务基本信息">
+        select id, ywbm, ywmc, ywms
+        from gl_ywdy
+        where id = %(ywid)s
+    </sql>
+    <sql sqlid="get_dqdy" desc="查询地区定义 lx(1:地区)">
+        select bm, mc
+        from gl_bmwh
+        where lx = '1'
+        order by bm
+    </sql>
+    <sql sqlid="check_ywbm" desc="校验业务简称是否存在">
+        select 1 from gl_ywdy 
+        where ywbm = %(ywbm)s
+            and id !=  %(id)s
+    </sql>
+    <sql sqlid="select_jbxx" desc="查询修改前的信息">
+        select ywbm,ywmc,ywms from gl_ywdy 
+        where id = %(id)s
+    </sql>
+    <sql sqlid="update_yw" desc="更新业务基本信息">
+        update gl_ywdy set ywbm = %(ywbm)s, ywmc = %(ywmc)s, ywms = %(ywms)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="count_cs" desc="查询总条数">
+        select count(1) as count from gl_csdy where ssid = %(ywid)s
+    </sql>
+    <sql sqlid="get_ywcs" desc="查询业务参数">
+        select id, csdm, value, csms, zt from (
+            select id, csdm, value, csms, zt, rownum rn
+            from (
+                select id, csdm, value, csms, zt
+                from gl_csdy
+                where ssid = %(ywid)s
+                order by csdm
+            ) x
+        ) y
+        where rn >= %(rn_start)s 
+            and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid="check_ywcs" desc="校验业务参数是否存在">
+        select 1 from gl_csdy 
+        where ssid = %(ywid)s
+            and csdm = %(csdm)s
+    </sql>
+    <sql sqlid="insert_csdy" desc="插入参数定义表 lx(1:地区)">
+        insert into gl_csdy (id, csdm, csms, value, lx, ssid, zt, czr, czsj)
+        values (%(id)s, %(csdm)s, %(csms)s, %(value)s, %(lx)s, %(ssid)s, %(zt)s, %(czr)s, %(czsj)s)
+    </sql>
+    <sql sqlid="get_ywcs_dm_ms" desc="查询业务参数代码、名称">
+        select csdm, csms
+        from gl_csdy
+        where (${paras._or('id',paras.ids)})
+    </sql>
+    <sql sqlid="del_ywcs" desc="删除业务参数">
+        delete from gl_csdy
+        where (${paras._or('id',paras.ids)})
+    </sql>
+    <sql sqlid="update_csdy_yw" desc="更新参数定义表">
+        update gl_csdy set csms = %(csms)s, value = %(value)s, zt = %(zt)s, czr = %(czr)s, czsj = %(czsj)s
+        where id = %(csid)s
+    </sql>
+</sqllist>

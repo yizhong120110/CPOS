@@ -1,0 +1,66 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!-- 核心对账查询报表：主页面 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title></title>
+    <!-- 公共模块css -->
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <!-- 公共模块js -->
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js" charset="utf-8"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/grid++/CreateControl.js" ></script>
+    <!-- grid++的js -->
+    <script src="/static/${settings._T.APP_NAME}/js/view/grid_printer/grid_printer.js"></script>
+</head>
+<script type="text/javascript">
+    // 报表页面的title
+    var html_title = "${html_title}";
+    // 报表数据的查询url
+    var search_url = "${search_url}";
+    // 报表页面的查询条件
+    var search_data = ${search_data};
+    // 报表的模板路径
+    var grf_path = "${grf_path}";
+    // 报表列名的列表
+    var report_title = ${report_title};
+    // 获取报表模板的相对路径
+    var real_path = "/static/${settings._T.APP_NAME}/grf/";
+    // 用户是否要自己去处理数据
+    var self_data = "${self_data}";
+    // 接收用户传递的js路径
+    var js_path = "${js_path}";
+    // 定义了js的根目录
+    var js_real_path = "/static/${settings._T.APP_NAME}/js/view/"
+    // 隐藏操作按钮列表，以英文逗号进行分割
+    //2指定打印按钮。3指定打印页面设置按钮。4指定打印机设置按钮。5指定导出按钮。6指定邮件发送按钮。7指定保存打印文档按钮。
+    //14指定上一页按钮。15指定下一页按钮。16指定首页按钮。17指定最后页按钮。18指定页号编辑框。19指定关闭按钮。20指定按钮，尚未实现。
+    //21指定刷新按钮。25指定明细网格数据分页方式组合框与每页行数编辑框。30指定查找编辑框。31指定查找按钮。32指定继续查找按钮。
+    //33指定查找对话框按钮。40指定打印预览按钮。41指定打印提交布局选取框。50指定导出Excel菜单项。51指定导出文本菜单项。
+    //52指定导出HTML菜单项。53指定导出RTF菜单项。54指定导出PDF菜单项。55指定导出CSV菜单项。56指定导出图像菜单项。60指定导出Excel按钮。
+    //61指定导出PDF按钮。65指定导出Excel并发送Email菜单项。66指定导出文本并发送Email菜单项。67指定导出HTML并发送Email菜单项。
+    //68指定导出RTF并发送Email菜单项。69指定导出PDF并发送Email菜单项。70指定导出CSV并发送Email菜单项。71指定导出图像并发送Email菜单项。
+    var isplayviewer = "${isplayviewer}";
+</script>
+
+<body style="margn:0px;height:650px">
+    <div id="printBeanWindow" style="height:100%">
+        <script type="text/javascript">
+            // 动态的创建报表的object对象。
+            CreateDisplayViewerEx("100%", "100%", "/static/${settings._T.APP_NAME}/grf/RegisteredBlankReport.grf", "", false, "<param name=BorderStyle value=1>" +
+                                "<param name='AlwaysShowVScrollBar' value=false>" + 
+                                "<param name='ShowProgressUI' value=true>" + 
+                                "<param name='OnContentCellDblClick' value='OnContentCellDblClick'>");
+        </script>
+    </div>
+</body>
+</html>

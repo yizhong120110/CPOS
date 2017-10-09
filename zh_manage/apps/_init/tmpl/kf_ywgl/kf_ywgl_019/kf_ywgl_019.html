@@ -1,0 +1,185 @@
+##coding:utf8
+<% from cpos3.conf import settings %>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>导入</title>
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/metro-gray/easyui.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/themes/icon.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/css/style.css">
+    <link rel="stylesheet" href="/static/${settings._T.APP_NAME}/cpos/cpos-ui.css">
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/fileupload/jquery.fileupload.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/jquery.fileDownload.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.easyui.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jquery-easyui-1.4/jquery.jdirk.min.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/jeasyui-extensions/jeasyui.extensions.validatebox.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/lib/common.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/cpos/cpos-ui.js"></script>
+    <script src="/static/${settings._T.APP_NAME}/js/view/kf_ywgl/kf_ywgl_019/kf_ywgl_019.js"></script>
+    <style type="text/css">
+        .modified{
+            display: inline-block;
+            background: url('/static/_init/images/modified.png') no-repeat;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .added{
+            display: inline-block;
+            background: url('/static/_init/images/added.png') no-repeat;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .icon-warning-left {
+            height: 16px;
+            width: 16px;
+            line-height: 16px;
+            display: inline-block
+    </style>
+</head>
+<body>
+    <input type="hidden" id="hidDrlx" name="drlx" value="${drlx}"/>
+    <input type="hidden" id="hidYwid" name="ywid" value="${ywid}"/>
+    <input type="hidden" id="hidXtlx" name="xtlx" value="${xtlx}"/>
+    <input type="hidden" id="hidTxid" name="txid" value="${txid}"/>
+    <input type="hidden" id="hidDrlsid" name="drlsid" value=""/>
+    <div class="easyui-layout" data-options="fit:true, border:false">
+        <div id="divImportWindow" class="easyui-layout" data-options="fit:true" style="border:0;">
+            <div data-options="region:'west',split:true" onselectstart="return false;" style="width:50%;">
+                <table id="treYwdrLeft" class="easyui-treegrid"></table>
+                <div id="dicDrLeftWindow" style="height:28px;overflow:hidden">
+                    <table id="treFile" cellspacing="2px" style="width:100%;">
+                        <tr>
+                            <td nowrap="nowrap" style="width:100px">
+                                待导入的文件：
+                            </td>
+                            <td>
+                                <input class="easyui-filebox" id="filDrwj" name="drwj" data-options="prompt:'待导入的文件', buttonText:'选择文件'" style="width:100%">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>  
+            
+            <div data-options="region:'center',split:true" onselectstart="return false;">
+                <!-- 导入 -->
+                <table id="treYwdrRight" class="easyui-treegrid"></table>
+                <div id="dicDrRightWindow" style="height:28px;overflow:hidden">
+                    <table id="dgRight" cellspacing="2px" style="width:100%">
+                        <tr>
+                            <td nowrap="nowrap" style="line-height:22px">
+                                此为提交的最新版本文件
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+                <button id="lbtnYwdrSubmit" class="easyui-linkbutton" style="width:85px">导入</button>
+            </div>
+        </div>
+
+        <!-- 导入提醒 -->
+        <div id="dicDrtxWindow" class="easyui-layout" data-options="fit:true" style="border:0;">
+            <div data-options="region:'west',split:true" onselectstart="return false;" style="width:50%;">
+                <table id="treDrtxLeft"></table>
+                <div id="dicLeftWindow" style="height:28px;overflow:hidden;">
+                    <table id="dgLeft" cellspacing="2px" style="width:100%;">
+                        <tr>
+                            <td nowrap="nowrap" style="width:100px">
+                                <span class="icon-warning-left"></span><span>本地库中有未提交的文件，请先查看并进行提交或还原</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div data-options="region:'center',split:true" onselectstart="return false;">
+                <table id="treDrtxRight"></table>
+                <div id="dicRightWindow" style="height:28px;overflow:hidden">
+                    <table id="dgRight" cellspacing="2px" style="width:100%">
+                        <tr>
+                            <td nowrap="nowrap" style="line-height:22px">
+                                此为提交的最新版本文件
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入的弹出框 -->
+    <div id="dicImportMsgWindow" class="easyui-window" data-options="closed:true,collapsible:false,minimizable:false,maximizable:false" style="padding:10px">
+        <form id = 'drForm' method="post">
+        <table id = "dgDr" style="font-size:14px;width:100%" cellspacing="5px">
+            <input type = 'hidden' id = 'hidHtDrlsid' name = 'drlsid' value = "">
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:150px;">
+                    导入描述：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input type="text" name="drms" id="txtDrms" class="easyui-textbox" style="width:250px;height:27px"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:150px;">
+                    备注：
+                </td>
+                <td style="text-align:left;">
+                    <input type="text" name="bz" id="txtBzxx" class="easyui-textbox" data-options="multiline:true" style="width:250px;height:59px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:150px;">
+                    复核人：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input id="selFhr" name="fhr" class="easyui-combobox" style="width:250px">
+                </td>
+            </tr>
+            <tr>
+                <td nowrap="nowrap" style="text-align:right;width:150px;">
+                    复核人密码：
+                </td>
+                <td nowrap="nowrap" style="text-align:left;">
+                    <input type="password" id="txtFhrmm" name="fhrmm"  class="easyui-textbox" style="width:250px;"/>
+                    <span class="colorRed">*</span>
+                </td>
+            </tr>
+        </table>
+        <!-- 提交按钮 -->
+        <div data-options="region:'south',border:false" style="text-align:center;padding:15px 0 0;">
+            <button id="lbtnImportSubmit" class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">
+                导入
+            </button>
+            <button id="lbtnImportCancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" style="width:80px">
+                取消
+            </button>
+        </div>
+        </form>
+    </div>
+    
+    <div style="display:none">
+        <div id="mm" class="easyui-menu" style="width:100px;">
+            <div id="lbtnCommit" data-options="iconCls:'icon-ok'">提交</div>
+            <div id="lbtnRollback" data-options="iconCls:'icon-undo'">还原</div>
+        </div>
+    </div>
+    <!-- 版本提交 -->
+    <div id="bbtj_window" class="easyui-window" title="版本提交" data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false" style="padding:10px;">
+        <iframe scrolling="auto" id="bbtjIfram" name="bbtjIfram" src="" frameborder="0" style="width:100%;height:99%;"></iframe> 
+    </div>
+    <!-- 版本还原 -->
+    <div id="bbhy_window" class="easyui-window" title="版本还原" data-options="modal:true,closed:true,maximizable:false,minimizable:false,resizable:false,collapsible:false" style="padding:10px;">
+        <iframe scrolling="auto" id="bbhyIfram" name="bbhyIfram" src="" frameborder="0" style="width:100%;height:90%;"></iframe> 
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_last_version" desc="查询上一版本的信息">
+        select bbh, xm as tjr, tjsj, tjms, wym from(
+            select a.bbh, b.xm, a.tjsj, a.tjms,a.wym 
+                from gl_bbkz a, gl_hydy b
+                where  a.tjr = b.hydm
+                and a.lx = %(lx)s
+                and a.ssid = %(id)s
+                order by bbh desc
+        )
+        where rownum=1
+    </sql>
+    <sql sqlid="add_bbkz" desc="插入版本控制信息">
+        insert into gl_bbkz (id, lx, ssid, bbh, tjr, tjsj, tjms, nr_id, wym)
+            values ( %(id)s, %(lx)s, %(ssid)s, %(bbh)s, %(tjr)s, %(tjsj)s, %(tjms)s, %(nr_id)s, %(wym)s )
+    </sql>
+    <sql sqlid="get_bbxx" desc="查询版本信息">
+        select wym, bbh, nr from 
+            (select a.wym, a.bbh, b.nr 
+                from gl_bbkz a, gl_blob b
+                where a.nr_id = b.id
+                    and a.lx = %(lx)s
+                    and a.ssid = %(id)s
+                    order by a.bbh desc
+            )
+        where rownum = 1
+    </sql>
+    <sql sqlid="get_wym" desc="获取唯一码">
+        select wym from ${paras._tb(paras.tname)}  where id = %(id)s
+    </sql>
+    <sql sqlid="get_bbk_wym" desc="获取版本库中最新的唯一码">
+        select wym,bbh from(
+            select wym, bbh from gl_bbkz
+               where lx = %(lx)s 
+               and ssid = %(id)s
+               order by bbh desc
+        )
+        where rownum = 1
+    </sql>
+    <sql sqlid="get_jyxx" desc="获取交易信息">
+        select a.id,a.ssywid,a.jym,a.jymc,a.jyms,a.timeout,a.czr,
+        a.czsj,a.zt,a.zdfqpz,a.zdfqpzsm,a.wym,a.dbjdid,a.jbjdid,b.jdmc as dbjdmc,c.jdmc as jbjdmc 
+        from gl_jydy a 
+            left join gl_jddy b
+            on a.dbjdid = b.id
+            left join gl_jddy c
+            on a.jbjdid = c.id
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_lcbj" desc="获取交易或流程的流程布局">
+        select id, jdlx, x, y, jddyid, ssjyid, sszlcid, czpzid
+        from gl_lcbj
+        where ${paras._and( paras.cxtj)}
+    </sql>
+    <sql sqlid="get_lczx" desc="获取交易或流程的流程走向">
+        select id, qzjdlcbjid, hzjdlcbjid, fhz, sslb, ssid
+        from gl_lczx
+        where sslb = %(sslb)s
+            and ssid = %(ssid)s
+    </sql>
+    <sql sqlid="get_zlcxx" desc="获取子流程信息">
+        select id,lb,bm,ms,ssywid,czr,czsj,wym,mc
+        from gl_zlcdy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_jdnr" desc="获取节点内容">
+        select b.nr as nr from gl_jddy a left join gl_blob b
+        on b.id = a.dm_id
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_jdys" desc="获取节点要素">
+        select a.id, a.lb, a.bm, a.ysmc, a.jddyid, a.mrz, a.ly, a.jkjy, a.ssgzmc, a.zjcs
+            , case when b.csdm is null then '1' else '2' end as gslb
+        from gl_jdys a left join (
+                select distinct csdm from gl_csdy where lx = '5'
+            ) b on a.bm = b.csdm
+        where a.jddyid = %(id)s
+    </sql>
+    <sql sqlid="get_jdxx" desc="获取节点信息">
+        select id,bm,jdlx,jdmc,jdms,dm_id,filename,functionname,type,czr,czsj,wym
+        from gl_jddy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_gghs" desc="获取公共函数">
+        select id,ssyw_id,czr,czsj,nr_id,mc,hsms,wym
+        from gl_yw_gghs
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_gghs_nr" desc="获取公共函数内容">
+        select b.nr as nr from gl_yw_gghs a left join gl_blob b
+        on b.id = a.nr_id
+        where a.id = %(id)s
+    </sql>
+    <sql sqlid="get_sjkmxdy" desc="获取数据库模型">
+        select id,sjbmc,sjbmcms,ssyw_id,wym,czr,czsj
+        from gl_sjkmxdy
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_new_bbxx" desc="获取最新的版本信息">
+        select bbh, xm as tjr, tjsj, tjms, wym from(
+            select a.bbh, b.xm, a.tjsj, a.tjms,a.wym 
+                from gl_bbkz a, gl_hydy b
+                where  a.tjr = b.hydm
+                and a.lx = %(lx)s
+                and a.ssid = %(id)s
+                order by bbh desc
+        )
+        where rownum=1
+    </sql>
+    <sql sqlid="delete_lcbj" desc="删除流程布局">
+        delete from gl_lcbj where ${paras._and( paras.cxtj)}
+    </sql>
+    <sql sqlid="delete_lczx" desc="删除流程走向">
+        delete from gl_lczx where ssid = %(id)s
+    </sql>
+    <sql sqlid="update_jydy" desc="更新交易定义">
+        update gl_jydy set 
+        ssywid=%(ssywid)s,jym=%(jym)s,jymc=%(jymc)s,jyms=%(jyms)s,timeout=%(timeout)s,zt=%(zt)s,zdfqpz=%(zdfqpz)s,zdfqpzsm=%(zdfqpzsm)s,wym=%(wym)s,czr=%(czr)s,czsj=%(czsj)s,dbjdid=%(dbjdid)s,jbjdid=%(jbjdid)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="insert_lcbj" desc="登记流程布局">
+        insert into gl_lcbj (id, x, y, jdlx, jddyid, ssjyid, sszlcid, czpzid) 
+        values (%(id)s, %(x)s, %(y)s, %(jdlx)s, %(jddyid)s, %(ssjyid)s, %(sszlcid)s, %(czpzid)s)
+    </sql>
+    <sql sqlid="insert_lczx" desc="登记流程走向">
+        insert into gl_lczx (id,qzjdlcbjid,hzjdlcbjid,fhz,sslb,ssid) 
+        values (%(id)s,%(qzjdlcbjid)s,%(hzjdlcbjid)s,%(fhz)s,%(sslb)s,%(ssid)s)
+    </sql>
+    <sql sqlid="update_zlcdy" desc="更新子流程定义">
+        update gl_zlcdy set lb = %(lb)s,bm=%(bm)s,mc=%(mc)s,ms=%(ms)s,
+        ssywid=%(ssywid)s,wym=%(wym)s,czr=%(czr)s,czsj=%(czsj)s where id = %(id)s
+    </sql>
+    <sql sqlid="update_jddy" desc="更新节点定义">
+        update gl_jddy set bm=%(bm)s,jdlx=%(jdlx)s,jdmc=%(jdmc)s,jdms=%(jdms)s,dm_id=%(dm_id)s,filename=%(filename)s,
+        functionname=%(functionname)s,type=%(type)s,czr=%(czr)s,czsj=%(czsj)s,wym=%(wym)s where id=%(id)s
+    </sql>
+    <sql sqlid="update_jdys" desc="更新节点要素">
+        update gl_jdys set lb=%(lb)s, bm=%(bm)s, ysmc=%(ysmc)s, jddyid=%(jddyid)s, mrz=%(mrz)s
+            , ly=%(ly)s, jkjy=%(jkjy)s, ssgzmc=%(ssgzmc)s, zjcs=%(zjcs)s 
+        where id = %(id)s
+    </sql>
+    <sql sqlid="add_jdys" desc="添加节点要素">
+        insert into gl_jdys(id, lb, bm, ysmc, jddyid, mrz, ly, jkjy, ssgzmc, zjcs)
+        values(%(id)s, %(lb)s, %(bm)s, %(ysmc)s, %(jddyid)s, %(mrz)s, %(ly)s, %(jkjy)s, %(ssgzmc)s, %(zjcs)s)
+    </sql>
+    <sql sqlid="update_gghs" desc="更新公共函数">
+        update gl_yw_gghs set ssyw_id=%(ssyw_id)s,nr_id=%(nr_id)s,mc=%(mc)s,
+        hsms=%(hsms)s,czr=%(czr)s,czsj=%(czsj)s,wym=%(wym)s where id = %(id)s
+    </sql>
+    <sql sqlid="update_sjkmxdy" desc="更新数据库模型定义">
+        update gl_sjkmxdy set sjbmc = %(sjbmc)s,sjbmcms = %(sjbmcms)s,ssyw_id = %(ssyw_id)s,
+        wym = %(wym)s,czr = %(czr)s,czsj = %(czsj)s
+        where id = %(id)s
+    </sql>
+    <sql sqlid="get_bbxxck_data" desc="获取版本信息查看数据">
+        select bbh, tjsj, tjr, mkmc,tjms from 
+        (select bbh, tjsj, tjr, mkmc,tjms, rownum  rn from 
+        (select a.bbh, a.tjms ,a.tjsj, c.xm as tjr, ${paras._tb(paras.mkey)} as mkmc
+            from  gl_bbkz a, ${paras._tb(paras.mVal)} b,gl_hydy c
+            where  a.ssid = b.id
+            and a.lx = %(lx)s
+            and a.ssid = %(id)s
+            %if paras.tjrq:
+                and substr(a.tjsj,1,10) = %(tjrq)s
+            %endif
+            %if paras.tjms:
+                and a.tjms = %(tjms)s
+            %endif
+            %if paras.bbh:
+                and (${paras._or('a.bbh',paras.bbh)})
+            %endif
+            and a.tjr = c.hydm
+            order by bbh desc))
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid="get_bbxxck_count" desc="获取版本信息查看总条数">
+        select count(1) as count from
+        (select a.bbh, a.tjsj, c.xm as tjr, ${paras._tb(paras.mkey)} as mkmc
+            from  gl_bbkz a, ${paras._tb(paras.mVal)} b,gl_hydy c
+            where  a.ssid = b.id
+                and a.lx = %(lx)s
+                and a.ssid = %(id)s
+                %if paras.tjrq:
+                    and substr(a.tjsj,1,10) = %(tjrq)s
+                %endif
+                %if paras.tjms:
+                    and a.tjms = %(tjms)s
+                %endif
+                %if paras.bbh:
+                    and (${paras._or('a.bbh',paras.bbh)})
+                %endif
+                and a.tjr = c.hydm
+            order by bbh desc
+        )
+    </sql>
+    <sql sqlid="get_bbnr" desc="获取版本详细信息">
+        select a.nr, b.bbh 
+        from gl_blob a, gl_bbkz b 
+        where a.id = b.nr_id 
+            and b.ssid = %(id)s 
+            and b.lx= %(lx)s
+            and b.bbh = %(bbh)s
+    </sql>
+    <sql sqlid="get_bbdb_data" desc="获取版本对比数据">
+        select a.nr, b.bbh 
+        from gl_blob a, gl_bbkz b 
+        where a.id = b.nr_id 
+            and b.ssid = %(id)s
+            and b.lx = %(lx)s
+            and ( b.bbh = %(bbh1)s or b.bbh = %(bbh2)s )
+    </sql>
+    <sql sqlid="get_bdwjdb_data" desc="获取与本地文件对比数据">
+        select a.nr 
+        from gl_blob a, gl_bbkz b 
+        where a.id = b.nr_id 
+            and b.ssid = %(id)s
+            and b.lx= %(lx)s
+            and b.bbh = %(bbh1)s
+    </sql>
+    <sql sqlid="get_max_bbh" desc="获取最大版本号">
+        select max(bbh) as bbh
+        from gl_bbkz
+        where ssid = %(id)s
+    </sql>
+    <sql sqlid="check_jdys" desc="判断节点要素是否存在">
+        select count(1) as count from gl_jdcsalzxbz where id = %(id)s
+    </sql>
+    <sql sqlid="del_jdys" desc="删除所有的简单要素">
+        delete from gl_jdys where jddyid = %(id)s
+    </sql>
+</sqllist>

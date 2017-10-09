@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    sql中解析出来的是mako内容，应该是可以直接执行的sql语句
+    可以使用mako对应的语法，但是不要出现标签式的左右尖括号
+    paras是提供的固定名称的类对象，源于参数字典
+
+    # 防sql注入 XML文件内容中增加对${的检查，会控制${中必须是paras的function
+    # 
+    select * from gl_hydy where hydm = %(hydm)s
+    %if paras.jgdm:
+        and jgdm = %(jgdm)s
+        and hydm in (${paras._in(paras.hylst)})
+        and (${paras._or('hydm',paras.hylst)})
+    %endif
+
+    # 普通版本，这个会出现sql注入，禁止使用
+    select * from gl_hydy where hydm = '${paras.hydm}'
+    %if paras.jgdm:
+        and jgdm = '${paras.jgdm}'
+    %endif
+
+    {'jgdm':12,'hydm':'aaa','jgmlst':[1,2,3],'hylst':('a','b')}
+-->
+<sqllist>
+    <sql sqlid = 'data_count' desc = "通讯管理主页面：通讯：count">
+        select count(1) as count from gl_txgl
+          where 1=1 
+          %if paras.txbm:
+            and bm like '%'|| %(txbm)s ||'%' 
+          %endif  
+          %if paras.txmc:
+            and mc like '%'|| %(txmc)s ||'%' 
+          %endif 
+          %if paras.fwfx:
+            and fwfx = %(fwfx)s
+          %endif 
+          %if paras.txlx:
+            and txlx like '%'|| %(txlx)s ||'%'
+          %endif 
+          %if paras.txwdmc:
+            and txwjmc like '%'||%(txwdmc)s ||'%'
+          %endif 
+          
+    </sql>
+    <sql sqlid = 'data_rs' desc = "通讯管理主页面：通讯：rs">
+        select id, bm, mc, txlx, fwfx, txwjmc
+        from (
+            select id, bm, mc, fwfx, txlx, txwjmc, rownum rn 
+            from (
+                select gl_txgl.id, gl_txgl.bm, gl_txgl.mc, gl_txgl.fwfx, gl_txgl.txwjmc, gl_bmwh.mc as txlx
+                from gl_txgl left join gl_bmwh on gl_txgl.txlx = gl_bmwh.bm and gl_bmwh.lx = '4'
+                where 1=1
+                %if paras.txbm:
+                  and gl_txgl.bm like '%'|| %(txbm)s ||'%' 
+                %endif  
+                %if paras.txmc:
+                  and gl_txgl.mc like '%'|| %(txmc)s ||'%' 
+                %endif 
+                %if paras.fwfx:
+                  and gl_txgl.fwfx = %(fwfx)s 
+                %endif 
+                %if paras.txlx:
+                  and gl_txgl.txlx like '%'|| %(txlx)s ||'%'
+                %endif 
+                %if paras.txwdmc:
+                  and gl_txgl.txwjmc like '%'||%(txwdmc)s ||'%'
+                %endif 
+                  order by bm asc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid = 'add_check_txgl_bm' desc = "通讯管理新增通讯：验证通讯编码是否已经存在">
+        select count(1) count from gl_txgl where bm = %(txbm)s
+    </sql>
+    <sql sqlid = 'add_insert' desc = "通讯管理新增通讯：新增提交">
+        insert into gl_txgl(id, bm, mc, txlx, fwfx, txwjmc, cssj, czr, czsj,jcbfs)
+        values( %(id)s, %(bm)s, %(mc)s, %(txlx)s, %(fwfx)s, %(txwjmc)s, %(cssj)s, %(czr)s, %(czsj)s, %(jcbfs)s )
+    </sql>
+    <sql sqlid = 'del_get_zlc' desc = "通讯管理：删除：获取子流程">
+        select id, zlcdyid from gl_cdtx
+        where txglid = %(txid)s
+    </sql>
+    <sql sqlid = 'del_check_dy' desc = "通讯管理：删除：验证子流程被调用过几次">
+        select jddyid, count(0) as count from gl_lcbj
+        where jdlx = '2'
+        and ( ${paras._or('jddyid',paras.jddyid_lst)} )
+        group by jddyid
+    </sql>
+    <sql sqlid = 'del_zlc_lcbj' desc = "通讯管理：删除：流程布局：子流程">
+        delete from gl_lcbj where 1 = 1 and ( ${paras._or('sszlcid',paras.sszlcid_lst)} )
+    </sql>
+    <sql sqlid = 'del_zlc_lczx' desc = "通讯管理：删除：流程走向：子流程">
+        delete from gl_lczx where sslb = %(sslb)s and ( ${paras._or('ssid',paras.ssid_lst)} )
+    </sql>
+    <sql sqlid = 'del_zlc_getcsal' desc = "通讯管理：删除：获取子流程的测试案例">
+        select id, jdcsalzxbzlb from gl_csaldy where ${paras._or('ssid',paras.ssid_lst)}
+    </sql>
+    <sql sqlid = 'del_zlc_jdcsalyz' desc = "通讯管理：删除：删除节点测试案例要素">
+        delete from gl_jdcsalys where ${paras._or('jdcsalzxbz',paras.jdcsalzxbz_lst)}
+    </sql>
+    <sql sqlid = 'del_zlc_jdcsalzxbz' desc = "通讯管理：删除：删除节点测试案例执行步骤">
+        delete from gl_jdcsalzxbz where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid = 'del_csaldy' desc = "删除测试案例定义">
+        delete from gl_csaldy where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid = 'del_zlc' desc = "删除子流程">
+        delete from gl_zlcdy where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid = 'get_dbdy' desc = "根据C端通讯id获取挡板id">
+        select id from gl_dbdy where ${paras._or('cdtxid',paras.cdtxid_lst)}
+    </sql>
+    <sql sqlid = 'del_dbys_bydbdyid' desc = "根据挡板id删除挡板要素信息">
+        delete from gl_dbys where ${paras._or('dbdyid',paras.dbdyid_lst)}
+    </sql>
+    <sql sqlid = 'del_dbdy_byid' desc = "根据挡板id删除挡板信息">
+        delete from gl_dbdy where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid = 'del_cdtx_byid' desc = "根据C端通讯id删除C端通讯">
+        delete from gl_cdtx where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid = 'del_blob_bytxid' desc = "删除解出交易码函数信息">
+        delete from gl_blob
+        where id = ( select jcjymhsid from gl_txgl where id = %(txid)s )
+    </sql>
+    <sql sqlid = 'del_txgl_byid' desc = "删除通讯管理根据id">
+        delete from gl_txgl where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid = 'select_txgl' desc = "查询修改前的信息">
+        select bm,mc,fwfx,cssj,txwjmc,cssj,txlx from gl_txgl
+        where id = %(txid)s
+    </sql>
+    <sql sqlid = 'upd_cdtx' desc = "编辑：通讯管理">
+        update gl_txgl set mc = %(mc)s, txlx = %(txlx)s,
+        txwjmc = %(txwjmc)s, cssj = %(cssj)s,
+        czr = %(czr)s, czsj = %(czsj)s,
+        jcbfs = %(jcbfs)s
+        where id = %(txid)s
+    </sql>
+    <sql sqlid = 'select_csdy' desc = "查询修改前的信息">
+        select csdm,value,lx,zt,csms from gl_csdy
+        where id = %(id)s
+    </sql>
+    
+    <sql sqlid = 'get_cdtx_count' desc = "C端通讯：获取总条数">
+        select count(1) as count
+        from gl_cdtx a, gl_jddy b,gl_jddy c
+        where a.txglid = %(txid)s
+        and a.dbjdid =b.id 
+        and a.jbjdid = c.id
+        %if paras.bm:
+            and a.bm like '%'|| %(bm)s ||'%'
+        %endif
+        %if paras.dfjymc:
+            and a.dfjymc like '%'|| %(dfjymc)s ||'%'
+        %endif
+        %if paras.dfjym:
+            and a.dfjym like '%'|| %(dfjym)s ||'%'
+        %endif
+        %if paras.db:
+            and b.jdmc like '%'|| %(db)s ||'%'
+        %endif
+        %if paras.jb:
+            and c.jdmc like '%'|| %(jb)s ||'%'
+        %endif
+        %if paras.ywdb == '0':
+            and a.dblx is not null
+        %endif
+        %if paras.ywdb == '1':
+            and a.dblx is null
+        %endif
+        %if paras.jkjy:
+            and a.jkqyzt = %(jkjy)s
+        %endif
+    </sql>
+    <sql sqlid = 'get_cdtx_xx' desc = "C端通讯：获取信息">
+        select e.id, e.bm, e.dfjymc, e.dfjym, e.cssj, e.zlcdyid,
+            e.dbjdid, e.dbjdmc, e.jbjdid, e.jbjdmc,
+            e.jkqyzt, e.dblx, e.dbssid, e.ssywid, f.ywmc
+        from (
+            select id, bm, dfjymc, dfjym, cssj, zlcdyid,
+                dbjdid, dbjdmc, jbjdid, jbjdmc,
+                jkqyzt, dblx, dbssid, ssywid
+            from (
+                select id, bm, dfjymc, dfjym, cssj, zlcdyid,
+                    dbjdid, dbjdmc, jbjdid, jbjdmc,
+                    jkqyzt, dblx, dbssid, ssywid, rownum rn
+                from (
+                    select a.id, a.bm, a.dfjymc, a.dfjym, a.cssj, a.zlcdyid,
+                        b.id as dbjdid, b.jdmc as dbjdmc,
+                        c.id as jbjdid, c.jdmc as jbjdmc,
+                        a.jkqyzt, a.dblx, a.dbssid, a.ssywid
+                    from gl_cdtx a, gl_jddy b, gl_jddy c
+                    where a.txglid = %(txid)s
+                        and a.dbjdid =b.id 
+                        and a.jbjdid = c.id
+                    %if paras.bm:
+                        and a.bm like '%'|| %(bm)s ||'%'
+                    %endif
+                    %if paras.dfjymc:
+                        and a.dfjymc like '%'|| %(dfjymc)s ||'%'
+                    %endif
+                    %if paras.dfjym:
+                        and a.dfjym like '%'|| %(dfjym)s ||'%'
+                    %endif
+                    %if paras.db:
+                        and b.jdmc like '%'|| %(db)s ||'%'
+                    %endif
+                    %if paras.jb:
+                        and c.jdmc like '%'|| %(jb)s ||'%'
+                    %endif
+                    %if paras.ywdb == '0':
+                        and a.dblx is not null
+                    %endif
+                    %if paras.ywdb == '1':
+                        and a.dblx is null
+                    %endif
+                    %if paras.jkjy:
+                        and a.jkqyzt = %(jkjy)s
+                    %endif
+                    order by a.bm
+                ) d
+            )
+            where rn >= %(rn_start)s and %(rn_end)s >= rn
+        ) e
+        left join gl_ywdy f on e.ssywid = f.id
+        order by e.bm
+    </sql>
+    <sql sqlid = 'get_dbdy_xx' desc = "获取挡板信息">
+        select id, mc from gl_dbdy
+        %if paras.id_lst:
+            where ${paras._or('id',paras.id_lst)}
+        %endif
+    </sql>
+    <sql sqlid = 'get_jdcsalzxbz_xx' desc = "获取节点测试案例执行步骤">
+        select id, mc from gl_jdcsalzxbz
+        %if paras.id_lst:
+            where ${paras._or('id',paras.id_lst)}
+        %endif
+    </sql>
+    <sql sqlid = 'get_csal_count' desc = "获取测试案例数量">
+        select ssid，count(0) as count from gl_csaldy 
+        where lb = '4'
+        and sslb = '2'
+        %if paras.ssid_lst:
+            and ( ${paras._or('ssid',paras.ssid_lst)} )
+        %endif
+        group by ssid
+    </sql>
+    <sql sqlid = 'get_jddy_byjdlx' desc = "根据节点类型获取节点信息">
+        select id, jdlx, jdmc from gl_jddy 
+        %if paras.jdlx_lst:
+            where ${paras._or('jdlx',paras.jdlx_lst)}
+        %endif
+        order by jdmc
+    </sql>
+    <sql sqlid = 'get_ywxx' desc = "获取业务信息">
+        select id as value, ywmc as text from gl_ywdy
+    </sql>
+    <sql sqlid = 'get_cdtx_byid' desc = "获取C端通讯信息根据id">
+        select d.id, d.bm, d.dfjymc, d.dfjym, d.cssj,
+            d.dbjdid, d.dbjdmc,d.jbjdid, d.jbjdmc,
+            d.zlcdyid, d.ssywid, f.ywmc, d.czzlcdyid
+        from (
+            select a.id, a.bm, a.dfjymc, a.dfjym, a.cssj,
+                b.id as dbjdid, b.jdmc as dbjdmc,
+                c.id as jbjdid, c.jdmc as jbjdmc,
+                a.zlcdyid, a.ssywid, a.czzlcdyid
+            from gl_cdtx a, gl_jddy b, gl_jddy c
+            where a.id = %(cdtxid)s
+                and a.dbjdid =b.id
+                and a.jbjdid = c.id
+        ) d
+        left join gl_ywdy f on d.ssywid = f.id
+    </sql>
+    <sql sqlid = 'check_cdtx_bm' desc = "校验C端通讯编码是否已经存在">
+        select count(1) as count from gl_cdtx where bm = %(bm)s
+    </sql>
+    <sql sqlid = 'check_zlcdy_bm' desc = "校验子流程编码是否已经存在">
+        select count(1) as count from gl_zlcdy where bm = %(bm)s
+    </sql>
+    <sql sqlid = 'insert_zlcdy' desc = "新增：子流程">
+        insert into gl_zlcdy( id, bm, mc, lb, ssywid, czr, czsj )
+        values( %(zlcdyid)s, %(bm)s, %(mc)s, %(lb)s, %(ssywid)s, %(czr)s, %(czsj)s )
+    </sql>
+    <sql sqlid = 'insert_cdtx' desc = "新增：C端通讯">
+        insert into gl_cdtx( id, bm, dfjym, dfjymc, dbjdid, jbjdid, cssj, zlcdyid, txglid, ssywid, jkqyzt, czr, czsj, czzlcdyid )
+        values( %(cdtxid)s, %(bm)s, %(dfjym)s, %(dfjymc)s, %(dbjdid)s, %(jbjdid)s, %(cssj)s, %(zlcdyid)s, %(txglid)s, %(ssywid)s, %(jkqyzt)s, %(czr)s, %(czsj)s, %(czzlcdyid)s )
+    </sql>
+    <sql sqlid = 'get_jdys' desc = "新增：C端通讯">
+        select jddyid, id, bm 
+        from gl_jdys
+        where lb = '3' 
+            and (
+                jddyid = %(ksjdid)s
+                or jddyid = %(jsjdid)s
+                or jddyid = %(txjdid)s
+                or jddyid = %(dbjdid)s
+                or jddyid = %(jbjdid)s
+            )
+    </sql>
+    <sql sqlid = 'insert_lcbj' desc = "新增:流程布局">
+        insert into gl_lcbj( id, jdlx, x, y, jddyid, sszlcid  )
+        values( %(id)s, %(jdlx)s, %(x)s, %(y)s, %(jddyid)s, %(sszlcid)s )
+    </sql>
+    <sql sqlid = 'insert_lczx' desc = "新增：流程走向">
+        insert into gl_lczx( id, fhz, qzjdlcbjid, hzjdlcbjid, sslb, ssid  )
+        values( %(id)s, %(fhz)s, %(qzjdlcbjid)s, %(hzjdlcbjid)s, %(sslb)s, %(ssid)s )
+    </sql>
+    <sql sqlid = 'select_cdtx' desc = "查询C端通讯管理修改前信息">
+        select bm,dfjym,dfjymc,cssj,jbjdid,dbjdid,zlcdyid,ssywid,jkqyzt,txglid from gl_cdtx
+        where id = %(cdtxid)s
+    </sql>
+    <sql sqlid = 'update_zlcdy' desc = "编辑：子流程">
+        update gl_zlcdy set mc = %(mc)s, ssywid = %(ssywid)s
+        where id = %(zlcdyid)s
+    </sql>
+    <sql sqlid = 'update_cdtx' desc = "编辑：C端通讯管理">
+        update gl_cdtx set dfjym = %(dfjym)s, dfjymc = %(dfjymc)s, dbjdid = %(dbjdid)s, jbjdid = %(jbjdid)s
+            , cssj = %(cssj)s, ssywid = %(ssywid)s, czr = %(czr)s, czsj = %(czsj)s, czzlcdyid = %(czzlcdyid)s
+        where id = %(cdtxid)s
+    </sql>
+    <sql sqlid = 'update_lcbj_db' desc = "编辑：流程布局">
+        update gl_lcbj set jddyid = %(dbjdid)s
+        where jdlx = '1'
+        and jddyid = %(ydbjdid)s
+        and sszlcid = %(zlcdyid)s
+    </sql>
+    <sql sqlid = 'update_lcbj_jb' desc = "编辑：流程布局">
+        update gl_lcbj set jddyid = %(jbjdid)s
+        where jdlx = '1'
+        and jddyid = %(yjbjdid)s
+        and sszlcid = %(zlcdyid)s
+    </sql>
+    <sql sqlid = "get_txgl_jcjymhsid" desc = "查询通讯的解出交易码函数id">
+        select jcjymhsid, bm from gl_txgl where ID = %(txid)s
+    </sql>
+    <sql sqlid = 'upd_cdtx_jcjymhsid' desc = "编辑：通讯管理">
+        update gl_txgl set jcjymhsid = %(jcjymhsid)s,
+        czr = %(czr)s, czsj = %(czsj)s
+        where id = %(txid)s
+    </sql>
+    <!--挡板管理-->
+    <sql sqlid = 'dbgl_get_dbdy_count' desc = "获取挡板定义">
+        select count(1) as count
+        from gl_dbdy
+        where cdtxid = %(cdtxid)s
+    </sql>
+    <sql sqlid = 'dbgl_get_dbdy' desc = "获取挡板定义">
+        select id, jc, mc, czr, czsj, ms
+        from (
+            select id, jc, mc, czr, czsj, ms, rownum rn
+            from (
+               select a.id, a.jc, a.mc, b.xm as czr, a.czsj, a.ms
+               from gl_dbdy a left join gl_hydy b
+               on a.czr = b.hydm
+               where a.cdtxid = %(cdtxid)s
+               order by a.jc
+            )
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid = 'dbgl_get_dbdy_byid' desc = "获取挡板信息根据id">
+        select id, jc, mc, ms, fhz from gl_dbdy where id = %(dbid)s
+    </sql>
+    <sql sqlid = 'dbgl_get_dbys_byid' desc = "获取挡板要素根据挡板id">
+        select id, ysmc, ysz from gl_dbys where dbdyid = %(dbid)s
+    </sql>
+    <sql sqlid = 'dbgl_check_jc' desc = "校验挡板简称是否唯一">
+        select count(1) as count from gl_dbdy
+        where jc = %(jc)s
+    </sql>
+    <sql sqlid = 'dbgl_dbdy_insert' desc = "新增挡板">
+        insert into gl_dbdy ( id, jc, mc, ms, cdtxid, fhz, czr, czsj )
+        values( %(id)s, %(jc)s, %(mc)s, %(ms)s, %(cdtxid)s, %(fhz)s, %(czr)s, %(czsj)s)
+    </sql>
+    <sql sqlid = 'dbys_insert' desc = "新增挡板要素">
+        insert into gl_dbys ( id, dbdyid, ysmc, ysz )
+        values( %(id)s, %(dbdyid)s, %(ysmc)s, %(ysz)s )
+    </sql>
+    <sql sqlid = 'select_dbgl_dbdy' desc = "查询编辑前挡板信息">
+        select jc,mc,ms,fhz,cdtxid from gl_dbdy 
+        where id = %(dbid)s
+    </sql>
+    <sql sqlid = 'dbgl_dbdy_upd' desc = "编辑挡板">
+        update gl_dbdy set mc = %(mc)s, ms = %(ms)s, fhz = %(fhz)s, czr = %(czr)s, czsj = %(czsj)s
+        where id = %(dbid)s
+    </sql>
+    <sql sqlid = 'select_dbys' desc = "查询编辑前挡板要素">
+        select ysmc,ysz from gl_dbys
+        where id = %(ysid)s
+    </sql>
+    <sql sqlid = 'dbys_upd' desc = "编辑挡板要素">
+        update gl_dbys set ysz = %(ysz)s
+        where id = %(ysid)s
+    </sql>
+    <sql sqlid = 'dbgl_check_dbsy' desc = "校验挡板是否被使用">
+        select count(1) as count from gl_cdtx
+        where dblx = '1'
+        and dbssid = %(dbid)s
+    </sql>
+    <sql sqlid = 'dbgl_dbdy_del' desc = "删除挡板">
+        delete from gl_dbdy where id = %(dbid)s
+    </sql>
+    <sql sqlid = 'dbys_del' desc = "删除挡板要素">
+        delete from gl_dbys where dbdyid = %(dbid)s
+    </sql>
+    <sql sqlid = 'dbgl_dbdy_sel' desc = "选择挡板">
+        update gl_cdtx set dblx = %(dblx)s,
+        dbssid = %(dbssid)s
+        where id = %(cdtxid)s
+    </sql>
+    <sql sqlid = 'dbgl_dbdy_del_sel' desc = "删除选择挡板">
+        update gl_cdtx set dblx = '', dbssid = ''
+        where id = %(cdtxid)s
+    </sql>
+    <sql sqlid = 'dbgl_get_testdb_count' desc = "获取已有测试案例挡板信息">
+        select  count(1) as count
+        from (
+            select a.id,a.mc, a.ms, a.fhz,
+            b.sslb, b.ssid, b.ssywid
+            from  gl_jdcsalzxbz a, gl_csaldy b
+            where  a.lx = '2'
+            and a.ssdyid = %(zlcdyid)s
+            and a.csaldyid = b.id
+            order by a.mc
+        ) c
+    </sql>
+    <sql sqlid = 'dbgl_get_testdb_xx' desc = "获取已有测试案例挡板信息">
+        select  d.id, d.bzmc, d.ms, d.fhz, d.sslb, d.ssid, d.ssywid, d.csalmc, e.ywmc
+        from (
+            select  id, bzmc, ms, fhz, sslb, ssid, ssywid, csalmc, zjzxsj
+            from (
+                select  id, bzmc, ms, fhz, sslb, ssid, ssywid, csalmc, zjzxsj, rownum rn
+                from (
+                    select a.id, a.mc as bzmc, a.ms, a.fhz,
+                    b.sslb, b.ssid, b.ssywid, b.mc as csalmc, b.zjzxsj
+                    from  gl_jdcsalzxbz a, gl_csaldy b
+                    where  a.lx = '2'
+                    and a.ssdyid = %(zlcdyid)s
+                    and a.csaldyid = b.id
+                    order by b.mc, a.mc, b.zjzxsj desc
+                ) c
+            )
+            where rn >= %(rn_start)s and %(rn_end)s >= rn
+        ) d left join gl_ywdy e on d.ssywid = e.id
+        order by d.csalmc, d.bzmc, d.zjzxsj
+    </sql>
+
+    <sql sqlid = 'get_csal_xx_count' desc = "获取测试案例count">
+        select  count(1) as count
+        from gl_csaldy 
+        where lb = '4'
+        and sslb = '2'
+        and ssid = %(zlcdyid)s
+    </sql>
+    <sql sqlid = 'get_csal_xx' desc = "获取测试案例信息">
+        select  id, mc, ms
+        from (
+            select  id, mc, ms, rownum rn
+            from (
+                select id, mc, ms
+                from gl_csaldy 
+                where lb = '4'
+                and sslb = '2'
+                and ssid = %(zlcdyid)s
+                order by mc
+            ) c
+        )
+        where rn >= %(rn_start)s and %(rn_end)s >= rn
+    </sql>
+    <sql sqlid = 'get_ys_bycdtxid' desc = "根据C端通讯id获取打解包节点要素">
+        select b.id, b.bm, b.ysmc, b.mrz, b.jkjy, b.ssgzmc, b.zjcs 
+        from gl_cdtx a, gl_jdys b
+        where a.id = %(cdtxid)s
+        and a.${paras._tb(paras.zd_lst)} = b.jddyid
+        and b.lb = %(lb)s
+        order by b.bm
+    </sql>
+    <sql sqlid = 'select_csaldy' desc = "查询编辑前测试案例定义信息">
+        select mc,ms,ssywid,ssid from gl_csaldy
+        where id = %(csaldyid)s
+    </sql>
+    <sql sqlid = 'select_jdcsalys' desc = "查询编辑前节点测试案例要素">
+        select ysdm,ysz from gl_jdcsalys
+        where id = %(ysid)s
+    </sql>
+    <sql sqlid = 'get_csaldy_byid' desc = "编辑节点测试案例要素">
+        select id, lb, mc, ms, jdcsalzxbzlb, ssywid, sslb, ssid, demoid, rzlsh, zjzxsj, zjzxr
+        from gl_csaldy
+        where ${paras._or('id',paras.id_lst)}
+    </sql>
+    <sql sqlid = 'get_jkjy_xx' desc = "获取接口校验信息">
+        select a.dfjymc, nvl(b.ywmc,'') as ywmc, a.jkqyzt
+        from gl_cdtx a
+        left join gl_ywdy b on a.ssywid = b.id
+        where
+            a.id = %(cdtxid)s
+    </sql>
+    <sql sqlid = 'update_cdtx_jkqyzt' desc = "编辑：C端通讯管理_接口启用状态">
+        update gl_cdtx set jkqyzt = %(jkqyzt)s,
+        czr = %(czr)s, czsj = %(czsj)s
+        where id = %(cdtxid)s
+    </sql>
+    <sql sqlid = 'update_jdys' desc = "编辑：节点要素">
+        update gl_jdys set jkjy = %(jkjy)s, ssgzmc = %(ssgzmc)s, zjcs = %(zjcs)s
+        where id = %(jdysid)s
+    </sql>
+    <sql sqlid = 'dr_data_rs' desc = "通讯管理导入窗口下拉框数据">
+            select id, bm, mc, fwfx, txlx, txwjmc
+            from (
+                select gl_txgl.id, gl_txgl.bm, gl_txgl.mc, gl_txgl.fwfx, gl_txgl.txwjmc, gl_bmwh.mc as txlx
+                from gl_txgl left join gl_bmwh on gl_txgl.txlx = gl_bmwh.bm and gl_bmwh.lx = '4'
+                order by bm asc
+            )
+    </sql>
+    <sql sqlid = 'select_zcl_byssywid' desc = "根据所属业务id获取对应通讯子流程">
+        select id as value, mc as text from gl_zlcdy
+        where ssywid = %(ssywid)s
+        %if paras.zlcdyid:
+            and id != %(zlcdyid)s
+        %endif
+        and lb = '1'
+        
+    </sql>
+
+    
+</sqllist>

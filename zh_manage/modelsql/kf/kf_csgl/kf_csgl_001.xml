@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    sql中解析出来的是mako内容，应该是可以直接执行的sql语句
+    可以使用mako对应的语法，但是不要出现标签式的左右尖括号
+    paras是提供的固定名称的类对象，源于参数字典
+
+    # 防sql注入 XML文件内容中增加对${的检查，禁止出现普通版
+    select * from gl_hydy where hydm = %(hydm)s
+    %if pars.jgdm:
+        and jgdm = %(jgdm)s
+    %endif
+
+    # 普通版本，这个会出现sql注入，禁止使用
+    select * from gl_hydy where hydm = '${pars.hydm}'
+    %if pars.jgdm:
+        and jgdm = '${pars.jgdm}'
+    %endif
+
+    {'jgdm':12,'hydm':'aaa'}
+-->
+<sqllist>
+
+</sqllist>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    sql中解析出来的是mako内容，应该是可以直接执行的sql语句
+    可以使用mako对应的语法，但是不要出现标签式的左右尖括号
+    paras是提供的固定名称的类对象，源于参数字典
+
+    # 防sql注入 XML文件内容中增加对${的检查，会控制${中必须是paras的function
+    # 
+    select * from gl_hydy where hydm = %(hydm)s
+    %if paras.jgdm:
+        and jgdm = %(jgdm)s
+        and hydm in (${paras._in(paras.hylst)})
+        and (${paras._or('hydm',paras.hylst)})
+    %endif
+
+    # 普通版本，这个会出现sql注入，禁止使用
+    select * from gl_hydy where hydm = '${paras.hydm}'
+    %if paras.jgdm:
+        and jgdm = '${paras.jgdm}'
+    %endif
+
+    {'jgdm':12,'hydm':'aaa','jgmlst':[1,2,3],'hylst':('a','b')}
+-->
+<sqllist>
+    <!--校验用户名密码是否正确-->
+    <sql sqlid="check_yhxx" desc="校验用户名和密码是否正确">
+        select hydm,id,xm, mm,dlcs
+        from gl_hydy
+        where
+            hydm = %(hydm)s
+        and mm = %(mm)s
+        and scbz='0'
+
+    </sql>
+    <!--校验用户拥有权限-->
+    <sql sqlid="check_yhqx" desc="验证用户是否有系统登录权限">
+        select qxid
+        from gl_yhqxpz
+        where yhid =%(id)s
+        and  qxid in ( select id
+        from gl_cddy
+        where ssxt=%(dlxt)s
+        and scbz='0')
+    </sql>
+    <!--根据行员代码获取相关信息放到session中-->
+    <sql sqlid="checksession" desc="session中的自动检查">
+        select a.xm, a.hydm, a.id,  c.bm, c.bmmc,c.id as bmid,c.cbm
+        from gl_hydy a
+        left join gl_yhbmpz b on a.id = b.yhid
+        left join gl_bmdy c on c.id = b.bmid
+                            and c.scbz = '0'
+        where a.hydm = %(hydm)s
+        and a.scbz='0'
+    </sql>
+
+    <!--更新登录次数和最后登录时间-->
+    <sql sqlid="update_hy" desc="更新行员登录次数和最后登录时间">
+       update gl_hydy
+            set zhdlsj = %(zhdlsj)s,
+            dlcs = %(dlcs)s
+       where hydm = %(hydm)s
+    </sql>
+
+
+    <!--获取用户拥有的权限菜单-->
+    <sql sqlid="get_cdqx" desc="获取用户菜单权限">
+        select id ,cdmc as text, fjdid as pid, url
+        from gl_cddy
+        where id in (
+            select qxid
+            from gl_yhqxpz
+            where yhid = %(id)s
+        )
+        and scbz='0'
+        order by pxh
+    </sql>
+    <!--获取用户具有的菜单的按钮权限-->
+    <sql sqlid="get_anqx" desc="获取按钮权限">
+        select id,gnmc as text
+        from gl_gndy
+        where sscdid = %(cdid)s
+        and id in (
+            select qxid
+            from gl_yhqxpz
+            where yhid = 'kf9001'
+        )
+    </sql>
+
+        <!--获取菜单列表-->
+    <sql sqlid="data_cd_rs" desc="获取菜单列表-">
+        select a.id , a.cdmc as text, a.fjdid as pid,  a.url, a.lx, d.mc as qxflmc
+        from gl_cddy a
+        left join gl_bmwh d on d.lx='10025' and d.bm = a.lx
+        where  scbz='0'
+        order by  pxh
+    </sql>
+    <!--获取菜单列表-->
+    <sql sqlid="data_cd_lst" desc="获取菜单列表包含父节点-">
+        select a.id , a.cdmc as text,  a.fjdid as pid, a.url, a.lx, d.mc as qxflmc
+        from gl_cddy a
+        left join gl_bmwh d on d.lx='10025' and d.bm = a.lx
+        where  scbz='0'
+        and ${paras._or('a.id',paras.ids)}
+        order by  pxh
+    </sql>
+
+</sqllist>

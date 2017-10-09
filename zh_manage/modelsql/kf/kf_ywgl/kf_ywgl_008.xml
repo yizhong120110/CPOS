@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqllist>
+    <sql sqlid="get_zlc" desc="获取子流程信息">
+        select id, mc, bm, ms, lb from gl_zlcdy where id = %(zlcid)s
+    </sql>
+    <sql sqlid="update_zlc" desc="更新子流程信息">
+        update gl_zlcdy set mc = %(mc)s, ms = %(ms)s,czr = %(czr)s,czsj = %(czsj)s where id = %(id)s
+    </sql>
+</sqllist>
