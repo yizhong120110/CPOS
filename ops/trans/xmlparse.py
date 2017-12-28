@@ -177,8 +177,8 @@ def xmlread( e , path , attrs = None , encoding = 'utf-8' ):
 
 #返回所有具有相同标签的子
 def xmlreadobj( e , path , encoding = 'utf-8' ):
-    if type( path ) != 'unicode':
-        path = path.decode( encoding )
+    #if type( path ) != 'unicode':
+    #    path = path.decode( encoding )
     ll = e.findall( path )
     return ll
 
